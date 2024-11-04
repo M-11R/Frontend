@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-    // basePath: "/absproxy/80",
-};
+const nextConfig = {};
 
 export default nextConfig;
+
