@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios'
 
@@ -14,32 +14,41 @@ export default function Signup() {
 
     const router = useRouter();
 
-    const handleSignup = (e: React.FormEvent) => {
-        e.preventDefault();
-        checkPass();
-        if(passwordSame(password, repassword)){
-            infoClear();
-        }else{
-            console.log("비밀번호가 다릅니다.")
-        }
-        
+    const data = {
+        name: name,
+        hak: hak,
+        email: email,
+        id: id,
+        password: password
     };
 
-    const checkPass = async() => {
-        try{
-            const test = await axios.get("http://192.168.50.84:95/api/test/get");
-            console.log(test);
-        } catch(error){
-            alert('error');
+    const handleSignup = (e: React.FormEvent) => {
+        e.preventDefault();
+        if(passwordSame(password, repassword)){
+            postData();
+        }else{
+            alert("비밀번호가 다릅니다.")
         }
-    };
-    const handleNavigateToMain = () => {
-        router.push('/sign/signUp');
     };
 
     const passwordSame = (a: string, b: string) => {
-        return (a == b)
+        return (a == b);
     }
+
+    const postData = async() => {
+        try{
+            const response = await axios.post("https://cd-api.chals.kim/api/test/post", data);
+            console.log(response.data);
+        } catch(err){
+            alert('error test 3');
+        }
+        infoClear();
+        router.push('/')
+    };
+
+    const gotoSignUp = () => {
+        router.push('/sign/signUp');
+    };
 
     const infoClear = () => {
         setName('');
@@ -69,7 +78,7 @@ export default function Signup() {
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
                         <label htmlFor="name" style={{ display: 'block' }}>학번</label>
                         <input
-                            type="text"
+                            type="number"
                             id="hak"
                             value={hak}
                             onChange={(e) => setHak(e.target.value)}
@@ -122,7 +131,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ textAlign: 'right', marginRight: '50px' }}>
-                        <button onClick={handleNavigateToMain} style={{ padding: '10px', width: '25%' }}>첫 페이지</button>
+                        <button onClick={gotoSignUp} style={{ padding: '10px', width: '25%' }}>첫 페이지</button>
                         <button type="submit" style={{ width: '25%', padding: '10px' }}>회원가입</button>
                     </div>
                 </form>
