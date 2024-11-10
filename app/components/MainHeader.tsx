@@ -10,9 +10,10 @@ const jinchek = (a: number) =>{
       </div>);
 };
 
-const MainHeader = () =>(
+const MainHeader = ({name}: {name:  string}) =>(
     <div style={{ margin: '0px 100px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '90%', borderBottom: 'solid' }}>
             <Image src={ico} alt="Left Image" style={{ width: '100px', height: '100px', bottom: '0' }} />
+            <div>page name : {name}</div>
             <div style={{position: 'relative', right: '0px', top: '20px'}}>
               {jinchek(80)}
             </div>

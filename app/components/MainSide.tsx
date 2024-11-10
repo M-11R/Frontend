@@ -1,16 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import todojson from '../json/test.json'
-import rout from '../json/router.json'
-
+//{name}: {name: string}
 const MainSide = () => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
-
-
     const router = useRouter();
+
+    
+    // useEffect(() => {
+    //     const checkPage = todojson.pjlist.some((pjlist) => pjlist.Pname === name);
+    //     if (!checkPage){
+    //         router.push('/');
+    //     }
+    // });
 
     const subMenu = [['메인화면', null, null],
                       ['WBS 관리', '유저 관리', null],
@@ -19,12 +24,12 @@ const MainSide = () => {
                       ['업무 관리', null, null]];
 
     const mainMenu = ['메인화면', '프로젝트 관리', '산출물 작성', '산출물 관리', '업무관리'];
-
-    const routMenu = [['/project-main/main', '/', '/'],
-                        ['/', '/project-main/project-management/user', '/'],
-                        ['/', '/', '/'],
-                        ['/', '/', '/'],
-                        ['/', '/', '/']];
+    const routDefault = `/project-main/asd/main`
+    const routMenu = [[`/project-main/asd/main`, '/', '/'],
+                        [routDefault, `/project-main/asd/project-management/user`, '/'],
+                        [routDefault, routDefault, routDefault],
+                        [routDefault, '/', '/'],
+                        [routDefault, '/', '/']];
 
     const handleToggle = (index: number) => {
         setVisibleIndex(visibleIndex === index ? null : index);
@@ -33,7 +38,6 @@ const MainSide = () => {
 
     const gotoMenu = (index: number, subIndex: number) => {
         router.push(routMenu[index][subIndex]);
-        
     };
 
     

@@ -1,21 +1,21 @@
-import MainHeader from "../../components/MainHeader"
-import MainSide from "../../components/MainSide"
-import json from '../../json/test.json'
+import MainHeader from "../../../components/MainHeader"
+import MainSide from "../../../components/MainSide"
+import json from '../../../json/test.json'
 
-export default function Main(){
+export default function Main(props: any){
     return (
         <div>
             {/*메인 헤더*/}
-            <MainHeader /> 
+            <MainHeader name = {props.params.id}/> 
 
             {/*body*/}
             <div style={{display: 'flex'}}> 
 
-                {/*왼쪽 사이드*/}
+                {/*왼쪽 사이드 name = {props.params.id}*/}
                 <MainSide />
 
                 {/*메인 페이지*/}
-                <div style={{height: 'calc(100vh - 105px)', width: '(90% - 300px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0 100px 0', marginLeft: '0'}}>
+                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
 
                     {/*페이지 위 : 진척도*/}
                     <div style={{height: '40%', width: '90%', border: '2px solid #000000', borderRadius: '20px', margin: '50px auto'}}>

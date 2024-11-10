@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProjectCreationForm from './projectCreationForm';
 
+// Project 인터페이스 정의
 interface Project {
   id: number;
   name: string;
@@ -12,6 +13,7 @@ interface Project {
   endDate: string;
 }
 
+// ProjectList 컴포넌트 정의
 const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
   const router = useRouter();
 
@@ -40,12 +42,13 @@ const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
   );
 };
 
+// ClientPage 컴포넌트 정의
 const ClientPage: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isMounted, setIsMounted] = useState(false); // 클라이언트 마운트 상태 체크
+  const [isMounted, setIsMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    // 클라이언트에서만 실행
     setIsMounted(true);
     const savedProjects = localStorage.getItem('projects');
     if (savedProjects) {
@@ -64,9 +67,11 @@ const ClientPage: React.FC = () => {
     const updatedProjects = [...projects, newProject];
     setProjects(updatedProjects);
     localStorage.setItem('projects', JSON.stringify(updatedProjects));
+
+    // 프로젝트 생성 후 특정 경로로 이동
+    router.push('/project-main/main');
   };
 
-  // 클라이언트가 마운트되기 전에는 아무것도 렌더링하지 않음
   if (!isMounted) return null;
 
   return (

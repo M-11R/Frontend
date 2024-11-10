@@ -1,0 +1,50 @@
+{
+    "Header" : [
+        {
+            "text" : "ID",
+            "type" : "String"
+        },
+        {
+            "text" : "이름",
+            "type" : "String"
+        },
+        {
+            "text" : "권한",
+            "type" : "String"
+        },
+        {
+            "text" : "Email",
+            "type" : "String"
+        },
+        {
+            "text" : "역할",
+            "type" : "String"
+        },
+        {
+            "text" : "학번",
+            "type" : "String"
+        },
+        {
+            "text" : "관리",
+            "type" : "Button"
+        }
+    ],
+    "user" : [
+        {
+            "ID" : "AID",
+            "name" : "AName",
+            "permision" : "Admin",
+            "email" : "A@a.com",
+            "role" : "A",
+            "hak" : 1
+        },
+        {
+            "ID" : "BID",
+            "name" : "BName",
+            "permision" : "Bdmin",
+            "email" : "B@a.com",
+            "role" : "B",
+            "hak" : 2
+        }
+    ]
+}
