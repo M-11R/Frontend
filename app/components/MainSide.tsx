@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import todojson from '../json/test.json'
 //{name}: {name: string}
-const MainSide = () => {
+const MainSide = ({qwe}: {qwe: string}) => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
     const router = useRouter();
@@ -23,10 +23,10 @@ const MainSide = () => {
                       ['산출물 관리', null, null],
                       ['업무 관리', null, null]];
 
-    const mainMenu = ['메인화면', '프로젝트 관리', '산출물 작성', '산출물 관리', '업무관리'];
-    const routDefault = `/project-main/asd/main`
-    const routMenu = [[`/project-main/asd/main`, '/', '/'],
-                        [routDefault, `/project-main/asd/project-management/user`, '/'],
+    const mainMenu = ['메인화면', '프로젝트 관리', '산출물 작성', '산출물 관리', '업무 관리'];
+    const routDefault = `/project-main/${qwe}/main`
+    const routMenu = [[`/project-main/${qwe}/main`, '/', '/'],
+                        [routDefault, `/project-main/${qwe}/project-management/user`, '/'],
                         [routDefault, routDefault, routDefault],
                         [routDefault, '/', '/'],
                         [routDefault, '/', '/']];
