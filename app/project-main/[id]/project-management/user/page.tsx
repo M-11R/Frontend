@@ -1,6 +1,7 @@
-import MainHeader from "../../../../components/MainHeader"
-import MainSide from "../../../../components/MainSide"
+import MainHeader from "@/app/components/MainHeader"
+import MainSide from "@/app/components/MainSide"
 import DataTable from "@/app/components/DataTable";
+import { AddUser } from "@/app/components/Modal";
 
 export default function userManagement(props: any){
     return (
@@ -11,7 +12,7 @@ export default function userManagement(props: any){
             {/*body*/}
             <div style={{display: 'flex'}}> 
 
-                {/*왼쪽 사이드 name = {props.params.id}*/}
+                {/*왼쪽 사이드*/}
                 <MainSide qwe = {props.params.id}/>
 
                 {/*메인 페이지*/}
@@ -19,6 +20,9 @@ export default function userManagement(props: any){
                     <div style={{margin: '10% auto', height: '100%', width: '70%'}}>
                         <span style={{fontSize: '40px'}}>유저 목록</span>
                         <DataTable />
+                        <div style={{width: '100%', display: 'flex'}}>
+                            <div style={{margin: '15px 0 auto', marginLeft: 'auto', textAlign: 'center'}}><AddUser /></div>
+                        </div>
                     </div>
                 </div>
             </div>

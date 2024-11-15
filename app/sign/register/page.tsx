@@ -33,14 +33,14 @@ export default function Signup() {
 
     const passwordSame = (a: string, b: string) => {
         return (a == b);
-    }
+    };
 
     const postData = async() => {
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/test/post", data);
             console.log(response.data);
         } catch(err){
-            alert('error test 3');
+            alert('error');
         }
         infoClear();
         router.push('/')
@@ -62,10 +62,10 @@ export default function Signup() {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
             <div style={{ width: '400px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '10px' }}>
-                <h1 style={{ textAlign: 'center' }}>회원가입</h1>
+                <div style={{ textAlign: 'center', fontSize: '32px', fontWeight: 'bold' }}>회원가입</div>
                 <form onSubmit={handleSignup}>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block' }}>이름</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>이름</label>
                         <input
                             type="text"
                             id="name"
@@ -76,7 +76,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block' }}>학번</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>학번</label>
                         <input
                             type="number"
                             id="hak"
@@ -87,7 +87,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block' }}>이메일</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>이메일</label>
                         <input
                             type="text"
                             id="email"
@@ -98,7 +98,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block' }}>아이디</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>아이디</label>
                         <input
                             type="text"
                             id="id"
@@ -109,7 +109,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="password" style={{ display: 'block' }}>비밀번호</label>
+                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>비밀번호</label>
                         <input
                             type="password"
                             id="password"
@@ -120,7 +120,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="password" style={{ display: 'block' }}>비밀번호 재입력</label>
+                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>비밀번호 재입력</label>
                         <input
                             type="password"
                             id="repassword"

@@ -17,8 +17,8 @@ interface Project {
 const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
   const router = useRouter();
 
-  const handleProjectClick = (projectId: number) => {
-    router.push(`/projects/${projectId}/mainside`);
+  const handleProjectClick = (projectName: string) => {
+    router.push(`/project-main/${projectName}/main`);
   };
 
   return (
@@ -29,7 +29,7 @@ const ProjectList: React.FC<{ projects: Project[] }> = ({ projects }) => {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
           {projects.map((project) => (
-            <div key={project.id} className="project-card" style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer' }} onClick={() => handleProjectClick(project.id)}>
+            <div key={project.id} className="project-card" style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer' }} onClick={() => handleProjectClick(project.name)}>
               <h3>{project.name}</h3>
               <p>설명: {project.description}</p>
               <p>시작일: {project.startDate}</p>

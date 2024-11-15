@@ -1,6 +1,6 @@
-import MainHeader from "../../../components/MainHeader"
-import MainSide from "../../../components/MainSide"
-import json from '../../../json/test.json'
+import MainHeader from "@/app/components/MainHeader"
+import MainSide from "@/app/components/MainSide"
+import json from '@/app/json/test.json'
 
 export default function Main(props: any){
     return (
@@ -21,8 +21,8 @@ export default function Main(props: any){
                     <div style={{height: '40%', width: '90%', border: '2px solid #000000', borderRadius: '20px', margin: '50px auto'}}>
                         <div style={{margin: '20px auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap'}}>
                             {json.score.map((item) => (
-                                <div key={item.Sid} style={{margin: '50px 100px auto', marginBottom: '50px'}}>
-                                    <div style={{fontSize: '40px'}}>{item.Sname} : {item.Sscore}</div>
+                                <div key={item.Sid} style={{margin: '50px 150px auto', marginBottom: '70px'}}>
+                                    <div style={{fontSize: '50px'}}>{item.Sname} : {item.Sscore}</div>
                                 </div>
                             ))}
                         </div>
@@ -38,7 +38,7 @@ export default function Main(props: any){
 
                             {/*Todo 내용*/}
                             {json.test2.map((item) => (
-                                <div key={item.Tid} style={{margin: '5px 10px'}}>
+                                <div key={item.Tid} style={{margin: '5px 10px', fontSize: '15px'}}>
                                     <div>마감 기한 : {item.Tdate}</div>
                                     <div>내용 : {item.Tstring}</div>
                                 </div>
