@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios'
 
@@ -11,6 +11,8 @@ export default function Signup() {
     const [id, setID] = useState('');
     const [password, setPassword] = useState('');
     const [repassword, setRePassword] = useState('');
+    const [userID, setUserId] = useState('');
+    const [token, setToken] = useState('');
 
     const router = useRouter();
 
@@ -21,6 +23,10 @@ export default function Signup() {
         id: id,
         password: password
     };
+
+    useEffect(() => {
+        console.log('asd')
+    });
 
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,8 +46,10 @@ export default function Signup() {
             const response = await axios.post("https://cd-api.chals.kim/api/test/post", data);
             console.log(response.data);
         } catch(err){
-            alert('error');
+            alert('error test 3');
         }
+        localStorage.setItem('userId', id)
+        localStorage.setItem('token', '1234')
         infoClear();
         router.push('/')
     };
