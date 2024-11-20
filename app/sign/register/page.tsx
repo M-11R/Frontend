@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios'
+import mb from '@/app/json/msBox.json'
 
 export default function Signup() {
     const [name, setName] = useState('');
@@ -11,8 +12,9 @@ export default function Signup() {
     const [id, setID] = useState('');
     const [password, setPassword] = useState('');
     const [repassword, setRePassword] = useState('');
-    const [userID, setUserId] = useState('');
-    const [token, setToken] = useState('');
+    const [userId, setUserId] = useState<string | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    
 
     const router = useRouter();
 
@@ -25,15 +27,22 @@ export default function Signup() {
     };
 
     useEffect(() => {
-        console.log('asd')
-    });
+        const tmpId = localStorage.getItem("userId");
+        const tmpTk = localStorage.getItem("token");
+        if(tmpId || tmpTk){
+            router.push('/');
+        }else{
+            setUserId(tmpId);
+            setToken(tmpTk);
+        }
+    }, []);
 
     const handleSignup = (e: React.FormEvent) => {
         e.preventDefault();
         if(passwordSame(password, repassword)){
             postData();
         }else{
-            alert("비밀번호가 다릅니다.")
+            alert(mb.register.wrongpass.value)
         }
     };
 
@@ -48,8 +57,8 @@ export default function Signup() {
         } catch(err){
             alert('error test 3');
         }
-        localStorage.setItem('userId', id)
-        localStorage.setItem('token', '1234')
+        localStorage.setItem("userId", data.id)
+        localStorage.setItem("token", "1234")
         infoClear();
         router.push('/')
     };
@@ -70,10 +79,10 @@ export default function Signup() {
     return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
             <div style={{ width: '400px', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '10px' }}>
-                <div style={{ textAlign: 'center', fontSize: '32px', fontWeight: 'bold' }}>회원가입</div>
+                <div style={{ textAlign: 'center', fontSize: '32px', fontWeight: 'bold' }}>{mb.register.title.value}</div>
                 <form onSubmit={handleSignup}>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>이름</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>{mb.user.name.value}</label>
                         <input
                             type="text"
                             id="name"
@@ -84,7 +93,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>학번</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>{mb.user.hak.value}</label>
                         <input
                             type="number"
                             id="hak"
@@ -95,7 +104,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>이메일</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>{mb.user.email.value}</label>
                         <input
                             type="text"
                             id="email"
@@ -106,7 +115,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>아이디</label>
+                        <label htmlFor="name" style={{ display: 'block', fontSize: '15px' }}>{mb.user.id.value}</label>
                         <input
                             type="text"
                             id="id"
@@ -117,7 +126,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>비밀번호</label>
+                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>{mb.user.password.value}</label>
                         <input
                             type="password"
                             id="password"
@@ -128,7 +137,7 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ margin: '10px 30px', padding: '10px' }}>
-                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>비밀번호 재입력</label>
+                        <label htmlFor="password" style={{ display: 'block', fontSize: '15px' }}>{mb.register['re-password'].value}</label>
                         <input
                             type="password"
                             id="repassword"
@@ -139,11 +148,12 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ textAlign: 'right', marginRight: '50px' }}>
-                        <button onClick={gotoSignUp} style={{ padding: '10px', width: '25%' }}>첫 페이지</button>
-                        <button type="submit" style={{ width: '25%', padding: '10px' }}>회원가입</button>
+                        <button onClick={gotoSignUp} style={{ padding: '10px', width: '25%' }}>{mb.register['start-page'].value}</button>
+                        <button type="submit" style={{ width: '25%', padding: '10px' }}>{mb.register.registerbtn.value}</button>
                     </div>
                 </form>
             </div>
         </div>
     );
 }
+

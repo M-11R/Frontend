@@ -21,7 +21,7 @@ const DataTable = () => (
                 <td>{Item.email}</td>
                 <td>{Item.role}</td>
                 <td>{Item.hak}</td>
-                <td><UserConfigBtn input = {Item.name}/></td>
+                <td><UserConfigBtn input = {Item}/></td>
             </tr>)}
         </tbody>
     </table>

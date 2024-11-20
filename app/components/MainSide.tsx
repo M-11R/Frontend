@@ -27,9 +27,9 @@ const MainSide = ({qwe}: {qwe: string}) => {
     const mainMenu = ['메인화면', '프로젝트 관리', '산출물 작성', '산출물 관리', '업무관리'];
     const routDefault = `/project-main/${qwe}/main`
     const routMenu = [[`/project-main/${qwe}/main`, '/', '/'],
-                        [`/project-main/${qwe}/projectMg/main`, `/project-main/${qwe}/project-management/user`, '/'],
+                        [`/project-main/${qwe}/wbsmanager`, `/project-main/${qwe}/project-management/user`, '/'],
                         [routDefault, routDefault, routDefault],
-                        [routDefault, '/', '/'],
+                        [`/project-main/${qwe}/outputManagement`, '/', '/'],
                         [routDefault, '/', '/']];
 
     const handleToggle = (index: number) => {
