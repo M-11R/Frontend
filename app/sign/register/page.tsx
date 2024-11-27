@@ -4,36 +4,46 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios'
 import mb from '@/app/json/msBox.json'
+import { setToken, getToken, setUnivId, getUnivId, setUserId, getUserId } from '@/app/util/storage';
+
+type postType = {
+    "RESULT_CODE": number, 
+    "RESULT_MSG": string, 
+    "PAYLOADS": {
+        "Token": string
+        "Univ_ID": number}
+}
 
 export default function Signup() {
     const [name, setName] = useState('');
-    const [hak, setHak] = useState('');
+    const [hak, setHak] = useState<string | number>('');
     const [email, setEmail] = useState('');
     const [id, setID] = useState('');
     const [password, setPassword] = useState('');
     const [repassword, setRePassword] = useState('');
-    const [userId, setUserId] = useState<string | null>(null);
-    const [token, setToken] = useState<string | null>(null);
+    const [department, setDepartment] = useState(10);
+    
     
 
     const router = useRouter();
 
     const data = {
         name: name,
-        hak: hak,
+        univ_id: hak,
         email: email,
         id: id,
-        password: password
+        pw: password,
+        department: department
     };
 
     useEffect(() => {
-        const tmpId = localStorage.getItem("userId");
-        const tmpTk = localStorage.getItem("token");
+        console.log("test 4");
+        const tmpId = getUserId();
+        const tmpTk = getToken();
         if(tmpId || tmpTk){
             router.push('/');
-        }else{
-            setUserId(tmpId);
-            setToken(tmpTk);
+            console.log(getToken())
+            console.log(getUserId())
         }
     }, []);
 
@@ -52,15 +62,21 @@ export default function Signup() {
 
     const postData = async() => {
         try{
-            const response = await axios.post("https://cd-api.chals.kim/api/test/post", data);
+            const response = await axios.post<postType>("https://cd-api.chals.kim/api/acc/signup", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
             console.log(response.data);
+            if(response.data.RESULT_CODE === 200){
+                setToken(response.data.PAYLOADS.Token);
+                setUserId(id);
+                setUnivId(Number(hak));
+                infoClear();
+                router.push('/')
+            }else{
+                console.error("Error: ", response.data.RESULT_MSG);
+            }
         } catch(err){
-            alert('error test 3');
+            console.error("API 요청 실패: ", err);
         }
-        localStorage.setItem("userId", data.id)
-        localStorage.setItem("token", "1234")
-        infoClear();
-        router.push('/')
+        
     };
 
     const gotoSignUp = () => {
@@ -98,7 +114,7 @@ export default function Signup() {
                             type="number"
                             id="hak"
                             value={hak}
-                            onChange={(e) => setHak(e.target.value)}
+                            onChange={(e) => setHak(e.target.valueAsNumber)}
                             required
                             style={{ width: '90%', padding: '6px' }}
                         />

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
-import todojson from '../json/test.json'
+import todojson from '@/app/json/test.json'
+import msBox from '@/app/json/msBox.json'
 
 
 const MainSide = ({qwe}: {qwe: string}) => {
@@ -11,26 +12,28 @@ const MainSide = ({qwe}: {qwe: string}) => {
     const router = useRouter();
 
     useEffect(() => {
-        console.log("asd");
-        const checkPage = todojson.pjlist.some((pjlist) => pjlist.Pname === qwe);
-        if (!checkPage){
-            router.push('/');
-        }
+        // const checkPage = todojson.pjlist.some((pjlist) => pjlist.Pname === qwe);
+        // if (!checkPage){
+        //     console.log("404 Not found page : ", qwe)
+        //     router.push('/');
+        //     return;
+        // }
+        // console.log("found page : ", qwe)
     }, [qwe, router]);
 
-    const subMenu = [['메인화면', null, null],
-                      ['WBS 관리', '유저 관리', null],
-                      ['개요서', '회의록', '서비스 테스트'],
-                      ['산출물 관리', null, null],
-                      ['업무 관리', null, null]];
+    const subMenu = [[msBox.subMenu.main.value, null, null, null, null, null],
+                      [msBox.subMenu.wbs.value, msBox.subMenu.usermanage.value, null, null, null, null],
+                      [msBox.subMenu.overview.value, msBox.subMenu.minutes.value, msBox.subMenu.test.value, msBox.subMenu.srs.value, msBox.subMenu.report.value, msBox.subMenu.etc.value],
+                      [msBox.subMenu.outmanage.value, null, null, null, null, null],
+                      [msBox.subMenu.task.value, null, null, null, null, null]];
 
-    const mainMenu = ['메인화면', '프로젝트 관리', '산출물 작성', '산출물 관리', '업무관리'];
+    const mainMenu = [msBox.mainMenu.main.value, msBox.mainMenu.pjmanage.value, msBox.mainMenu.outcreate.value, msBox.mainMenu.outmanage.value, msBox.mainMenu.taskmanage.value];
     const routDefault = `/project-main/${qwe}/main`
-    const routMenu = [[`/project-main/${qwe}/main`, '/', '/'],
-                        [`/project-main/${qwe}/wbsmanager`, `/project-main/${qwe}/project-management/user`, '/'],
-                        [routDefault, routDefault, routDefault],
-                        [`/project-main/${qwe}/outputManagement`, '/', '/'],
-                        [routDefault, '/', '/']];
+    const routMenu = [[`/project-main/${qwe}/main`, '/', '/', '/', '/', '/'],
+                        [`/project-main/${qwe}/wbsmanager`, `/project-main/${qwe}/project-management/user`, '/', '/', '/', '/'],
+                        [`/project-main/${qwe}/overview`,`/project-main/${qwe}/minutes`,`/project-main/${qwe}/service test`, routDefault, routDefault, routDefault],
+                        [`/project-main/${qwe}/outputManagement`, '/', '/', '/', '/', '/'],
+                        [routDefault, '/', '/', '/', '/', '/']];
 
     const handleToggle = (index: number) => {
         setVisibleIndex(visibleIndex === index ? null : index);
@@ -40,10 +43,6 @@ const MainSide = ({qwe}: {qwe: string}) => {
 
     const gotoMenu = (index: number, subIndex: number) => {
         router.push(routMenu[index][subIndex]);
-    };
-
-    const test = () => {
-        console.log("asd");
     };
 
     return (
@@ -64,15 +63,21 @@ const MainSide = ({qwe}: {qwe: string}) => {
             {/*메뉴 바*/}
             {[0, 1, 2, 3, 4].map((index: number) => (
                 <div key={index} style={{ margin: '0' }}>
-                    <button onClick={() => handleToggle(index)} style={{ padding: '10px', width: '100%', border: '1px solid #000000',backgroundColor: selectedButton?.index === index && selectedButton?.subIndex === null ? '#6F5FFF' : '#ffffff', fontSize: '15px' }}>
+                    <button 
+                        onClick={() => handleToggle(index)} 
+                        style={{ 
+                            padding: '10px', width: '100%', border: '1px solid #000000',
+                            backgroundColor: selectedButton?.index === index && selectedButton?.subIndex === null ? '#6F5FFF' : '#ffffff',
+                            color: selectedButton?.index === index && selectedButton?.subIndex === null ? '#ffffff' : '#000000', 
+                            fontSize: '15px' }}>
                         {mainMenu[index]}
                     </button>
                     {visibleIndex === index && (
                         <div style={{ margin: '0px 0 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexDirection: 'column', backgroundColor: '#E9E9E9', width: '99%', border: '1px solid #000000'}}>
-                            {[0, 1, 2].map((subIndex) => (
+                            {[0, 1, 2, 3, 4, 5].map((subIndex) => (
                                 subMenu[index][subIndex] !== null && (
                                     <div key={subIndex} style={{width: '100%', borderBottom: '1px solid #000000'}}>
-                                        <button onClick={() => gotoMenu(index, subIndex)} style={{margin: '0px 0 0', width: '100%', height: '40px', fontSize: '15px'}}>
+                                        <button onClick={() => gotoMenu(index, subIndex)} style={{margin: '0px 0 0', width: '100%', height: '40px', fontSize: '15px', border: '0'}}>
                                             {subMenu[index][subIndex]}
                                         </button>
                                     </div>

@@ -1,4 +1,7 @@
 {
+    "": {
+        "": {"key": 0, "value": "", "description": ""}
+    },
     "user": {
         "": {"key": 0, "value": "", "description": ""},
         "name": {"key": 1, "value": "이름", "description": "유저 이름"},
@@ -31,5 +34,37 @@
     },
     "header": {
         "jinchuk": {"key": 1, "value": "진척도 : ", "description": "진척도 표시용"}
+    },
+    "page": {
+        "test": {"key": 1, "value": "자료실", "description": "진척도 표시용"},
+        "Loading": {"key": 2, "value": "Loading...", "description": "로딩 텍스트"}
+    },
+    "om": {
+        "id": {"key": 1, "value": "번호", "description": "산출물 번호"},
+        "name": {"key": 2, "value": "작성자", "description": "산출물 작성자 이름"},
+        "title": {"key": 3, "value": "제목", "description": "산출물 제목"},
+        "date": {"key": 4, "value": "게시일", "description": "산출물 제시일"}
+    },
+    "subMenu": {
+        "": {"key": 0, "value": "", "description": ""},
+        "main": {"key": 1, "value": "메인화면", "description": "서브메뉴 메인화면"},
+        "wbs": {"key": 2, "value": "WBS 관리", "description": "서브메뉴 WBS 관리"},
+        "usermanage": {"key": 3, "value": "유저 관리", "description": "서브메뉴 유저관리"},
+        "overview": {"key": 4, "value": "개요서", "description": "서브메뉴 개요서 작성"},
+        "minutes": {"key": 5, "value": "회의록", "description": "서브메뉴 회의록 작성"},
+        "test": {"key": 6, "value": "서비스 테스트", "description": "서브메뉴 서비스 테스트 작성"},
+        "srs": {"key": 7, "value": "요구사항 명세서", "description": "서브메뉴 요구사항 명세서 작성"},
+        "report": {"key": 8, "value": "보고서", "description": "서브메뉴 보고서 작성"},
+        "etc": {"key": 9, "value": "기타", "description": "서브메뉴 기타 산출물 작성"},
+        "outmanage": {"key": 10, "value": "산출물 관리", "description": "서브메뉴 산출물 관리"},
+        "task": {"key": 11, "value": "업무 관리", "description": "서브메뉴 업무 관리"}
+    },
+    "mainMenu": {
+        "": {"key": 0, "value": "", "description": ""},
+        "main": {"key": 1, "value": "메인화면", "description": "메인메뉴 메인화면"},
+        "pjmanage": {"key": 2, "value": "프로젝트 관리", "description": "메인메뉴 프로젝트 관리"},
+        "outcreate": {"key": 3, "value": "산출물 작성", "description": "메인메뉴 산출물 작성"},
+        "outmanage": {"key": 4, "value": "산출물 관리", "description": "메인메뉴 산출물 관리"},
+        "taskmanage": {"key": 5, "value": "업무 관리", "description": "메인메뉴 업무 관리"}
     }
 }
