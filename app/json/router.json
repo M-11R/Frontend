@@ -1,0 +1,14 @@
+{
+    "메인화면" : [
+        {
+            "rId": "001",
+            "rLink": "/project-main/main"
+        }
+    ],
+    "유저 관리": [
+        {
+            "rId": "0002",
+            "rLink": "/project-main/project-management/user"
+        }
+    ]
+}

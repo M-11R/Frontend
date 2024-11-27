@@ -26,9 +26,13 @@ export default function Home() {
         display: "flex",
         gap: "15px",
       }}>
-        <Link href="/sign/signUp" legacyBehavior>
-  <a style={{ fontSize: "1em", color: "#0070f3", textDecoration: "none", fontWeight: "bold" }}>로그인</a>
-</Link>
+          <Link href="/util/SignOut" legacyBehavior>
+            <a style={{ fontSize: "1em", color: "#0070f3", textDecoration: "none", fontWeight: "bold" }}>로그아웃</a>
+          </Link>
+          <Link href="/sign/signIn" legacyBehavior>
+            <a style={{ fontSize: "1em", color: "#0070f3", textDecoration: "none", fontWeight: "bold" }}>로그인</a>
+          </Link>
+          {/* <div style={{border: '1px solid #000000', width: '200px', height: '50px'}}><SignBtn /></div> */}
         </header>
 
       {/* 메인 콘텐츠 */}

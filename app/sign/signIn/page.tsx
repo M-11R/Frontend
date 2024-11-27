@@ -1,19 +1,85 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
+import axios from "axios";
+import { getToken, getUserId, setToken, setUnivId, setUserId } from "@/app/util/storage";
+import { CheckSession } from "@/app/util/check";
+
+type postType = {
+  "RESULT_CODE": number, 
+  "RESULT_MSG": string, 
+  "PAYLOADS": {
+      "Token": string
+      "Univ_ID": number}
+}
+
+type checkType = {
+  user_id: string,
+  token: string
+}
 
 export default function Login() {
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const data = {
+    id: studentId,
+    pw: password
+  }
+
+  type returnType = {
+    "RESULT_CODE": number, 
+    "RESULT_MSG": string
+  }
+
+  useEffect(() => {
+    const check: checkType = {
+      user_id: getUserId(),
+      token: getToken()
+    }
+    const CheckSession = async({data}: {data: checkType}) => {
+      try{
+          const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/checksession", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+          if(response.data.RESULT_CODE === 200){
+            router.push('/');
+            return;
+          }
+      }catch(err){
+      };
+    }
+    CheckSession({data: check});
+  }, []);
+
+  
+
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     
     // 로그인 로직을 추가
-    console.log("로그인 시도: ", studentId, password);
+    if(studentId === '' || password === ''){
+      alert("error");
+    }else{
+      postData();
+    }
   };
+
+  const postData = async() => {
+    try{
+      const response = await axios.post<postType>("https://cd-api.chals.kim/api/acc/signin", data, {headers:{Authorization: process.env.SECRET_API_KEY}})
+      if(response.data.RESULT_CODE === 200){
+        setToken(response.data.PAYLOADS.Token);
+        setUnivId(response.data.PAYLOADS.Univ_ID);
+        setUserId(data.id);
+        router.push('/');
+      }else{
+        console.log(response.data.RESULT_MSG);
+      }
+    }catch(err){
+      alert("아이디와 비밀번호를 재확인해주세요.")
+    }
+  }
 
   const handleNavigateToMain = () => {
     router.push('/');
@@ -40,7 +106,7 @@ export default function Login() {
         <div style={{ marginBottom: "15px" }}>
           <input
             type="text"
-            placeholder="학번"
+            placeholder="아이디"
             value={studentId}
             onChange={(e) => setStudentId(e.target.value)}
             required
