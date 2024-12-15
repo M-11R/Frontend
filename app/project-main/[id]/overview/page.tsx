@@ -43,9 +43,9 @@ export default function ProjectOverview(props: any) {
   const handleDownload = async() => {
     const data = {
       pname: title,
-      poutcomes: expectedOutcomes,
-      poverview: overview,
       pteam: teamMembers,
+      poverview: overview,
+      poutcomes: expectedOutcomes,
       pgoals: goal,
       pstart: fixDate(startDate),
       pend: fixDate(endDate),
@@ -66,6 +66,7 @@ export default function ProjectOverview(props: any) {
     if(checkNull(data)){
       try{
         const response = await axios.post("https://cd-api.chals.kim/api/output/ovr_doc_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        console.log(response.data)
         router.push(`/project-main/${props.params.id}/outputManagement`);
       }catch(err){
   

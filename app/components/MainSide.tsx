@@ -4,8 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import todojson from '@/app/json/test.json'
 import msBox from '@/app/json/msBox.json'
+import { getUserId, getToken, getUnivId } from '../util/storage';
+import axios from 'axios';
 
-
+type returnType = {
+    "RESULT_CODE": number
+    "RESULT_MSG": string
+    "PAYLOADS": payload[]
+}
+type payload = {
+    "univ_id": number
+    "role": string
+    "name": string
+    "permission": string
+}
 const MainSide = ({pid}: {pid: number}) => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
@@ -18,10 +30,9 @@ const MainSide = ({pid}: {pid: number}) => {
         //     router.push('/');
         //     return;
         // }
-        console.log("found page : ", pid)
+        // checkUser();
         if (pid === undefined){
-            // router.push('/');
-            console.log(pid)
+            
         }
     }, [pid, router]);
 
@@ -49,6 +60,35 @@ const MainSide = ({pid}: {pid: number}) => {
         router.push(routMenu[index][subIndex]);
     };
 
+    const checkUser = async() => {
+        const secData = {user_id: getUserId(), token: getToken()}
+        const userData = {pid: pid}
+        const tmpUnivId = getUnivId();
+        const [bool, setBool] = useState(false);
+        if(getUserId === null || getToken() === null || tmpUnivId === null){
+            router.push('/');
+            return;
+        }
+        try{ // 세션 확인
+            const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", secData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            try{ // 유저 확인
+                const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkuser", userData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                response.data.PAYLOADS.forEach((item) => {
+                    if(item.univ_id === tmpUnivId){
+                        setBool(true);
+                    }
+                })
+                if(bool === false){
+                    router.push('/')
+                }
+            }catch(err){
+
+            }
+        }catch(err){
+            router.push('/');
+            alert("로그아웃 후 다시 로그인 해주세요.")
+        }
+    }
     return (
         <div style={{marginLeft: '100px', display: 'relative', justifyContent: 'center', alignItems: 'center', width: '200px', backgroundColor: '#D3D3D3', height: 'calc(100vh - 105px)'}}>
             {/*미니 Todo List*/}

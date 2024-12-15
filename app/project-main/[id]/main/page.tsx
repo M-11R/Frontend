@@ -3,6 +3,7 @@ import MainSide from "@/app/components/MainSide"
 import json from '@/app/json/test.json'
 import Image from "next/image"
 import calendar from '@/app/img/calendar.png'
+import TodoList from "@/app/components/Todo"
 
 type wbs = {
     "Sid" : string
@@ -50,12 +51,13 @@ export default function Main(props: any){
                             <div style={{borderBottom: '2px solid #000000'}}></div>
 
                             {/*Todo 내용*/}
-                            {json.test2.map((item) => (
+                            {/* {json.test2.map((item) => (
                                 <div key={item.Tid} style={{margin: '5px 10px', fontSize: '15px'}}>
                                     <div>마감 기한 : {item.Tdate}</div>
                                     <div>내용 : {item.Tstring}</div>
                                 </div>
-                            ))}
+                            ))} */}
+                            <TodoList p_id={props.params.id}/>
                         </div>
                         {/*빈 공간*/}
                         <div style={{height: '100%', width: '5%'}}></div>

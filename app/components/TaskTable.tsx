@@ -5,6 +5,7 @@ import Pagenation from "./pagenation"
 import MsBox from '@/app/json/msBox.json'
 import styles from '@/app/css/DivTable.module.css'
 import { AddTask, ConfigTask } from "@/app/components/Modal";
+import { limitTitle } from "../util/string"
 
 type taskType = {
     p_no: number
@@ -49,7 +50,6 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
                 return dateB - dateA;
             })
             setData(sortedData);
-            console.log(response.data.PAYLOADS)
         }catch(err){
 
         }
@@ -64,7 +64,7 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
                 <div style={{width: '100%', height: '100%'}}>
 
                     {/**테이블 헤드 */}
-                    <div className={styles.row} style={{backgroundColor: '#dfdfdf', fontWeight: 'bold', display: 'flex', border: '1px solid #000000'}}>
+                    <div className={styles.row} style={{backgroundColor: '#dfdfdf', fontWeight: 'bold', display: 'flex', border: '1px solid #000000', height: '9%'}}>
                         <div className={styles.cell} style={{width: '34%'}}>{MsBox.task.tname.value}</div>
                         <div className={styles.cell} style={{width: '14%'}}>{MsBox.task.tperson.value}</div>
                         <div className={styles.cell} style={{width: '14%'}}>{MsBox.task.tstart.value}</div>
@@ -75,12 +75,12 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
 
                     {/**테이블 데이터 */}
                     {currentData.map((item: taskType) => (
-                        <div key={item.w_no} className={styles.row} style={{display: 'flex', border: '1px solid #000000', borderTop: '0', height: '5%'}}>
-                            <div className={styles.cell} style={{width: '34%'}}>{item.w_name}</div>
-                            <div className={styles.cell} style={{width: '14%'}}>{item.w_person}</div>
-                            <div className={styles.cell} style={{width: '14%'}}>{item.w_start}</div>
-                            <div className={styles.cell} style={{width: '14%'}}>{item.w_end}</div>
-                            <div className={styles.cell} style={{width: '10%'}}>{item.w_checked}</div>
+                        <div key={item.w_no} className={styles.row} style={{display: 'flex', border: '1px solid #000000', borderTop: '0', height: '9%'}}>
+                            <div className={styles.cell} style={{width: '34%', height: '100%'}}>{limitTitle(item.w_name, 30)}</div>
+                            <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_person}</div>
+                            <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_start}</div>
+                            <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_end}</div>
+                            <div className={styles.cell} style={{width: '10%', height: '100%'}}>{item.w_checked}</div>
                             <div className={styles.endCell} style={{width: '14%'}}><ConfigTask data={item} p_id={p_id}/></div>
                         </div>
                     ))}

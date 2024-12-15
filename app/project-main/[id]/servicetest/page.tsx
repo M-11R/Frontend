@@ -16,8 +16,9 @@ export default function ServiceTestForm(props: any) {
   const [testStartDate, setTestStartDate] = useState("");
   const [testEndDate, setTestEndDate] = useState("");
   const [testItemName, setTestItemName] = useState("");
-  const [testPassStatus, setTestPassStatus] = useState("");
+  const [testPassStatus, setTestPassStatus] = useState(false);
   const router = useRouter();
+
   // 클라이언트 렌더링 여부 확인
   useEffect(() => {
     setIsMounted(true);
@@ -104,14 +105,12 @@ export default function ServiceTestForm(props: any) {
                   />
 
                   <label>테스트 통과 여부:</label>
-                  <select
-                    value={testPassStatus}
-                    onChange={(e) => setTestPassStatus(e.target.value)}
-                  >
-                    <option value="">선택</option>
-                    <option value="pass">통과</option>
-                    <option value="fail">불합격</option>
-                  </select>
+                  <input
+                    type="checkbox"
+                    id="checkbox"
+                    checked={testPassStatus}
+                    onChange={(e) => setTestPassStatus(e.target.checked)}
+                  />
                 </div>
               </div>
 

@@ -455,6 +455,8 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
             const response = await axios.post<postType>("https://cd-api.chals.kim/api/task/edit", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
         }catch(err){
 
+        }finally{
+            closeModal();
         }
     }
     const getData = async() => {

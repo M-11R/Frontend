@@ -106,6 +106,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
     formData.append('pid', pid.toString());
 
     const loadData = async() => {
+        const postData = {pid: pid};
         const tmpData: listType[] = []
         const etcData: etcType[] = []
         const ovrData: ovrType[] = []
@@ -127,7 +128,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
             })
         }catch(err){}
         try{ // 프로젝트 개요서
-            const response = await axios.post<returnOvr>("https://cd-api.chals.kim/api/output/ovr_doc_fetch", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post<returnOvr>("https://cd-api.chals.kim/api/output/ovr_doc_fetch", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             response.data.PAYLOADS.forEach((item) => {
                 const formattedData: listType = {
                     type: 'overview',
@@ -140,7 +141,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
             })
         }catch(err){}
         try{ // 회의록
-            const response = await axios.post<returnMm>("https://cd-api.chals.kim/api/output/mm_fetch", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post<returnMm>("https://cd-api.chals.kim/api/output/mm_fetch", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             response.data.PAYLOADS.forEach((item) => {
                 const formattedData: listType = {
                     type: 'minutes',
@@ -153,7 +154,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
             })
         }catch(err){}
         try{ // 요구사항 명세서
-            const response = await axios.post<returnReq>("https://cd-api.chals.kim/api/output/reqspec_fetch_all", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post<returnReq>("https://cd-api.chals.kim/api/output/reqspec_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             response.data.PAYLOADS.forEach((item) => {
                 const formattedData: listType = {
                     type: 'request',
@@ -166,7 +167,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
             })
         }catch(err){}
         try{ // 테스트 케이스
-            const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_fetch_all", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             response.data.PAYLOADS.forEach((item) => {
                 const formattedData: listType = {
                     type: 'testcase',
@@ -195,18 +196,16 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
 
                     {/**테이블 헤드 */}
                     <div style={{height: '9%', width: '100%', border: '1px solid #000000', display: 'flex', backgroundColor: '#dfdfdf', fontWeight: 'bold'}}>
-                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '15%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.id.value}</div>
-                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '20%', borderRight: '1px solid #000000', textAlign: 'center'}}></div>
-                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.title.value}</div>
+                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '25%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.id.value}test</div>
+                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '45%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.title.value}</div>
                         <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '30%', textAlign: 'center'}}>{MsBox.om.date.value}</div>
                     </div>
 
                     {/**테이블 데이터 */}
                     {currentData.map((item: listType) => (
                         <div key={item.file_no} style={{height: '9%', width: '100%', border: '1px solid #000000', display: 'flex'}}>
-                            <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '15%', borderRight: '1px solid #000000', textAlign: 'center'}}>{item.type}</div>
-                            <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '20%', borderRight: '1px solid #000000', textAlign: 'center'}}></div>
-                            <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', borderRight: '1px solid #000000', textAlign: 'center'}}><Link href={`/project-main/${pid}/output/${item.file_no}`}>{limitTitle(item.title, 30)}</Link></div>
+                            <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '25%', borderRight: '1px solid #000000', textAlign: 'center'}}>{item.type}</div>
+                            <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '45%', borderRight: '1px solid #000000', textAlign: 'center'}}><Link href={`/project-main/${pid}/output/${item.type}/${item.file_no}`}>{limitTitle(item.title, 30)}</Link></div>
                             <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '30%', textAlign: 'center'}}>{item.date.toString()}</div>
                         </div>
                     ))}
