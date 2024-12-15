@@ -6,7 +6,7 @@ import todojson from '@/app/json/test.json'
 import msBox from '@/app/json/msBox.json'
 
 
-const MainSide = ({qwe}: {qwe: string}) => {
+const MainSide = ({pid}: {pid: number}) => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
     const router = useRouter();
@@ -18,8 +18,12 @@ const MainSide = ({qwe}: {qwe: string}) => {
         //     router.push('/');
         //     return;
         // }
-        // console.log("found page : ", qwe)
-    }, [qwe, router]);
+        console.log("found page : ", pid)
+        if (pid === undefined){
+            // router.push('/');
+            console.log(pid)
+        }
+    }, [pid, router]);
 
     const subMenu = [[msBox.subMenu.main.value, null, null, null, null, null],
                       [msBox.subMenu.wbs.value, msBox.subMenu.usermanage.value, null, null, null, null],
@@ -28,12 +32,12 @@ const MainSide = ({qwe}: {qwe: string}) => {
                       [msBox.subMenu.task.value, null, null, null, null, null]];
 
     const mainMenu = [msBox.mainMenu.main.value, msBox.mainMenu.pjmanage.value, msBox.mainMenu.outcreate.value, msBox.mainMenu.outmanage.value, msBox.mainMenu.taskmanage.value];
-    const routDefault = `/project-main/${qwe}/main`
-    const routMenu = [[`/project-main/${qwe}/main`, '/', '/', '/', '/', '/'],
-                        [`/project-main/${qwe}/wbsmanager`, `/project-main/${qwe}/project-management/user`, '/', '/', '/', '/'],
-                        [`/project-main/${qwe}/overview`,`/project-main/${qwe}/minutes`,`/project-main/${qwe}/service test`, routDefault, routDefault, routDefault],
-                        [`/project-main/${qwe}/outputManagement`, '/', '/', '/', '/', '/'],
-                        [routDefault, '/', '/', '/', '/', '/']];
+    const routDefault = `/project-main/${pid}/main`
+    const routMenu = [[`/project-main/${pid}/main`, '/', '/', '/', '/', '/'],
+                        [`/project-main/${pid}/wbsmanager`, `/project-main/${pid}/project-management/user`, '/', '/', '/', '/'],
+                        [`/project-main/${pid}/overview`,`/project-main/${pid}/minutes`,`/project-main/${pid}/servicetest`,`/project-main/${pid}/Requirements`,`/project-main/${pid}/Report`, `/project-main/${pid}/output/create`],
+                        [`/project-main/${pid}/outputManagement`, '/', '/', '/', '/', '/'],
+                        [`/project-main/${pid}/task`, '/', '/', '/', '/', '/']];
 
     const handleToggle = (index: number) => {
         setVisibleIndex(visibleIndex === index ? null : index);

@@ -4,6 +4,7 @@ import Pagination from '@/app/components/pagenation'
 import data from '@/app/json/udata.json'
 import MsBox from '@/app/json/msBox.json'
 import Link from 'next/link';
+import DocumentTable from '@/app/components/DocumentTable';
 
 type Resource = {
     id: number,
@@ -13,25 +14,25 @@ type Resource = {
     date: string
 };
 
-export default function OutputManagement({ params, searchParams }: { params: { id: string }, searchParams: { page?: string } }) {
-    const itemsPerPage = 10; // 한 페이지당 표시할 글 수
+export default function OutputManagement({ params, searchParams }: { params: { id: number }, searchParams: { page?: string } }) {
+    // const itemsPerPage = 10; // 한 페이지당 표시할 글 수
     const page = parseInt(searchParams.page || "1", 10);
-    const totalItems = data.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    // const totalItems = data.length;
+    // const totalPages = Math.ceil(totalItems / itemsPerPage);
     
 
     // 현재 페이지 데이터 계산
-    const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    // const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
     return (
         <div>
-            <MainHeader name = {params.id}/>
+            <MainHeader pid = {params.id}/>
 
             <div style={{display: 'flex'}}>
-                <MainSide qwe = {params.id}/>
+                <MainSide pid = {params.id}/>
 
                 <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
-                    <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
+                    {/* <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
                         <div style={{height: '100%', maxHeight: '650px', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
                             <h1>{MsBox.page.test.value}</h1>
                             <div style={{width: '100%', height: '100%'}}>
@@ -50,11 +51,13 @@ export default function OutputManagement({ params, searchParams }: { params: { i
                                     </div>
                                 ))}
                             </div>
+                            
                             <div style={{height: '50px'}}></div>
-                            {/* 페이지네이션 컴포넌트 */}
+                            
                             <Pagination currentPage={page} totalPages={totalPages} basePath={`/project-main/${params.id}/outputManagement`} />
                         </div>
-                    </div>
+                    </div> */}
+                    <DocumentTable page={page} pid={params.id}/>
                 </div>
             </div>
         </div>

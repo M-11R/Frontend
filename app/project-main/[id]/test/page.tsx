@@ -1,45 +1,50 @@
 'use client'
-import {useState, useEffect} from 'react'
-import { getToken, getUserId, getUnivId, setUnivId, setToken } from '@/app/util/storage';
+import { getToken, getUserId } from "@/app/util/storage";
+import axios from "axios";
+import { useEffect } from "react";
 
-export default function test(){
-    const [id, setId] = useState<string | null>(null);
-    const [tk, settk] = useState<string | null>(null);
-    const [hak, setHak] = useState<string | null>(null);
-    const [text, setText] = useState("test 2");
+type taskType = {
+    "tid": number
+    "tname": string
+    "tperson": string
+    "tstart": string
+    "tend": string
+    "tfinish": boolean
+}
+type returnTask = {
+    "RESULT_CODE": number
+    "RESULT_MSG": string
+    "PAYLOADS": taskType[]
+}
 
-
+export default function Test() {
+    
+    
     useEffect(() => {
-        console.log("storage test 1");
-        const tmpid = getUserId();
-        const tmpt = getToken();
-        const tmph = getUnivId();
-        setText("test 3");
-        if(tmpid && tmpt && tmph){
-            setId(tmpid);
-            settk(tmpt);
-            setHak(tmph);
-        }else{
-            console.log("undefined");
-        }
+        loadTask();
     })
 
-    const funGT = () => {
-        console.log(getToken);
-    }
+    const loadTask = async() => {
+        const data = {pid: 33560, univ_id: 0};
+        try{
+            const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const sortedData = response.data.PAYLOADS.sort((a, b) => {
+                const dateA = new Date(a.tend).getTime();
+                const dateB = new Date(b.tend).getTime();
+                return dateB - dateA;
+            })
+            
+            console.log(response.data.PAYLOADS)
+        }catch(err){
 
-    const funST = (tmp: string) => {
-        setToken(tmp);
+        }
     }
 
     return(
-        <div suppressHydrationWarning>
-            <div>
-                {id}{tk}{hak}
-            </div>
-            <div>
-                {text}
-            </div>
+        <div>
+            Loading...
+            
         </div>
-    )
+        
+    );
 }

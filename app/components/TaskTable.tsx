@@ -1,0 +1,95 @@
+'use client'
+import { useState, useEffect } from "react"
+import axios from "axios"
+import Pagenation from "./pagenation"
+import MsBox from '@/app/json/msBox.json'
+import styles from '@/app/css/DivTable.module.css'
+import { AddTask, ConfigTask } from "@/app/components/Modal";
+
+type taskType = {
+    p_no: number
+    s_no: number
+    w_checked: boolean
+    w_end: string
+    w_name: string
+    w_no: number
+    w_person: string
+    w_start: string
+}
+type returnTask = {
+    "RESULT_CODE": number
+    "RESULT_MSG": string
+    "PAYLOADS": taskType[]
+}
+type postTaskPayload = {
+    pid: number
+    univ_id: number
+}
+
+const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
+    const [data, setData] = useState<taskType[]>([]);
+
+    useEffect(() => {
+        loadTask();
+    }, []);
+
+    {/**페이지네이션에 사용할 변수 */}
+    const itemsPerPage = 10; // 한 페이지당 표시할 글 수
+    const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage); 
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage); // ( 총 페이지 / 페이지당 표시할 글 )
+
+    const loadTask = async() => {
+        const data: postTaskPayload = {pid: p_id, univ_id: 0};
+        try{
+            const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const sortedData = response.data.PAYLOADS.sort((a, b) => {
+                const dateA = new Date(a.w_end).getTime();
+                const dateB = new Date(b.w_end).getTime();
+                return dateB - dateA;
+            })
+            setData(sortedData);
+            console.log(response.data.PAYLOADS)
+        }catch(err){
+
+        }
+    }
+
+
+    return (
+        <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
+            <div style={{height: '100%', maxHeight: '650px', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
+                <div style={{margin: '15px 0 auto', marginLeft: 'auto', textAlign: 'center'}}><AddTask p_id={p_id}/></div>
+                <h1>{MsBox.task.tTitle.value}</h1>
+                <div style={{width: '100%', height: '100%'}}>
+
+                    {/**테이블 헤드 */}
+                    <div className={styles.row} style={{backgroundColor: '#dfdfdf', fontWeight: 'bold', display: 'flex', border: '1px solid #000000'}}>
+                        <div className={styles.cell} style={{width: '34%'}}>{MsBox.task.tname.value}</div>
+                        <div className={styles.cell} style={{width: '14%'}}>{MsBox.task.tperson.value}</div>
+                        <div className={styles.cell} style={{width: '14%'}}>{MsBox.task.tstart.value}</div>
+                        <div className={styles.cell} style={{width: '14%'}}>{MsBox.task.tend.value}</div>
+                        <div className={styles.cell} style={{width: '10%'}}>{MsBox.task.tfinish.value}</div>
+                        <div className={styles.endCell} style={{width: '14%'}}>{MsBox.task.tconfig.value}</div>
+                    </div>
+
+                    {/**테이블 데이터 */}
+                    {currentData.map((item: taskType) => (
+                        <div key={item.w_no} className={styles.row} style={{display: 'flex', border: '1px solid #000000', borderTop: '0', height: '5%'}}>
+                            <div className={styles.cell} style={{width: '34%'}}>{item.w_name}</div>
+                            <div className={styles.cell} style={{width: '14%'}}>{item.w_person}</div>
+                            <div className={styles.cell} style={{width: '14%'}}>{item.w_start}</div>
+                            <div className={styles.cell} style={{width: '14%'}}>{item.w_end}</div>
+                            <div className={styles.cell} style={{width: '10%'}}>{item.w_checked}</div>
+                            <div className={styles.endCell} style={{width: '14%'}}><ConfigTask data={item} p_id={p_id}/></div>
+                        </div>
+                    ))}
+                </div>
+                <div style={{height: '50px'}}></div>
+                
+                <Pagenation currentPage={page} totalPages={totalPages} basePath={`/project-main/${p_id}/task`} />
+            </div>
+        </div>
+    );
+}
+export default TaskTable;
