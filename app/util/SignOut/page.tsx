@@ -9,17 +9,25 @@ type returnType = {
     "RESULT_CODE": number, 
     "RESULT_MSG": string
 }
-
+type post = {
+    token: string
+}
 
 export default function SignOut(){
     const router = useRouter();
 
     useEffect(() => {
-        const data: string = getToken();
-        checksession(data);
+        const data: post = {token: getToken()}
+        if(data.token === ''){
+            router.push('/');
+            return;
+        }else{
+            checksession(data);
+        }
+        
     }, []);
 
-    const checksession = async(data: string) => {
+    const checksession = async(data: post) => {
         try{
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/signout", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
             if(response.data.RESULT_CODE === 200){
@@ -31,8 +39,8 @@ export default function SignOut(){
             router.push('/');
         }catch(err){
             router.push('/');
-            alert(err);
+            console.log(data);
         }
     }
-    return(<div>Loading...</div>)
+    return(<div>Loading</div>)
 }

@@ -1,19 +1,11 @@
 {
     "Header" : [
         {
-            "text" : "ID",
-            "type" : "String"
-        },
-        {
             "text" : "이름",
             "type" : "String"
         },
         {
-            "text" : "권한",
-            "type" : "String"
-        },
-        {
-            "text" : "Email",
+            "text" : "학번",
             "type" : "String"
         },
         {
@@ -21,7 +13,7 @@
             "type" : "String"
         },
         {
-            "text" : "학번",
+            "text" : "권한",
             "type" : "String"
         },
         {

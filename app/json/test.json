@@ -10,33 +10,33 @@
     "score" : [
         {
             "Sid" : "s001",
-            "Sname" : "A",
-            "Sscore" : "10"
+            "Sname" : "계획",
+            "Sscore" : 0
         },
         {
             "Sid" : "s002",
-            "Sname" : "B",
-            "Sscore" : "20"
+            "Sname" : "분석",
+            "Sscore" : 0
         },
         {
             "Sid" : "s003",
-            "Sname" : "C",
-            "Sscore" : "30"
+            "Sname" : "설계",
+            "Sscore" : 0
         },
         {
             "Sid" : "s004",
-            "Sname" : "D",
-            "Sscore" : "40"
+            "Sname" : "구현",
+            "Sscore" : 0
         },
         {
             "Sid" : "s005",
-            "Sname" : "E",
-            "Sscore" : "50"
+            "Sname" : "테스트",
+            "Sscore" : 0
         },
         {
             "Sid" : "s006",
-            "Sname" : "F",
-            "Sscore" : "60"
+            "Sname" : "유지보수",
+            "Sscore" : 0
         }
     ],
 

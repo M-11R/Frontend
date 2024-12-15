@@ -49,13 +49,15 @@ type PJ = {
   "pperiod": string,
   "pmm": number,
 }
-
+type univ = {
+  univ_id: number
+}
 // ProjectList 컴포넌트 정의
 const ProjectList: React.FC<{ projects: PJ[] }> = ({ projects }) => {
   const router = useRouter();
 
-  const handleProjectClick = (projectName: string) => {
-    router.push(`/project-main/${projectName}/main`);
+  const handleProjectClick = (projectId: number) => {
+    router.push(`/project-main/${projectId}/main`);
   };
 
   return (
@@ -66,7 +68,7 @@ const ProjectList: React.FC<{ projects: PJ[] }> = ({ projects }) => {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
           {projects.map((project) => (
-            <div key={project.pid} className="project-card" style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer' }} onClick={() => handleProjectClick(project.pname)}>
+            <div key={project.pid} className="project-card" style={{ padding: '15px', border: '1px solid #ccc', borderRadius: '8px', cursor: 'pointer' }} onClick={() => handleProjectClick(project.pid)}>
               <h3>{project.pname}</h3>
               <p>설명: {project.pdetails}</p>
               <p>시작일: {project.pperiod}</p>
@@ -87,19 +89,25 @@ const ClientPage: React.FC = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    LoadPJ();
+    
     const check: checkType = {user_id: getUserId(), token: getToken()};
-    CheckSession({data: check});
-    const savedProjects = localStorage.getItem('projects');
-    if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
+    if(check.token !== ''){
+      console.log(check.token)
+      CheckSession({data: check});
+    }else{
+      router.push('/');
     }
+    // const savedProjects = localStorage.getItem('projects');
+    // if (savedProjects) {
+    //   setProjects(JSON.parse(savedProjects));
+    // }
   }, []);
 
   const CheckSession = async({data}: {data: checkType}) => {
     try{
         const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/checksession", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
         if(response.data.RESULT_CODE === 200){
+          LoadPJ();
           return;
         }
         router.push('/');
@@ -110,14 +118,14 @@ const ClientPage: React.FC = () => {
   }
 
   const LoadPJ = async() => {
-    const data = getUnivId;
+    const data:univ = {univ_id: getUnivId()}
     try{
       const response = await axios.post<loadPj>("https://cd-api.chals.kim/api/project/load", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
       if(response.data.RESULT_CODE === 200){
         setProjects(response.data.PAYLOADS)
       }
     }catch(err){
-      console.log(err)
+      console.log(data)
     }
   }
 
@@ -169,9 +177,9 @@ const ClientPage: React.FC = () => {
   return (
     <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
       <header style={{ marginBottom: '20px', textAlign: 'center' }}>
-        <h1>프로젝트 매니저.</h1>
+        <h1>프로젝트 매니저</h1>
         <Link href="/" style={{ color: '#007bff', textDecoration: 'none' }}>
-          메인 페이지로 이동
+          메인페이지로 이동
         </Link>
       </header>
       <ProjectCreationForm onCreate={addProject} />

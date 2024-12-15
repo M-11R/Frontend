@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import ico from '../img/logo.png'
 import mb from '@/app/json/msBox.json'
+import Link from 'next/link';
 
 const jinchek = (a: number) =>{
     return (<div style={{position: 'relative', right: '0px', top: '0px'}}>
@@ -13,13 +14,12 @@ const jinchek = (a: number) =>{
       </div>);
 };
 
-const MainHeader = ({name}: {name:  string}) =>(
+const MainHeader = ({pid}: {pid:  number}) =>(
     <div style={{ margin: '0px 100px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '90%', borderBottom: 'solid' }}>
-            <Image src={ico} alt="Left Image" style={{ width: '100px', height: '100px', bottom: '0' }} />
+            <Link href='/'><Image src={ico} alt="Left Image" style={{ width: '100px', height: '100px', bottom: '0' }} /></Link>
             {/* 테스트용 페이지 이름 */}
-            <div>page name : {name}</div>
             <div style={{position: 'relative', right: '0px', top: '20px'}}>
-              {jinchek(80)}
+              {jinchek(0)}
             </div>
       </div>
 );

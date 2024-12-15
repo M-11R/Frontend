@@ -4,9 +4,21 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 import todojson from '@/app/json/test.json'
 import msBox from '@/app/json/msBox.json'
+import { getUserId, getToken, getUnivId } from '../util/storage';
+import axios from 'axios';
 
-
-const MainSide = ({qwe}: {qwe: string}) => {
+type returnType = {
+    "RESULT_CODE": number
+    "RESULT_MSG": string
+    "PAYLOADS": payload[]
+}
+type payload = {
+    "univ_id": number
+    "role": string
+    "name": string
+    "permission": string
+}
+const MainSide = ({pid}: {pid: number}) => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
     const router = useRouter();
@@ -18,8 +30,11 @@ const MainSide = ({qwe}: {qwe: string}) => {
         //     router.push('/');
         //     return;
         // }
-        // console.log("found page : ", qwe)
-    }, [qwe, router]);
+        // checkUser();
+        if (pid === undefined){
+            
+        }
+    }, [pid, router]);
 
     const subMenu = [[msBox.subMenu.main.value, null, null, null, null, null],
                       [msBox.subMenu.wbs.value, msBox.subMenu.usermanage.value, null, null, null, null],
@@ -28,12 +43,12 @@ const MainSide = ({qwe}: {qwe: string}) => {
                       [msBox.subMenu.task.value, null, null, null, null, null]];
 
     const mainMenu = [msBox.mainMenu.main.value, msBox.mainMenu.pjmanage.value, msBox.mainMenu.outcreate.value, msBox.mainMenu.outmanage.value, msBox.mainMenu.taskmanage.value];
-    const routDefault = `/project-main/${qwe}/main`
-    const routMenu = [[`/project-main/${qwe}/main`, '/', '/', '/', '/', '/'],
-                        [`/project-main/${qwe}/wbsmanager`, `/project-main/${qwe}/project-management/user`, '/', '/', '/', '/'],
-                        [`/project-main/${qwe}/overview`,`/project-main/${qwe}/minutes`,`/project-main/${qwe}/service test`, routDefault, routDefault, routDefault],
-                        [`/project-main/${qwe}/outputManagement`, '/', '/', '/', '/', '/'],
-                        [routDefault, '/', '/', '/', '/', '/']];
+    const routDefault = `/project-main/${pid}/main`
+    const routMenu = [[`/project-main/${pid}/main`, '/', '/', '/', '/', '/'],
+                        [`/project-main/${pid}/wbsmanager`, `/project-main/${pid}/project-management/user`, '/', '/', '/', '/'],
+                        [`/project-main/${pid}/overview`,`/project-main/${pid}/minutes`,`/project-main/${pid}/servicetest`,`/project-main/${pid}/Requirements`,`/project-main/${pid}/Report`, `/project-main/${pid}/output/create`],
+                        [`/project-main/${pid}/outputManagement`, '/', '/', '/', '/', '/'],
+                        [`/project-main/${pid}/task`, '/', '/', '/', '/', '/']];
 
     const handleToggle = (index: number) => {
         setVisibleIndex(visibleIndex === index ? null : index);
@@ -45,6 +60,35 @@ const MainSide = ({qwe}: {qwe: string}) => {
         router.push(routMenu[index][subIndex]);
     };
 
+    const checkUser = async() => {
+        const secData = {user_id: getUserId(), token: getToken()}
+        const userData = {pid: pid}
+        const tmpUnivId = getUnivId();
+        const [bool, setBool] = useState(false);
+        if(getUserId === null || getToken() === null || tmpUnivId === null){
+            router.push('/');
+            return;
+        }
+        try{ // 세션 확인
+            const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", secData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            try{ // 유저 확인
+                const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkuser", userData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                response.data.PAYLOADS.forEach((item) => {
+                    if(item.univ_id === tmpUnivId){
+                        setBool(true);
+                    }
+                })
+                if(bool === false){
+                    router.push('/')
+                }
+            }catch(err){
+
+            }
+        }catch(err){
+            router.push('/');
+            alert("로그아웃 후 다시 로그인 해주세요.")
+        }
+    }
     return (
         <div style={{marginLeft: '100px', display: 'relative', justifyContent: 'center', alignItems: 'center', width: '200px', backgroundColor: '#D3D3D3', height: 'calc(100vh - 105px)'}}>
             {/*미니 Todo List*/}

@@ -23,8 +23,6 @@ export default function Signup() {
     const [repassword, setRePassword] = useState('');
     const [department, setDepartment] = useState(10);
     
-    
-
     const router = useRouter();
 
     const data = {
@@ -37,13 +35,9 @@ export default function Signup() {
     };
 
     useEffect(() => {
-        console.log("test 4");
-        const tmpId = getUserId();
         const tmpTk = getToken();
-        if(tmpId || tmpTk){
+        if(tmpTk !== ''){
             router.push('/');
-            console.log(getToken())
-            console.log(getUserId())
         }
     }, []);
 
@@ -63,7 +57,6 @@ export default function Signup() {
     const postData = async() => {
         try{
             const response = await axios.post<postType>("https://cd-api.chals.kim/api/acc/signup", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            console.log(response.data);
             if(response.data.RESULT_CODE === 200){
                 setToken(response.data.PAYLOADS.Token);
                 setUserId(id);
@@ -80,7 +73,7 @@ export default function Signup() {
     };
 
     const gotoSignUp = () => {
-        router.push('/sign/signUp');
+        router.push('/');
     };
 
     const infoClear = () => {

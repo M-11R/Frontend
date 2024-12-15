@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { getToken, getUserId, setToken, setUnivId, setUserId } from "@/app/util/storage";
-import { CheckSession } from "@/app/util/check";
 
 type postType = {
   "RESULT_CODE": number, 
@@ -39,20 +38,22 @@ export default function Login() {
       user_id: getUserId(),
       token: getToken()
     }
-    const CheckSession = async({data}: {data: checkType}) => {
-      try{
-          const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/checksession", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-          if(response.data.RESULT_CODE === 200){
-            router.push('/');
-            return;
-          }
-      }catch(err){
-      };
+    if(check.token !== ''){
+      CheckSession({data: check});
     }
-    CheckSession({data: check});
+    
   }, []);
 
-  
+  const CheckSession = async({data}: {data: checkType}) => {
+    try{
+        const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/checksession", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        if(response.data.RESULT_CODE === 200){
+          router.push('/');
+          return;
+        }
+    }catch(err){
+    };
+  }
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,7 +78,7 @@ export default function Login() {
         console.log(response.data.RESULT_MSG);
       }
     }catch(err){
-      alert("아이디와 비밀번호를 재확인해주세요.")
+      alert("아이디와 비밀번호를 확인해주세요.")
     }
   }
 
@@ -179,7 +180,7 @@ export default function Login() {
             cursor: "pointer",
           }}
         >
-          메인 페이지로 이동
+          메인화면 이동
         </button>
       </div>
     </div>
