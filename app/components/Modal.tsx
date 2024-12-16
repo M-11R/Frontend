@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios'
 import mb from '@/app/json/msBox.json'
 import { getUnivId } from '@/app/util/storage';
+import { useRouter } from 'next/router';
 
 type inputType = {
     "univ_id": number,
@@ -298,6 +299,8 @@ export function AddTask({p_id}: {p_id: number}){
             setHak(0)
             setName("")
             closeModal();
+            const router = useRouter();
+            router.replace(router.asPath)
         }
     };
 
@@ -416,6 +419,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
         tstart: string
         tend: string
         tfinish: boolean
+        univ_id: number
         tid: number
     }
     useEffect(() => {
@@ -432,6 +436,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
         tstart: fixDate(start),
         tend: fixDate(end),
         tfinish: finish,
+        univ_id: univId,
         tid: taskId
     }
     const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -457,6 +462,8 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
 
         }finally{
             closeModal();
+            const router = useRouter();
+            router.replace(router.asPath)
         }
     }
     const getData = async() => {
@@ -471,7 +478,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
         <div>
             <button onClick={openModal} style={{fontSize: '15px', border: '0', background: '0'}}>업무 수정</button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
-                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 수정</div>
+                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 수정.</div>
                 <form onSubmit={handleFixTask} style={{fontSize: '18px'}}>
                     <div style={{padding: '15px'}}>
                         <span style={{padding: '10px'}}>할일 제목</span>

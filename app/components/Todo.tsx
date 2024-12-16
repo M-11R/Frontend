@@ -25,7 +25,6 @@ type postTaskPayload = {
 
 const TodoList = ({p_id}: {p_id: number}) => {
     const [data, setData] = useState<taskType[]>([]);
-    const sliceTasks: taskType[] = []
     const tmpUnivId: number = getUnivId();
     useEffect(() => {
         loadTask();
@@ -40,10 +39,11 @@ const TodoList = ({p_id}: {p_id: number}) => {
                 const dateB = new Date(b.tend).getTime();
                 return dateA - dateB;
             })
-            setData([...sortedData]);
+            const sliceData: taskType[] = sortedData.slice(0, 5);
+            setData([...sliceData]);
         }catch(err){}
     }
-    
+
     return(
         <div>
             {data.length > 0 ? (
@@ -56,7 +56,7 @@ const TodoList = ({p_id}: {p_id: number}) => {
                     </div>
                 )
             )) : (
-                <p>loading...</p>
+                <div></div>
             )}
         </div>
     );

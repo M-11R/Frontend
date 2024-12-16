@@ -91,6 +91,25 @@ type testType = {
     doc_t_end: Date,
     doc_t_pass: boolean
 }
+type returnReport = {
+    "RESULT_CODE": number, 
+    "RESULT_MSG": string, 
+    "PAYLOADS": reportType[]
+}
+type reportType = {
+    doc_rep_no: number,
+    doc_rep_name: string,
+    doc_rep_writer: string,
+    doc_rep_date: Date,
+    doc_rep_pname: string,
+    doc_rep_member: string,
+    doc_rep_professor: string,
+    doc_rep_research: string,
+    doc_rep_design: string,
+    doc_rep_arch: string,
+    doc_rep_result: string,
+    doc_rep_conclusion: string
+}
 const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
     const [data, setData] = useState<listType[]>([]);
     useEffect(() => {
@@ -113,6 +132,7 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
         const mmData: mmType[] = []
         const reqData: reqType[] = []
         const testData: testType[] = []
+        const reportData: reportType[] = []
 
         try{ // 기타 산출물
             const response = await axios.post<returnEtc>("https://cd-api.chals.kim/api/output/otherdoc_fetch_all", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
@@ -179,6 +199,19 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
                 testData.push(item)
             })
         }catch(err){}
+        try{ // 보고서
+            const response = await axios.post<returnReport>("https://cd-api.chals.kim/api/output/report_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            response.data.PAYLOADS.forEach((item) => {
+                const formattedData: listType = {
+                    type: 'report',
+                    title: item.doc_rep_name,
+                    date: item.doc_rep_date.toString(),
+                    file_no: item.doc_rep_no
+                }
+                tmpData.push(formattedData);
+                reportData.push(item)
+            })
+        }catch(err){}
 
         const sortedData = tmpData.sort((a, b) => {
             const dateA = new Date(a.date).getTime();
@@ -196,9 +229,9 @@ const DocumentTable = ({page, pid}: {page: number, pid: number}) => {
 
                     {/**테이블 헤드 */}
                     <div style={{height: '9%', width: '100%', border: '1px solid #000000', display: 'flex', backgroundColor: '#dfdfdf', fontWeight: 'bold'}}>
-                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '25%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.id.value}test</div>
+                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '25%', borderRight: '1px solid #000000', textAlign: 'center'}}>산출물 타입</div>
                         <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '45%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.title.value}</div>
-                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '30%', textAlign: 'center'}}>{MsBox.om.date.value}</div>
+                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '30%', textAlign: 'center'}}>게시일</div>
                     </div>
 
                     {/**테이블 데이터 */}

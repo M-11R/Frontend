@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
+import axios from "axios";
+import { checkNull } from "@/app/util/check";
+import { fixDate } from "@/app/util/fixDate";
+import { useRouter } from "next/navigation";
 
 export default function ReportForm(props: any) {
   // 상태 관리
@@ -10,10 +14,9 @@ export default function ReportForm(props: any) {
   const [isPreview, setIsPreview] = useState(false);
 
   const [reportTitle, setReportTitle] = useState("");
-  const [teamName, setTeamName] = useState("");
   const [projectName, setProjectName] = useState("");
   const [submissionDate, setSubmissionDate] = useState("");
-  const [introduction, setIntroduction] = useState("");
+  const [writer, setWriter] = useState("");
   const [teamMembers, setTeamMembers] = useState("");
   const [advisor, setAdvisor] = useState("");
   const [problemDefinition, setProblemDefinition] = useState("");
@@ -22,8 +25,7 @@ export default function ReportForm(props: any) {
   const [systemArchitecture, setSystemArchitecture] = useState("");
   const [experimentResults, setExperimentResults] = useState("");
   const [conclusion, setConclusion] = useState("");
-  const [references, setReferences] = useState("");
-  const [appendices, setAppendices] = useState("");
+  const router = useRouter();
 
   // 클라이언트 렌더링 여부 확인
   useEffect(() => {
@@ -36,36 +38,44 @@ export default function ReportForm(props: any) {
   // 수정 핸들러
   const handleEdit = () => setIsPreview(false);
 
-  // 다운로드 핸들러
-  const handleDownload = () => {
+  // 다운로드 및 API 호출
+  const handleDownload = async () => {
     const data = {
-      제목: reportTitle,
-      팀명: teamName,
-      프로젝트명: projectName,
-      작성일: submissionDate,
-      소개: introduction,
-      팀원: teamMembers,
-      지도교수: advisor,
-      문제정의: problemDefinition,
-      연구목표: researchGoal,
-      설계및개발과정: designProcess,
-      시스템아키텍처: systemArchitecture,
-      실험및결과: experimentResults,
-      결론: conclusion,
-      참고문헌: references,
-      부록: appendices,
+      reportTitle,
+      projectName,
+      submissionDate: fixDate(submissionDate),
+      writer,
+      teamMembers,
+      advisor,
+      problemDefinition,
+      researchGoal,
+      designProcess,
+      systemArchitecture,
+      experimentResults,
+      conclusion,
+      pid: props.params.id,
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+   // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    // const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "report.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.download = "report.json";
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // URL.revokeObjectURL(url);
+    if(checkNull(data)){
+      try{
+        const response = await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        router.push(`/project-main/${props.params.id}/outputManagement`);
+      }catch(err){
+  
+      }
+    }else{
+      alert("데이터를 모두 입력해주세요.");
+    }
   };
 
   if (!isMounted) {
@@ -88,20 +98,12 @@ export default function ReportForm(props: any) {
               <div style={{ marginBottom: "20px" }}>
                 <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>기본 정보</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>제목:</label>
+                  <label>보고서 제목:</label>
                   <input
                     type="text"
                     value={reportTitle}
                     onChange={(e) => setReportTitle(e.target.value)}
-                    placeholder="제목 입력"
-                  />
-
-                  <label>팀명:</label>
-                  <input
-                    type="text"
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    placeholder="팀명 입력"
+                    placeholder="보고서 제목 입력"
                   />
 
                   <label>프로젝트 명:</label>
@@ -118,6 +120,14 @@ export default function ReportForm(props: any) {
                     value={submissionDate}
                     onChange={(e) => setSubmissionDate(e.target.value)}
                   />
+
+                  <label>작성자:</label>
+                  <input
+                    type="text"
+                    value={writer}
+                    onChange={(e) => setWriter(e.target.value)}
+                    placeholder="작성자 이름 입력"
+                  />
                 </div>
               </div>
 
@@ -125,48 +135,19 @@ export default function ReportForm(props: any) {
               <div style={{ marginBottom: "20px" }}>
                 <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>세부 내용</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>소개:</label>
+                  <label>팀원 및 지도 교수:</label>
                   <textarea
-                    value={introduction}
-                    onChange={(e) => setIntroduction(e.target.value)}
-                    placeholder="소개 내용 입력"
+                    value={teamMembers}
+                    onChange={(e) => setTeamMembers(e.target.value)}
+                    placeholder="팀원 및 지도 교수 정보 입력"
                     style={{ height: "100px" }}
                   />
 
-                  <label>팀원:</label>
-                  <input
-                    type="text"
-                    value={teamMembers}
-                    onChange={(e) => setTeamMembers(e.target.value)}
-                    placeholder="팀원 입력"
-                  />
-
-                  <label>지도 교수:</label>
-                  <input
-                    type="text"
-                    value={advisor}
-                    onChange={(e) => setAdvisor(e.target.value)}
-                    placeholder="지도 교수 입력"
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>연구 세부사항</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>문제 정의:</label>
+                  <label>문제 정의 및 연구 목표:</label>
                   <textarea
                     value={problemDefinition}
                     onChange={(e) => setProblemDefinition(e.target.value)}
-                    placeholder="문제 정의 입력"
-                    style={{ height: "100px" }}
-                  />
-
-                  <label>연구 목표:</label>
-                  <textarea
-                    value={researchGoal}
-                    onChange={(e) => setResearchGoal(e.target.value)}
-                    placeholder="연구 목표 입력"
+                    placeholder="문제 정의 및 연구 목표 입력"
                     style={{ height: "100px" }}
                   />
 
@@ -180,9 +161,9 @@ export default function ReportForm(props: any) {
                 </div>
               </div>
 
-              {/* 결과 및 참고문헌 */}
+              {/* 결과 섹션 */}
               <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>결과 및 참고문헌</h2>
+                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>결과 및 결론</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
                   <label>시스템 아키텍처:</label>
                   <textarea
@@ -207,22 +188,6 @@ export default function ReportForm(props: any) {
                     placeholder="결론 입력"
                     style={{ height: "100px" }}
                   />
-
-                  <label>참고문헌:</label>
-                  <textarea
-                    value={references}
-                    onChange={(e) => setReferences(e.target.value)}
-                    placeholder="참고문헌 입력"
-                    style={{ height: "100px" }}
-                  />
-
-                  <label>부록:</label>
-                  <textarea
-                    value={appendices}
-                    onChange={(e) => setAppendices(e.target.value)}
-                    placeholder="부록 입력"
-                    style={{ height: "100px" }}
-                  />
                 </div>
               </div>
 
@@ -244,21 +209,16 @@ export default function ReportForm(props: any) {
           ) : (
             <div>
               <h2 style={{ borderBottom: "1px solid #ddd" }}>미리보기</h2>
-              <p><strong>제목:</strong> {reportTitle}</p>
-              <p><strong>팀명:</strong> {teamName}</p>
+              <p><strong>보고서 제목:</strong> {reportTitle}</p>
               <p><strong>프로젝트 명:</strong> {projectName}</p>
               <p><strong>작성일:</strong> {submissionDate}</p>
-              <p><strong>소개:</strong> {introduction}</p>
-              <p><strong>팀원:</strong> {teamMembers}</p>
-              <p><strong>지도 교수:</strong> {advisor}</p>
-              <p><strong>문제 정의:</strong> {problemDefinition}</p>
-              <p><strong>연구 목표:</strong> {researchGoal}</p>
+              <p><strong>작성자:</strong> {writer}</p>
+              <p><strong>팀원 및 지도 교수:</strong> {teamMembers}</p>
+              <p><strong>문제 정의 및 연구 목표:</strong> {problemDefinition}</p>
               <p><strong>설계 및 개발 과정:</strong> {designProcess}</p>
               <p><strong>시스템 아키텍처:</strong> {systemArchitecture}</p>
               <p><strong>실험 및 결과:</strong> {experimentResults}</p>
               <p><strong>결론:</strong> {conclusion}</p>
-              <p><strong>참고문헌:</strong> {references}</p>
-              <p><strong>부록:</strong> {appendices}</p>
 
               {/* 수정 및 다운로드 버튼 */}
               <div style={{ marginTop: "20px" }}>

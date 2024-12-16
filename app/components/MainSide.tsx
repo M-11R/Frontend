@@ -6,6 +6,7 @@ import todojson from '@/app/json/test.json'
 import msBox from '@/app/json/msBox.json'
 import { getUserId, getToken, getUnivId } from '../util/storage';
 import axios from 'axios';
+import { limitTitle } from '../util/string';
 
 type returnType = {
     "RESULT_CODE": number
@@ -18,9 +19,28 @@ type payload = {
     "name": string
     "permission": string
 }
+type returnTask = {
+    "RESULT_CODE": number
+    "RESULT_MSG": string
+    "PAYLOADS": taskType[]
+}
+type taskType = {
+    "tid": number
+    "tname": string
+    "tperson": string
+    "tstart": string
+    "tend": string
+    "tfinish": boolean
+}
+type postTaskPayload = {
+    pid: number
+    univ_id: number
+}
 const MainSide = ({pid}: {pid: number}) => {
     const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
     const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
+    const [data, setData] = useState<taskType[]>([]);
+    const tmpUnivId: number = getUnivId();
     const router = useRouter();
 
     useEffect(() => {
@@ -34,6 +54,7 @@ const MainSide = ({pid}: {pid: number}) => {
         if (pid === undefined){
             
         }
+        loadTask();
     }, [pid, router]);
 
     const subMenu = [[msBox.subMenu.main.value, null, null, null, null, null],
@@ -89,16 +110,31 @@ const MainSide = ({pid}: {pid: number}) => {
             alert("로그아웃 후 다시 로그인 해주세요.")
         }
     }
+    
+
+    const loadTask = async() => {
+        const postData: postTaskPayload = {pid: pid, univ_id: tmpUnivId};
+        try{
+            const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const sortedData = response.data.PAYLOADS.sort((a, b) => {
+                const dateA = new Date(a.tend).getTime();
+                const dateB = new Date(b.tend).getTime();
+                return dateA - dateB;
+            })
+            const sliceData: taskType[] = sortedData.slice(0, 1);
+            setData([...sliceData]);
+        }catch(err){}
+    }
     return (
         <div style={{marginLeft: '100px', display: 'relative', justifyContent: 'center', alignItems: 'center', width: '200px', backgroundColor: '#D3D3D3', height: 'calc(100vh - 105px)'}}>
             {/*미니 Todo List*/}
             <div style={{height: '150px', width: '99%', backgroundColor: '#F9D984', border: '1px solid #000000', fontSize: '15px'}}>
                 <span>To-Do List</span>
                 <div style={{height: 'calc(100% - 20px)', position: 'relative'}}>
-                    {todojson.test.map((item) => (
-                        <div key={item.Tid} style={{position: 'absolute', bottom: '5px'}}>
-                            <div>마감 기한 : {item.Tdate}</div>
-                            <div>{item.Tstring}</div>
+                    {data.map((item) => (
+                        <div key={item.tid} style={{position: 'absolute', bottom: '5px'}}>
+                            <div>마감 기한 : {item.tend}</div>
+                            <div>{limitTitle(item.tname, 15)}</div>
                         </div>
                     ))}
                 </div>

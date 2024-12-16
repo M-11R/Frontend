@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
+import axios from "axios";
+import { checkNull } from "@/app/util/check";
+import { useRouter } from 'next/navigation'
 
 export default function RequirementsForm(props: any) {
   // 상태 관리
@@ -14,10 +17,11 @@ export default function RequirementsForm(props: any) {
   const [systemRequirementsDesc, setSystemRequirementsDesc] = useState("");
   const [functionalRequirements, setFunctionalRequirements] = useState("");
   const [functionalRequirementsDesc, setFunctionalRequirementsDesc] = useState("");
-  const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState("");
+  const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState(0);
   const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState("");
   const [nonFunctionalRequirementsDesc, setNonFunctionalRequirementsDesc] = useState("");
-  const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState("");
+  const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState(0);
+  const router = useRouter();
 
   // 클라이언트 렌더링 여부 확인
   useEffect(() => {
@@ -31,29 +35,40 @@ export default function RequirementsForm(props: any) {
   const handleEdit = () => setIsPreview(false);
 
   // 다운로드 핸들러
-  const handleDownload = () => {
+  const handleDownload = async() => {
     const data = {
       작성일: creationDate,
-      시스템요구사항: systemRequirements,
-      시스템요구사항설명: systemRequirementsDesc,
-      기능요구사항: functionalRequirements,
-      기능요구사항설명: functionalRequirementsDesc,
-      기능요구사항우선순위: functionalRequirementsPriority,
-      비기능요구사항: nonFunctionalRequirements,
-      비기능요구사항설명: nonFunctionalRequirementsDesc,
-      비기능요구사항우선순위: nonFunctionalRequirementsPriority,
+      feature_name: functionalRequirements,
+      description: functionalRequirementsDesc,
+      priority: functionalRequirementsPriority,
+      non_functional_requirement_name: nonFunctionalRequirements,
+      non_functional_description: nonFunctionalRequirementsDesc,
+      non_functional_priority: nonFunctionalRequirementsPriority,
+      system_item: systemRequirements,
+      system_description: systemRequirementsDesc,
+      pid: props.params.id
     };
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+    // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    // const url = URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "requirements.json";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.download = "requirements.json";
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+    // URL.revokeObjectURL(url);
+    if(checkNull(data)){
+      try{
+        const response = await axios.post("https://cd-api.chals.kim/api/output/reqspec_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        router.push(`/project-main/${props.params.id}/outputManagement`);
+      }catch(err){
+  
+      }
+    }else{
+      alert("데이터를 모두 입력해주세요.");
+    }
   };
 
   if (!isMounted) {
@@ -129,10 +144,10 @@ export default function RequirementsForm(props: any) {
 
                   <label>기능 요구사항 우선순위:</label>
                   <input
-                    type="text"
+                    type="number"
                     value={functionalRequirementsPriority}
-                    onChange={(e) => setFunctionalRequirementsPriority(e.target.value)}
-                    placeholder="기능 요구사항 우선순위 입력"
+                    onChange={(e) => setFunctionalRequirementsPriority(e.target.valueAsNumber)}
+                    placeholder="기능 요구사항 우선순위 입력(숫자만 입력)"
                   />
                 </div>
               </div>
@@ -159,10 +174,10 @@ export default function RequirementsForm(props: any) {
 
                   <label>비기능 요구사항 우선순위:</label>
                   <input
-                    type="text"
+                    type="number"
                     value={nonFunctionalRequirementsPriority}
-                    onChange={(e) => setNonFunctionalRequirementsPriority(e.target.value)}
-                    placeholder="비기능 요구사항 우선순위 입력"
+                    onChange={(e) => setNonFunctionalRequirementsPriority(e.target.valueAsNumber)}
+                    placeholder="비기능 요구사항 우선순위 입력(숫자만 입력)"
                   />
                 </div>
               </div>
