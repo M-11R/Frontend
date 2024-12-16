@@ -245,7 +245,7 @@ export default function ReportForm(props: any) {
                     cursor: "pointer",
                   }}
                 >
-                  다운로드
+                  저장
                 </button>
               </div>
             </div>

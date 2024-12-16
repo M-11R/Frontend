@@ -19,7 +19,7 @@ const MainHeader = ({pid}: {pid:  number}) =>(
             <Link href='/'><Image src={ico} alt="Left Image" style={{ width: '100px', height: '100px', bottom: '0' }} /></Link>
             {/* 테스트용 페이지 이름 */}
             <div style={{position: 'relative', right: '0px', top: '20px'}}>
-              {jinchek(0)}
+              {jinchek(30)}
             </div>
       </div>
 );

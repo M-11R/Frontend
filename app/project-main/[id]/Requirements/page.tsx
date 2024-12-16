@@ -235,7 +235,7 @@ export default function RequirementsForm(props: any) {
                     cursor: "pointer",
                   }}
                 >
-                  다운로드
+                  저장
                 </button>
               </div>
             </div>

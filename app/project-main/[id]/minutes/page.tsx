@@ -11,7 +11,6 @@ import axios from "axios";
 // 참석자 타입 정의
 type Participant = {
   name: string;
-  department: string;
   studentId: string;
 };
 
@@ -27,7 +26,8 @@ export default function MeetingMinutes(props: any) {
   const [attendees, setAttendees] = useState("");
   const [meetingContent, setMeetingContent] = useState("");
   const [meetingResult, setMeetingResult] = useState("");
-  const [participants, setParticipants] = useState<Participant[]>([{ name: "", department: "", studentId: "" }]);
+  const [participants, setParticipants] = useState<Participant[]>([{ name: "", studentId: "" }]);
+  const [team, setTeam] = useState('');
   const router = useRouter();
   // 클라이언트 렌더링 여부 확인
   useEffect(() => {
@@ -42,18 +42,20 @@ export default function MeetingMinutes(props: any) {
 
   // 다운로드 핸들러
   const handleDownload = async() => {
+    setTeam(participants.map(item => `${item.name},${item.studentId}`).join(';') + ';');
     const data = {
       // 참석자목록: participants,
       main_agenda: agenda,
       date_time: fixDate(meetingDate),
       location: location,
-      participants: attendees,
+      participants: team,
       responsible_person: responsiblePerson,
       meeting_content: meetingContent,
       meeting_outcome: meetingResult,
       pid: props.params.id,
     };
-
+    console.log(team)
+    console.log(participants.map(item => `${item.name},${item.studentId}`).join(';') + ';')
     // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     // const url = URL.createObjectURL(blob);
 
@@ -180,19 +182,6 @@ export default function MeetingMinutes(props: any) {
                     />
                     <input
                       type="text"
-                      value={participant.department}
-                      onChange={(e) =>
-                        setParticipants((prev) => {
-                          const updated = [...prev];
-                          updated[index].department = e.target.value;
-                          return updated;
-                        })
-                      }
-                      placeholder="소속"
-                      style={{ width: "100%", padding: "8px", marginTop: "5px" }}
-                    />
-                    <input
-                      type="text"
                       value={participant.studentId}
                       onChange={(e) =>
                         setParticipants((prev) => {
@@ -208,7 +197,7 @@ export default function MeetingMinutes(props: any) {
                 ))}
                 <button
                   onClick={() =>
-                    setParticipants((prev) => [...prev, { name: "", department: "", studentId: "" }])
+                    setParticipants((prev) => [...prev, { name: "", studentId: "" }])
                   }
                   style={{
                     marginTop: "10px",
@@ -265,7 +254,7 @@ export default function MeetingMinutes(props: any) {
               <ul>
                 {participants.map((participant, index) => (
                   <li key={index}>
-                    {participant.name} ({participant.department}, {participant.studentId})
+                    {participant.name} ({participant.studentId})
                   </li>
                 ))}
               </ul>
@@ -295,7 +284,7 @@ export default function MeetingMinutes(props: any) {
                     cursor: "pointer",
                   }}
                 >
-                  다운로드
+                  저장
                 </button>
               </div>
             </div>

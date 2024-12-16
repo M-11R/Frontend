@@ -78,5 +78,14 @@
         "tconfig": {"key": 7, "value": "업무 수정", "description": "task 수정"},
         "tTitle": {"key": 8, "value": "업무 관리", "description": "task 타이틀"},
         "tBtn": {"key": 9, "value": "업무 추가", "description": "task 업무 추가 버튼"}
+    },
+    "outType": {
+        "": {"key": 0, "value": "", "description": ""},
+        "etc": {"key": 1, "value": "etc", "description": "기타 산출물"},
+        "report": {"key": 2, "value": "report", "description": "보고서"},
+        "testcase": {"key": 3, "value": "testcase", "description": "테스트케이스"},
+        "request": {"key": 4, "value": "request", "description": "요구사항 명세서"},
+        "minutes": {"key": 5, "value": "minutes", "description": "회의록"},
+        "overview": {"key": 6, "value": "overview", "description": "개요서"}
     }
 }

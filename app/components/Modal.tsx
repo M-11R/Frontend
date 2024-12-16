@@ -315,8 +315,8 @@ export function AddTask({p_id}: {p_id: number}){
 
     const postData = async() => {
         const data = tmpData;
-        data.tstart = fixDate(tmpData.tstart);
-        data.tend = fixDate(tmpData.tend);
+        // data.tstart = fixDate(tmpData.tstart);
+        // data.tend = fixDate(tmpData.tend);
         try{
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/task/add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
         } catch(err){
@@ -338,7 +338,7 @@ export function AddTask({p_id}: {p_id: number}){
         <div>
             <button onClick={openModal} style={{fontSize: '15px'}}>{mb.task.tBtn.value}</button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
-                <div style={{fontSize: '32px', paddingBottom: '20px'}}>{mb.modal.addusertitle.value}</div>
+                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 추가</div>
                 <form onSubmit={handleAddTask} style={{fontSize: '18px'}}>
                     <div style={{padding: '15px'}}>
                         <span style={{padding: '10px'}}>할일 제목</span>
@@ -406,13 +406,14 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
     const [taskName, setTaskName] = useState(data.w_name);
     const [taskId, setTaskId] = useState(data.w_no);
     const [person, setPerson] = useState(data.w_person);
-    const [start, setStart] = useState(`20${data.w_start}`);
-    const [end, setEnd] = useState(`20${data.w_end}`);
+    const [start, setStart] = useState(data.w_start);
+    const [end, setEnd] = useState(data.w_end);
     const [finish, setFinish] = useState(data.w_checked);
     const [univId, setUnivId] = useState(data.s_no);
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
+    // const router = useRouter();
     type postType = {
         tname: string
         tperson: string
@@ -433,8 +434,8 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
     const postData: postType = {
         tname: taskName,
         tperson: person,
-        tstart: fixDate(start),
-        tend: fixDate(end),
+        tstart: start,
+        tend: end,
         tfinish: finish,
         univ_id: univId,
         tid: taskId
@@ -462,8 +463,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
 
         }finally{
             closeModal();
-            const router = useRouter();
-            router.replace(router.asPath)
+            // router.replace(router.asPath)
         }
     }
     const getData = async() => {
