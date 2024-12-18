@@ -41,18 +41,17 @@ export default function ReportForm(props: any) {
   // 다운로드 및 API 호출
   const handleDownload = async () => {
     const data = {
-      reportTitle,
-      projectName,
-      submissionDate: fixDate(submissionDate),
-      writer,
-      teamMembers,
-      advisor,
-      problemDefinition,
-      researchGoal,
-      designProcess,
-      systemArchitecture,
-      experimentResults,
-      conclusion,
+      rname: reportTitle,
+      pname: projectName,
+      rdate: submissionDate,
+      rwriter: writer,
+      pmember: teamMembers,
+      pprof: problemDefinition,
+      presearch: researchGoal,
+      pdesign: designProcess,
+      parch: systemArchitecture,
+      presult: experimentResults,
+      pconc: conclusion,
       pid: props.params.id,
     };
 
@@ -111,7 +110,7 @@ export default function ReportForm(props: any) {
                     type="text"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="프로젝트 명 입력"
+                    placeholder="프로젝트 이름 입력"
                   />
 
                   <label>작성일:</label>

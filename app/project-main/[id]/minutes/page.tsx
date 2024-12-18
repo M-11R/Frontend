@@ -27,7 +27,6 @@ export default function MeetingMinutes(props: any) {
   const [meetingContent, setMeetingContent] = useState("");
   const [meetingResult, setMeetingResult] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([{ name: "", studentId: "" }]);
-  const [team, setTeam] = useState('');
   const router = useRouter();
   // 클라이언트 렌더링 여부 확인
   useEffect(() => {
@@ -42,20 +41,18 @@ export default function MeetingMinutes(props: any) {
 
   // 다운로드 핸들러
   const handleDownload = async() => {
-    setTeam(participants.map(item => `${item.name},${item.studentId}`).join(';') + ';');
     const data = {
       // 참석자목록: participants,
       main_agenda: agenda,
       date_time: fixDate(meetingDate),
       location: location,
-      participants: team,
+      participants: (participants.map(item => `${item.name},${item.studentId}`).join(';') + ';'),
       responsible_person: responsiblePerson,
       meeting_content: meetingContent,
       meeting_outcome: meetingResult,
       pid: props.params.id,
     };
-    console.log(team)
-    console.log(participants.map(item => `${item.name},${item.studentId}`).join(';') + ';')
+    console.log(data.participants)
     // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     // const url = URL.createObjectURL(blob);
 
@@ -127,14 +124,6 @@ export default function MeetingMinutes(props: any) {
                     value={responsiblePerson}
                     onChange={(e) => setResponsiblePerson(e.target.value)}
                     placeholder="책임자명 입력"
-                  />
-
-                  <label>참석 인원:</label>
-                  <input
-                    type="text"
-                    value={attendees}
-                    onChange={(e) => setAttendees(e.target.value)}
-                    placeholder="참석 인원 입력"
                   />
                 </div>
               </div>
@@ -240,9 +229,6 @@ export default function MeetingMinutes(props: any) {
               </div>
               <div>
                 <strong>책임자명:</strong> {responsiblePerson}
-              </div>
-              <div>
-                <strong>참석 인원:</strong> {attendees}
               </div>
               <div>
                 <strong>회의 내용:</strong> {meetingContent}

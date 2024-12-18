@@ -1,7 +1,7 @@
 import MainHeader from '@/app/components/MainHeader'
 import MainSide from '@/app/components/MainSide'
 import MsBox from '@/app/json/msBox.json'
-import { OutputEtc, OutputOvr, OutputMm, OutputTest, OutputReq } from '@/app/components/DynOutCom'
+import { OutputEtc, OutputOvr, OutputMm, OutputTest, OutputReq, OutputReport } from '@/app/components/DynOutCom'
 
 const DynamicOutput = ({type, oid, pid}: {type: string, oid: number, pid: number}) => {
     // const item = Udata.find((item) => item.id === Number(value));
@@ -18,6 +18,7 @@ const DynamicOutput = ({type, oid, pid}: {type: string, oid: number, pid: number
         case MsBox.outType.minutes.value:
             return <OutputMm oid={oid} pid={pid}/>
         case MsBox.outType.report.value:
+            return <OutputReport oid={oid} pid={pid}/>
         default:
             return <div>Error : {type}</div>
     }

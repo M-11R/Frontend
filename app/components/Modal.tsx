@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios'
 import mb from '@/app/json/msBox.json'
 import { getUnivId } from '@/app/util/storage';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 type inputType = {
     "univ_id": number,
@@ -81,9 +81,9 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
     const closeModal = () => setIsOpen(false);
 
     const data = {
-        permision: permision,
-        role: role,
-        hak: hak
+        univ_id: hak,
+        pid: pid,
+        role: role
     };
 
     useEffect(() => {
@@ -122,8 +122,8 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
 
     const postData = async() => {
         try{
-            const response = await axios.post("https://cd-api.chals.kim/api/test/post", data);
-            console.log(response.data);
+            const response = await axios.post("https://cd-api.chals.kim/api/project/edituser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            
         } catch(err){
             alert('error');
         }
@@ -262,6 +262,7 @@ export function AddTask({p_id}: {p_id: number}){
     const [startDate, setStart] = useState("");
     const [endDate, setEnd] = useState("");
     const [hak, setHak] = useState(0);
+    const router = useRouter();
 
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(true);
@@ -299,8 +300,8 @@ export function AddTask({p_id}: {p_id: number}){
             setHak(0)
             setName("")
             closeModal();
-            const router = useRouter();
-            router.replace(router.asPath)
+            
+            router.refresh();
         }
     };
 
@@ -454,6 +455,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
             alert(mb.modal.nullinfo.value)
         }else(
             fixTask()
+            
         )
     };
     const fixTask = async() => {

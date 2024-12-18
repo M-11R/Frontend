@@ -134,6 +134,22 @@ export default function Main(props: any) {
     setRows((prevRows) => prevRows.filter((row) => row.id !== id));
   };
 
+  const moveRowUp = (index: number) => {
+    if (index > 0){
+      const newRows = [...rows];
+      [newRows[index], newRows[index -1]] = [newRows[index -1], newRows[index]];
+      setRows(newRows)
+    }
+  }
+
+  const moveRowDown = (index: number) => {
+    if (index < rows.length -1){
+      const newRows = [...rows];
+      [newRows[index], newRows[index +1]] = [newRows[index +1], newRows[index]];
+      setRows(newRows);
+    }
+  }
+
   return (
     <div>
       <MainHeader pid={props.params.id} />
@@ -237,11 +253,12 @@ export default function Main(props: any) {
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>시작일</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>마감일</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>완료</th>
+                <th style={{ padding: "10px", border: "1px solid #ddd" }}>위/아래</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>삭제</th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row, index) => (
                 <tr
                   key={row.id}
                   style={{
@@ -321,6 +338,32 @@ export default function Main(props: any) {
                       onChange={() => toggleCompleted(row.id)}
                       style={{ cursor: "pointer" }}
                     />
+                  </td>
+                  <td style={{ textAlign: "center" }}>
+                    <button
+                      onClick={() => moveRowUp(index)}
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "#FF4D4D",
+                        color: "#fff",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      onClick={() => moveRowDown(index)}
+                      style={{
+                        padding: "5px 10px",
+                        backgroundColor: "#FF4D4D",
+                        color: "#fff",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      ▼
+                    </button>
                   </td>
                   <td style={{ textAlign: "center" }}>
                     <button

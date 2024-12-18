@@ -290,6 +290,7 @@ export const OutputMm = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
+                            <div style={{float: 'right'}}><button>수정</button></div>
                             <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.minutes.value, oid: data?.doc_m_no ?? -1}} pid={pid}/></div>
                         </div>
                     </td>
@@ -341,6 +342,7 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
+                            <div style={{float: 'right'}}><button>수정</button></div>
                             <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.testcase.value, oid: data?.doc_t_no ?? -1}} pid={pid}/></div>
                         </div>
                     </td>
@@ -412,6 +414,7 @@ export const OutputReq = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
+                            <div style={{float: 'right'}}><button>수정</button></div>
                             <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.request.value, oid: data?.doc_r_no ?? -1}} pid={pid}/></div>
                         </div>
                     </td>
@@ -491,6 +494,7 @@ export const OutputReport = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
+                            <div style={{float: 'right'}}><button>수정</button></div>
                             <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.report.value, oid: data?.doc_rep_no ?? -1}} pid={pid}/></div>
                         </div>
                     </td>
