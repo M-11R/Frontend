@@ -9,7 +9,6 @@ import { checkNull } from "@/app/util/check";
 import { useRouter } from "next/navigation";
 
 export default function ServiceTestForm(props: any) {
-  // 상태 관리
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -19,19 +18,14 @@ export default function ServiceTestForm(props: any) {
   const [testPassStatus, setTestPassStatus] = useState(false);
   const router = useRouter();
 
-  // 클라이언트 렌더링 여부 확인
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // 미리보기 핸들러
   const handlePreview = () => setIsPreview(true);
-
-  // 수정 핸들러
   const handleEdit = () => setIsPreview(false);
 
-  // 다운로드 핸들러
-  const handleDownload = async() => {
+  const handleDownload = async () => {
     const data = {
       tcname: testItemName,
       tcstart: fixDate(testStartDate),
@@ -40,76 +34,115 @@ export default function ServiceTestForm(props: any) {
       pid: props.params.id,
     };
 
-    // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    // const url = URL.createObjectURL(blob);
-
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.download = "service_test.json";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // URL.revokeObjectURL(url);
-    if(checkNull(data)){
-      try{
-        const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+    if (checkNull(data)) {
+      try {
+        await axios.post("https://cd-api.chals.kim/api/output/testcase_add", data, {
+          headers: { Authorization: process.env.SECRET_API_KEY },
+        });
         router.push(`/project-main/${props.params.id}/outputManagement`);
-      }catch(err){
-  
+      } catch (err) {
+        alert("저장 중 오류가 발생했습니다.");
       }
-    }else{
-      alert("데이터를 모두 입력해주세요.");
+    } else {
+      alert("모든 필드를 입력해주세요.");
     }
   };
 
-  if (!isMounted) {
-    return null; // 서버와 클라이언트 불일치 방지
-  }
+  if (!isMounted) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        background: "linear-gradient(to bottom right, #F3F4F6, #E2E8F0)",
+        fontFamily: "'Roboto', sans-serif",
+      }}
+    >
       <MainHeader pid={props.params.id} />
 
       <div style={{ display: "flex", flex: 1 }}>
         <MainSide pid={props.params.id} />
 
-        <div style={{ padding: "20px", width: "100%", overflowY: "auto" }}>
-          <h1 style={{ borderBottom: "2px solid #4CAF50", paddingBottom: "10px" }}>서비스 테스트 작성</h1>
+        <div
+          style={{
+            padding: "20px",
+            width: "100%",
+            overflowY: "auto",
+            backgroundColor: "#FFFFFF",
+            borderRadius: "12px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            margin: "20px",
+          }}
+        >
+          <h1
+            style={{
+              borderBottom: "2px solid #4CAF50",
+              paddingBottom: "10px",
+              fontSize: "24px",
+              color: "#4CAF50",
+            }}
+          >
+            서비스 테스트 작성
+          </h1>
 
           {!isPreview ? (
             <div>
-              {/* 테스트 정보 입력 섹션 */}
+              {/* 테스트 정보 섹션 */}
               <div style={{ marginBottom: "20px" }}>
                 <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>테스트 정보</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>테스트 시작일:</label>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 2fr",
+                    gap: "15px",
+                    marginTop: "15px",
+                  }}
+                >
+                  <label style={{ fontWeight: "bold" }}>테스트 시작일:</label>
                   <input
                     type="date"
                     value={testStartDate}
                     onChange={(e) => setTestStartDate(e.target.value)}
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
 
-                  <label>테스트 종료일:</label>
+                  <label style={{ fontWeight: "bold" }}>테스트 종료일:</label>
                   <input
                     type="date"
                     value={testEndDate}
                     onChange={(e) => setTestEndDate(e.target.value)}
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
 
-                  <label>테스트 항목 이름:</label>
+                  <label style={{ fontWeight: "bold" }}>테스트 항목 이름:</label>
                   <input
                     type="text"
                     value={testItemName}
                     onChange={(e) => setTestItemName(e.target.value)}
                     placeholder="테스트 항목 입력"
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
 
-                  <label>테스트 통과 여부:</label>
+                  <label style={{ fontWeight: "bold" }}>테스트 통과 여부:</label>
                   <input
                     type="checkbox"
-                    id="checkbox"
                     checked={testPassStatus}
                     onChange={(e) => setTestPassStatus(e.target.checked)}
+                    style={{ transform: "scale(1.5)" }}
                   />
                 </div>
               </div>
@@ -118,34 +151,39 @@ export default function ServiceTestForm(props: any) {
               <button
                 onClick={handlePreview}
                 style={{
-                  padding: "10px 20px",
+                  padding: "12px 25px",
                   backgroundColor: "#4CAF50",
                   color: "white",
                   border: "none",
+                  borderRadius: "8px",
                   cursor: "pointer",
-                  marginTop: "20px",
+                  fontSize: "16px",
+                  transition: "background-color 0.3s",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#388E3C")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#4CAF50")}
               >
                 미리보기
               </button>
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd" }}>미리보기</h2>
-              <div>
+              <h2 style={{ borderBottom: "1px solid #ddd", marginBottom: "10px", color: "#333" }}>
+                미리보기
+              </h2>
+              <p>
                 <strong>테스트 시작일:</strong> {testStartDate}
-              </div>
-              <div>
+              </p>
+              <p>
                 <strong>테스트 종료일:</strong> {testEndDate}
-              </div>
-              <div>
+              </p>
+              <p>
                 <strong>테스트 항목 이름:</strong> {testItemName}
-              </div>
-              <div>
-                <strong>테스트 통과 여부:</strong> {testPassStatus}
-              </div>
+              </p>
+              <p>
+                <strong>테스트 통과 여부:</strong> {testPassStatus ? "예" : "아니오"}
+              </p>
 
-              {/* 수정 및 다운로드 버튼 */}
               <div style={{ marginTop: "20px" }}>
                 <button
                   onClick={handleEdit}
@@ -154,7 +192,7 @@ export default function ServiceTestForm(props: any) {
                     backgroundColor: "#f0ad4e",
                     color: "white",
                     border: "none",
-                    cursor: "pointer",
+                    borderRadius: "8px",
                     marginRight: "10px",
                   }}
                 >
@@ -167,7 +205,7 @@ export default function ServiceTestForm(props: any) {
                     backgroundColor: "#2196F3",
                     color: "white",
                     border: "none",
-                    cursor: "pointer",
+                    borderRadius: "8px",
                   }}
                 >
                   저장

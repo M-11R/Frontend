@@ -1,63 +1,56 @@
 import MainHeader from '@/app/components/MainHeader';
 import MainSide from '@/app/components/MainSide';
-import Pagination from '@/app/components/pagenation'
-import data from '@/app/json/udata.json'
-import MsBox from '@/app/json/msBox.json'
+import Pagination from '@/app/components/pagenation';
 import Link from 'next/link';
 import DocumentTable from '@/app/components/DocumentTable';
 
-type Resource = {
-    id: number,
-    title: string,
-    description: string,
-    writer: string,
-    date: string
-};
-
-export default function OutputManagement({ params, searchParams }: { params: { id: number }, searchParams: { page?: string } }) {
-    // const itemsPerPage = 10; // 한 페이지당 표시할 글 수
-    const page = parseInt(searchParams.page || "1", 10);
-    // const totalItems = data.length;
-    // const totalPages = Math.ceil(totalItems / itemsPerPage);
-    
-
-    // 현재 페이지 데이터 계산
-    // const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+export default function OutputManagement({ params, searchParams }: { params: { id: number }; searchParams: { page?: string } }) {
+    const page = parseInt(searchParams.page || '1', 10);
 
     return (
-        <div>
-            <MainHeader pid = {params.id}/>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', fontFamily: "'Roboto', sans-serif", backgroundColor: '#f9fafb' }}>
+            <MainHeader pid={params.id} />
 
-            <div style={{display: 'flex'}}>
-                <MainSide pid = {params.id}/>
+            <div style={{ display: 'flex', flex: 1 }}>
+                <MainSide pid={params.id} />
 
-                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
-                    {/* <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
-                        <div style={{height: '100%', maxHeight: '650px', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
-                            <h1>{MsBox.page.test.value}</h1>
-                            <div style={{width: '100%', height: '100%'}}>
-                                <div style={{height: '9%', width: '100%', border: '1px solid #000000', display: 'flex', backgroundColor: '#dfdfdf', fontWeight: 'bold'}}>
-                                    <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '10%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.id.value}</div>
-                                    <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '20%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.name.value}</div>
-                                    <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', borderRight: '1px solid #000000', textAlign: 'center'}}>{MsBox.om.title.value}</div>
-                                    <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', textAlign: 'center'}}>{MsBox.om.date.value}</div>
-                                </div>
-                                {currentData.map((item: Resource) => (
-                                    <div key={item.id} style={{height: '9%', width: '100%', border: '1px solid #000000', display: 'flex'}}>
-                                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '10%', borderRight: '1px solid #000000', textAlign: 'center'}}>{item.id}</div>
-                                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '20%', borderRight: '1px solid #000000', textAlign: 'center'}}>{item.writer}</div>
-                                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', borderRight: '1px solid #000000', textAlign: 'center'}}><Link href={`/project-main/${params.id}/output/${item.id}`}>{item.title}</Link></div>
-                                        <div style={{fontSize: '18px', alignContent: 'center', height: '100%', width: '35%', textAlign: 'center'}}>{item.date}</div>
-                                    </div>
-                                ))}
-                            </div>
-                            
-                            <div style={{height: '50px'}}></div>
-                            
-                            <Pagination currentPage={page} totalPages={totalPages} basePath={`/project-main/${params.id}/outputManagement`} />
-                        </div>
-                    </div> */}
-                    <DocumentTable page={page} pid={params.id}/>
+                <div
+                    style={{
+                        width: 'calc(100% - 200px)',
+                        height: 'calc(100vh - 105px)',
+                        backgroundColor: '#ffffff',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        margin: '20px',
+                        padding: '20px',
+                        overflowY: 'auto',
+                    }}
+                >
+                    <h1 style={{ fontSize: '24px', color: '#4CAF50', marginBottom: '20px', borderBottom: '2px solid #4CAF50', paddingBottom: '10px' }}>
+                        산출물 관리
+                    </h1>
+
+                    <div
+                        style={{
+                            marginBottom: '20px',
+                            padding: '15px',
+                            borderRadius: '10px',
+                            backgroundColor: '#f3f4f6',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        }}
+                    >
+                        <p style={{ fontSize: '16px', color: '#6b7280' }}>
+                            현재 프로젝트 산출물을 관리하고 확인하세요. 산출물 제목을 클릭하여 세부 내용을 확인할 수 있습니다.
+                        </p>
+                    </div>
+
+                    <DocumentTable page={page} pid={params.id} />
+
+                    <Pagination
+                        currentPage={page}
+                        totalPages={10} // 실제 데이터의 총 페이지 수로 변경
+                        basePath={`/project-main/${params.id}/outputManagement`}
+                    />
                 </div>
             </div>
         </div>

@@ -5,6 +5,7 @@ import axios from 'axios'
 import mb from '@/app/json/msBox.json'
 import { getUnivId } from '@/app/util/storage';
 import { useRouter } from 'next/navigation';
+import { usePageReload } from '@/app/util/reloadPage';
 
 type inputType = {
     "univ_id": number,
@@ -411,6 +412,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
     const [end, setEnd] = useState(data.w_end);
     const [finish, setFinish] = useState(data.w_checked);
     const [univId, setUnivId] = useState(data.s_no);
+    const {reloadPage} = usePageReload();
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
@@ -465,7 +467,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
 
         }finally{
             closeModal();
-            // router.replace(router.asPath)
+            reloadPage();
         }
     }
     const getData = async() => {
@@ -474,6 +476,18 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
             setUser(response.data.PAYLOADS);
         }catch(err){
 
+        }
+    }
+    const deleteTask = async() => {
+        const tidData = {tid: taskId}
+        try{
+            const response = await axios.post<returnType>("https://cd-api.chals.kim/api/task/delete", tidData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            if(response.data.RESULT_CODE === 200){
+                closeModal()
+                reloadPage()
+                console.log('test')
+            }
+        }catch(err){
         }
     }
     return(
@@ -553,7 +567,10 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
                             onChange={(e) => setFinish(e.target.checked)}
                         />
                     </div>
-                    <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', gap: '10px' }}>
+                            <button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button>
+                            <button type='button' onClick={deleteTask} style={{fontSize: '15px'}}>삭제</button>
+                    </div>
                 </form>
                 
             </Modal>

@@ -5,11 +5,9 @@ import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import axios from "axios";
 import { checkNull } from "@/app/util/check";
-import { fixDate } from "@/app/util/fixDate";
 import { useRouter } from "next/navigation";
 
 export default function ReportForm(props: any) {
-  // 상태 관리
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -27,18 +25,13 @@ export default function ReportForm(props: any) {
   const [conclusion, setConclusion] = useState("");
   const router = useRouter();
 
-  // 클라이언트 렌더링 여부 확인
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // 미리보기 핸들러
   const handlePreview = () => setIsPreview(true);
-
-  // 수정 핸들러
   const handleEdit = () => setIsPreview(false);
 
-  // 다운로드 및 API 호출
   const handleDownload = async () => {
     const data = {
       rname: reportTitle,
@@ -46,6 +39,7 @@ export default function ReportForm(props: any) {
       rdate: submissionDate,
       rwriter: writer,
       pmember: teamMembers,
+      padvisor: advisor,
       pprof: problemDefinition,
       presearch: researchGoal,
       pdesign: designProcess,
@@ -55,25 +49,18 @@ export default function ReportForm(props: any) {
       pid: props.params.id,
     };
 
-   // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    // const url = URL.createObjectURL(blob);
-
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.download = "report.json";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // URL.revokeObjectURL(url);
-    if(checkNull(data)){
-      try{
-        const response = await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+    if (checkNull(data)) {
+      try {
+        await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {
+          headers: { Authorization: process.env.SECRET_API_KEY },
+        });
         router.push(`/project-main/${props.params.id}/outputManagement`);
-      }catch(err){
-  
+      } catch (err) {
+        console.error("저장 오류:", err);
+        alert("저장 중 오류가 발생했습니다.");
       }
-    }else{
-      alert("데이터를 모두 입력해주세요.");
+    } else {
+      alert("모든 필드를 입력해주세요.");
     }
   };
 
@@ -82,18 +69,45 @@ export default function ReportForm(props: any) {
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        background: "linear-gradient(to bottom, #f3f4f6, #e2e8f0)",
+        fontFamily: "'Roboto', sans-serif",
+      }}
+    >
       <MainHeader pid={props.params.id} />
 
       <div style={{ display: "flex", flex: 1 }}>
         <MainSide pid={props.params.id} />
 
-        <div style={{ padding: "20px", width: "100%", overflowY: "auto" }}>
-          <h1 style={{ borderBottom: "2px solid #4CAF50", paddingBottom: "10px" }}>보고서 작성</h1>
+        <div
+          style={{
+            padding: "20px",
+            width: "100%",
+            backgroundColor: "#ffffff",
+            borderRadius: "12px",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+            margin: "20px",
+            overflowY: "auto",
+          }}
+        >
+          <h1
+            style={{
+              borderBottom: "2px solid #4CAF50",
+              paddingBottom: "10px",
+              color: "#4CAF50",
+              fontSize: "24px",
+            }}
+          >
+            보고서 작성
+          </h1>
 
           {!isPreview ? (
             <div>
-              {/* 보고서 정보 입력 */}
+              {/* 기본 정보 입력 */}
               <div style={{ marginBottom: "20px" }}>
                 <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>기본 정보</h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
@@ -103,29 +117,46 @@ export default function ReportForm(props: any) {
                     value={reportTitle}
                     onChange={(e) => setReportTitle(e.target.value)}
                     placeholder="보고서 제목 입력"
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
                   <label>프로젝트 명:</label>
                   <input
                     type="text"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
                     placeholder="프로젝트 이름 입력"
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
                   <label>작성일:</label>
                   <input
                     type="date"
                     value={submissionDate}
                     onChange={(e) => setSubmissionDate(e.target.value)}
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
                   <label>작성자:</label>
                   <input
                     type="text"
                     value={writer}
                     onChange={(e) => setWriter(e.target.value)}
                     placeholder="작성자 이름 입력"
+                    style={{
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
                 </div>
               </div>
@@ -133,73 +164,92 @@ export default function ReportForm(props: any) {
               {/* 상세 내용 입력 */}
               <div style={{ marginBottom: "20px" }}>
                 <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>세부 내용</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>팀원 및 지도 교수:</label>
+                <div style={{ display: "grid", gap: "15px" }}>
                   <textarea
                     value={teamMembers}
                     onChange={(e) => setTeamMembers(e.target.value)}
                     placeholder="팀원 및 지도 교수 정보 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
-                  <label>문제 정의 및 연구 목표:</label>
                   <textarea
                     value={problemDefinition}
                     onChange={(e) => setProblemDefinition(e.target.value)}
                     placeholder="문제 정의 및 연구 목표 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
-                  <label>설계 및 개발 과정:</label>
                   <textarea
                     value={designProcess}
                     onChange={(e) => setDesignProcess(e.target.value)}
                     placeholder="설계 및 개발 과정 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-                </div>
-              </div>
-
-              {/* 결과 섹션 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>결과 및 결론</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>시스템 아키텍처:</label>
                   <textarea
                     value={systemArchitecture}
                     onChange={(e) => setSystemArchitecture(e.target.value)}
                     placeholder="시스템 아키텍처 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
-                  <label>실험 및 결과:</label>
                   <textarea
                     value={experimentResults}
                     onChange={(e) => setExperimentResults(e.target.value)}
                     placeholder="실험 및 결과 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
-
-                  <label>결론:</label>
                   <textarea
                     value={conclusion}
                     onChange={(e) => setConclusion(e.target.value)}
                     placeholder="결론 입력"
-                    style={{ height: "100px" }}
+                    style={{
+                      width: "100%",
+                      height: "100px",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      border: "1px solid #ccc",
+                    }}
                   />
                 </div>
               </div>
 
-              {/* 미리보기 버튼 */}
+              {/* 버튼 */}
               <button
                 onClick={handlePreview}
                 style={{
-                  padding: "10px 20px",
+                  padding: "12px 25px",
                   backgroundColor: "#4CAF50",
-                  color: "white",
+                  color: "#fff",
+                  borderRadius: "8px",
                   border: "none",
                   cursor: "pointer",
-                  marginTop: "20px",
                 }}
               >
                 미리보기
@@ -207,7 +257,7 @@ export default function ReportForm(props: any) {
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd" }}>미리보기</h2>
+              <h2 style={{ borderBottom: "1px solid #ddd", marginBottom: "10px" }}>미리보기</h2>
               <p><strong>보고서 제목:</strong> {reportTitle}</p>
               <p><strong>프로젝트 명:</strong> {projectName}</p>
               <p><strong>작성일:</strong> {submissionDate}</p>
@@ -219,7 +269,7 @@ export default function ReportForm(props: any) {
               <p><strong>실험 및 결과:</strong> {experimentResults}</p>
               <p><strong>결론:</strong> {conclusion}</p>
 
-              {/* 수정 및 다운로드 버튼 */}
+              {/* 수정 및 저장 버튼 */}
               <div style={{ marginTop: "20px" }}>
                 <button
                   onClick={handleEdit}
@@ -254,3 +304,4 @@ export default function ReportForm(props: any) {
     </div>
   );
 }
+

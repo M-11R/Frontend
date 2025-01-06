@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 interface ProjectCreationFormProps {
-    onCreate: (name: string, description: string, startDate: string, endDate: string, members: number, goal: string, duration: string, method: string) => void;
+    onCreate: (name: string, description: string, startDate: string, endDate: string, members: number, goal: string, method: string) => void;
 }
 
 const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) => {
@@ -13,7 +13,6 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
     const [endDate, setEndDate] = useState('');
     const [members, setMembers] = useState<number | "">('');
     const [goal, setGoal] = useState('');
-    const [duration, setDuration] = useState('');
     const [method, setMethod] = useState('');
     const [showForm, setShowForm] = useState(false);
 
@@ -24,14 +23,13 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (projectName.trim()) {
-            onCreate(projectName.trim(), projectDescription.trim(), startDate, endDate, Number(members), goal.trim(), duration.trim(), method.trim());
+            onCreate(projectName.trim(), projectDescription.trim(), startDate, endDate, Number(members), goal.trim(), method.trim());
             setProjectName('');
             setProjectDescription('');
             setStartDate('');
             setEndDate('');
             setMembers(0);
             setGoal('');
-            setDuration('');
             setMethod('');
             setShowForm(false);
         }
@@ -83,17 +81,6 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
                             id="goal"
                             value={goal}
                             onChange={(e) => setGoal(e.target.value)}
-                            required
-                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '15px' }}>
-                        <label htmlFor="duration" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>개발 기간:</label>
-                        <input
-                            type="text"
-                            id="duration"
-                            value={duration}
-                            onChange={(e) => setDuration(e.target.value)}
                             required
                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
                         />

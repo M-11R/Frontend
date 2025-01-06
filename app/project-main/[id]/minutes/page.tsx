@@ -3,19 +3,10 @@
 import { useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
-import { checkNull } from "@/app/util/check";
-import { fixDate } from "@/app/util/fixDate";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 
-// 참석자 타입 정의
-type Participant = {
-  name: string;
-  studentId: string;
-};
-
-export default function MeetingMinutes(props: any) {
-  // 상태 관리
+export default function MeetingMinutesForm(props: any) {
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -23,220 +14,126 @@ export default function MeetingMinutes(props: any) {
   const [meetingDate, setMeetingDate] = useState("");
   const [location, setLocation] = useState("");
   const [responsiblePerson, setResponsiblePerson] = useState("");
-  const [attendees, setAttendees] = useState("");
   const [meetingContent, setMeetingContent] = useState("");
   const [meetingResult, setMeetingResult] = useState("");
-  const [participants, setParticipants] = useState<Participant[]>([{ name: "", studentId: "" }]);
+  const [participants, setParticipants] = useState<{ name: string; studentId: string }[]>([
+    { name: "", studentId: "" },
+  ]);
   const router = useRouter();
-  // 클라이언트 렌더링 여부 확인
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // 미리보기 핸들러
   const handlePreview = () => setIsPreview(true);
-
-  // 수정 핸들러
   const handleEdit = () => setIsPreview(false);
 
-  // 다운로드 핸들러
-  const handleDownload = async() => {
+  const handleAddParticipant = () => {
+    setParticipants([...participants, { name: "", studentId: "" }]);
+  };
+
+  const handleRemoveParticipant = (index: number) => {
+    const updatedParticipants = participants.filter((_, i) => i !== index);
+    setParticipants(updatedParticipants);
+  };
+
+  const handleParticipantChange = (
+    index: number,
+    field: keyof { name: string; studentId: string },
+    value: string
+  ) => {
+    const updatedParticipants = [...participants];
+    updatedParticipants[index][field] = value;
+    setParticipants(updatedParticipants);
+  };
+
+  const handleSave = async () => {
     const data = {
-      // 참석자목록: participants,
       main_agenda: agenda,
-      date_time: fixDate(meetingDate),
-      location: location,
-      participants: (participants.map(item => `${item.name},${item.studentId}`).join(';') + ';'),
+      date_time: meetingDate,
+      location,
       responsible_person: responsiblePerson,
       meeting_content: meetingContent,
       meeting_outcome: meetingResult,
+      participants: participants.map((p) => `${p.name}, ${p.studentId}`).join(";"),
       pid: props.params.id,
     };
-    console.log(data.participants)
-    // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    // const url = URL.createObjectURL(blob);
 
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.download = "meeting_minutes.json";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // URL.revokeObjectURL(url);
-    if(checkNull(data)){
-      try{
-        const response = await axios.post("https://cd-api.chals.kim/api/output/mm_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        router.push(`/project-main/${props.params.id}/outputManagement`);
-      }catch(err){
-  
-      }
-    }else{
-      alert("데이터를 모두 입력해주세요.");
+    try {
+      await axios.post("https://cd-api.chals.kim/api/output/mm_add", data, {
+        headers: { Authorization: process.env.SECRET_API_KEY },
+      });
+      router.push(`/project-main/${props.params.id}/outputManagement`);
+    } catch (error) {
+      console.error("저장 실패:", error);
+      alert("저장 중 오류가 발생했습니다.");
     }
   };
 
   if (!isMounted) {
-    return null; // 서버와 클라이언트 불일치 방지
+    return null;
   }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <MainHeader pid={props.params.id} />
-
       <div style={{ display: "flex", flex: 1 }}>
         <MainSide pid={props.params.id} />
-
         <div style={{ padding: "20px", width: "100%", overflowY: "auto" }}>
           <h1 style={{ borderBottom: "2px solid #4CAF50", paddingBottom: "10px" }}>회의록 작성</h1>
 
           {!isPreview ? (
             <div>
-              {/* 회의 정보 섹션 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>회의 정보</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>안건:</label>
-                  <input
-                    type="text"
-                    value={agenda}
-                    onChange={(e) => setAgenda(e.target.value)}
-                    placeholder="회의 안건 입력"
-                  />
+              {/* 회의 정보 입력 */}
+              <Section title="회의 정보">
+                <Field label="안건" value={agenda} setter={setAgenda} />
+                <Field label="회의 날짜" value={meetingDate} setter={setMeetingDate} type="date" />
+                <Field label="장소" value={location} setter={setLocation} />
+                <Field label="책임자명" value={responsiblePerson} setter={setResponsiblePerson} />
+              </Section>
 
-                  <label>회의 날짜:</label>
-                  <input
-                    type="date"
-                    value={meetingDate}
-                    onChange={(e) => setMeetingDate(e.target.value)}
-                  />
+              {/* 회의 내용 입력 */}
+              <Section title="회의 내용">
+                <TextAreaField label="회의 내용" value={meetingContent} setter={setMeetingContent} />
+                <TextAreaField label="회의 결과" value={meetingResult} setter={setMeetingResult} />
+              </Section>
 
-                  <label>장소:</label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="회의 장소 입력"
-                  />
-
-                  <label>책임자명:</label>
-                  <input
-                    type="text"
-                    value={responsiblePerson}
-                    onChange={(e) => setResponsiblePerson(e.target.value)}
-                    placeholder="책임자명 입력"
-                  />
-                </div>
-              </div>
-
-              {/* 회의 내용 섹션 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>회의 내용</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>회의 내용:</label>
-                  <textarea
-                    value={meetingContent}
-                    onChange={(e) => setMeetingContent(e.target.value)}
-                    placeholder="회의 내용 입력"
-                    style={{ height: "100px" }}
-                  />
-
-                  <label>회의 결과:</label>
-                  <textarea
-                    value={meetingResult}
-                    onChange={(e) => setMeetingResult(e.target.value)}
-                    placeholder="회의 결과 입력"
-                    style={{ height: "100px" }}
-                  />
-                </div>
-              </div>
-
-              {/* 참석자 정보 섹션 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>참석자 정보</h2>
+              {/* 참석자 목록 */}
+              <Section title="참석자 목록">
                 {participants.map((participant, index) => (
-                  <div key={index} style={{ marginBottom: "15px" }}>
-                    <label>참석자 {index + 1}:</label>
-                    <input
-                      type="text"
+                  <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                    <Field
+                      label="이름"
                       value={participant.name}
-                      onChange={(e) =>
-                        setParticipants((prev) => {
-                          const updated = [...prev];
-                          updated[index].name = e.target.value;
-                          return updated;
-                        })
-                      }
-                      placeholder="이름"
-                      style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+                      setter={(value) => handleParticipantChange(index, "name", value)}
                     />
-                    <input
-                      type="text"
+                    <Field
+                      label="학번"
                       value={participant.studentId}
-                      onChange={(e) =>
-                        setParticipants((prev) => {
-                          const updated = [...prev];
-                          updated[index].studentId = e.target.value;
-                          return updated;
-                        })
-                      }
-                      placeholder="학번"
-                      style={{ width: "100%", padding: "8px", marginTop: "5px" }}
+                      setter={(value) => handleParticipantChange(index, "studentId", value)}
+                    />
+                    <ActionButton
+                      label="삭제"
+                      onClick={() => handleRemoveParticipant(index)}
+                      color="#f44336"
                     />
                   </div>
                 ))}
-                <button
-                  onClick={() =>
-                    setParticipants((prev) => [...prev, { name: "", studentId: "" }])
-                  }
-                  style={{
-                    marginTop: "10px",
-                    padding: "10px 20px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  참석자 추가
-                </button>
-              </div>
+                <ActionButton label="참석자 추가" onClick={handleAddParticipant} color="#4CAF50" />
+              </Section>
 
-              {/* 미리보기 버튼 */}
-              <button
-                onClick={handlePreview}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#4CAF50",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                미리보기
-              </button>
+              <ActionButton label="미리보기" onClick={handlePreview} color="#4CAF50" />
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd" }}>미리보기</h2>
-              <div>
-                <strong>안건:</strong> {agenda}
-              </div>
-              <div>
-                <strong>회의 날짜:</strong> {meetingDate}
-              </div>
-              <div>
-                <strong>장소:</strong> {location}
-              </div>
-              <div>
-                <strong>책임자명:</strong> {responsiblePerson}
-              </div>
-              <div>
-                <strong>회의 내용:</strong> {meetingContent}
-              </div>
-              <div>
-                <strong>회의 결과:</strong> {meetingResult}
-              </div>
-              <h2>참석자 목록</h2>
+              <h2 style={{ borderBottom: "1px solid #ddd", marginBottom: "10px" }}>미리보기</h2>
+              <PreviewField label="안건" value={agenda} />
+              <PreviewField label="회의 날짜" value={meetingDate} />
+              <PreviewField label="장소" value={location} />
+              <PreviewField label="책임자명" value={responsiblePerson} />
+              <PreviewField label="회의 내용" value={meetingContent} />
+              <PreviewField label="회의 결과" value={meetingResult} />
+              <h3>참석자 목록</h3>
               <ul>
                 {participants.map((participant, index) => (
                   <li key={index}>
@@ -244,35 +141,8 @@ export default function MeetingMinutes(props: any) {
                   </li>
                 ))}
               </ul>
-
-              {/* 수정 및 다운로드 버튼 */}
-              <div style={{ marginTop: "20px" }}>
-                <button
-                  onClick={handleEdit}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#f0ad4e",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                  }}
-                >
-                  수정
-                </button>
-                <button
-                  onClick={handleDownload}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#2196F3",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  저장
-                </button>
-              </div>
+              <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+              <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
             </div>
           )}
         </div>
@@ -280,3 +150,92 @@ export default function MeetingMinutes(props: any) {
     </div>
   );
 }
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div style={{ marginBottom: "20px" }}>
+    <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd", marginBottom: "10px" }}>{title}</h2>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px" }}>{children}</div>
+  </div>
+);
+
+const Field = ({
+  label,
+  value,
+  setter,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  setter: (value: string) => void;
+  type?: string;
+}) => (
+  <>
+    <label style={{ alignSelf: "center" }}>{label}:</label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => setter(e.target.value)}
+      style={{
+        padding: "10px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+      }}
+    />
+  </>
+);
+
+const TextAreaField = ({
+  label,
+  value,
+  setter,
+}: {
+  label: string;
+  value: string;
+  setter: (value: string) => void;
+}) => (
+  <>
+    <label style={{ alignSelf: "start" }}>{label}:</label>
+    <textarea
+      value={value}
+      onChange={(e) => setter(e.target.value)}
+      style={{
+        padding: "10px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+        height: "100px",
+        resize: "vertical",
+      }}
+    />
+  </>
+);
+
+const PreviewField = ({ label, value }: { label: string; value: string }) => (
+  <div style={{ marginBottom: "10px" }}>
+    <strong>{label}:</strong> {value}
+  </div>
+);
+
+const ActionButton = ({
+  label,
+  onClick,
+  color,
+}: {
+  label: string;
+  onClick: () => void;
+  color: string;
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      padding: "10px 20px",
+      backgroundColor: color,
+      color: "white",
+      border: "none",
+      borderRadius: "5px",
+      cursor: "pointer",
+      marginRight: "10px",
+    }}
+  >
+    {label}
+  </button>
+);

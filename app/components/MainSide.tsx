@@ -1,174 +1,150 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'
-import todojson from '@/app/json/test.json'
-import msBox from '@/app/json/msBox.json'
-import { getUserId, getToken, getUnivId } from '../util/storage';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { getUserId, getToken, getUnivId } from '../util/storage';
 import { limitTitle } from '../util/string';
 
-type returnType = {
-    "RESULT_CODE": number
-    "RESULT_MSG": string
-    "PAYLOADS": payload[]
-}
-type payload = {
-    "univ_id": number
-    "role": string
-    "name": string
-    "permission": string
-}
-type returnTask = {
-    "RESULT_CODE": number
-    "RESULT_MSG": string
-    "PAYLOADS": taskType[]
-}
-type taskType = {
-    "tid": number
-    "tname": string
-    "tperson": string
-    "tstart": string
-    "tend": string
-    "tfinish": boolean
-}
-type postTaskPayload = {
-    pid: number
-    univ_id: number
-}
-const MainSide = ({pid}: {pid: number}) => {
-    const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
-    const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
-    const [data, setData] = useState<taskType[]>([]);
-    const tmpUnivId: number = getUnivId();
-    const router = useRouter();
+const MainSide = ({ pid }: { pid: number }) => {
+  const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
+  const [selectedButton, setSelectedButton] = useState<{ index: number; subIndex: number | null } | null>(null);
+  const [data, setData] = useState<any[]>([]);
+  const router = useRouter();
 
-    useEffect(() => {
-        // const checkPage = todojson.pjlist.some((pjlist) => pjlist.Pname === qwe);
-        // if (!checkPage){
-        //     console.log("404 Not found page : ", qwe)
-        //     router.push('/');
-        //     return;
-        // }
-        // checkUser();
-        if (pid === undefined){
-            
-        }
-        loadTask();
-    }, [pid, router]);
+  const mainMenu = ["메인", "WBS 관리", "산출물 작성", "산출물 관리", "업무 관리"];
+  const subMenu = [
+    ["메인 페이지"],
+    ["WBS 관리", "사용자 관리"],
+    ["개요서", "회의록", "테스트", "요구사항", "보고서", "기타"],
+    ["산출물 관리"],
+    ["업무 관리"]
+  ];
+  const routMenu = [
+    [`/project-main/${pid}/main`],
+    [`/project-main/${pid}/wbsmanager`, `/project-main/${pid}/project-management/user`],
+    [`/project-main/${pid}/overview`, `/project-main/${pid}/minutes`, `/project-main/${pid}/servicetest`, `/project-main/${pid}/Requirements`, `/project-main/${pid}/Report`, `/project-main/${pid}/output/create`],
+    [`/project-main/${pid}/outputManagement`],
+    [`/project-main/${pid}/task`]
+  ];
 
-    const subMenu = [[msBox.subMenu.main.value, null, null, null, null, null],
-                      [msBox.subMenu.wbs.value, msBox.subMenu.usermanage.value, null, null, null, null],
-                      [msBox.subMenu.overview.value, msBox.subMenu.minutes.value, msBox.subMenu.test.value, msBox.subMenu.srs.value, msBox.subMenu.report.value, msBox.subMenu.etc.value],
-                      [msBox.subMenu.outmanage.value, null, null, null, null, null],
-                      [msBox.subMenu.task.value, null, null, null, null, null]];
+  useEffect(() => {
+    loadTask();
+  }, [pid]);
 
-    const mainMenu = [msBox.mainMenu.main.value, msBox.mainMenu.pjmanage.value, msBox.mainMenu.outcreate.value, msBox.mainMenu.outmanage.value, msBox.mainMenu.taskmanage.value];
-    const routDefault = `/project-main/${pid}/main`
-    const routMenu = [[`/project-main/${pid}/main`, '/', '/', '/', '/', '/'],
-                        [`/project-main/${pid}/wbsmanager`, `/project-main/${pid}/project-management/user`, '/', '/', '/', '/'],
-                        [`/project-main/${pid}/overview`,`/project-main/${pid}/minutes`,`/project-main/${pid}/servicetest`,`/project-main/${pid}/Requirements`,`/project-main/${pid}/Report`, `/project-main/${pid}/output/create`],
-                        [`/project-main/${pid}/outputManagement`, '/', '/', '/', '/', '/'],
-                        [`/project-main/${pid}/task`, '/', '/', '/', '/', '/']];
-
-    const handleToggle = (index: number) => {
-        setVisibleIndex(visibleIndex === index ? null : index);
-        setSelectedButton({ index, subIndex: null });
-        
-    };
-
-    const gotoMenu = (index: number, subIndex: number) => {
-        router.push(routMenu[index][subIndex]);
-    };
-
-    const checkUser = async() => {
-        const secData = {user_id: getUserId(), token: getToken()}
-        const userData = {pid: pid}
-        const tmpUnivId = getUnivId();
-        const [bool, setBool] = useState(false);
-        if(getUserId === null || getToken() === null || tmpUnivId === null){
-            router.push('/');
-            return;
-        }
-        try{ // 세션 확인
-            const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", secData, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            try{ // 유저 확인
-                const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkuser", userData, {headers:{Authorization: process.env.SECRET_API_KEY}});
-                response.data.PAYLOADS.forEach((item) => {
-                    if(item.univ_id === tmpUnivId){
-                        setBool(true);
-                    }
-                })
-                if(bool === false){
-                    router.push('/')
-                }
-            }catch(err){
-
-            }
-        }catch(err){
-            router.push('/');
-            alert("로그아웃 후 다시 로그인 해주세요.")
-        }
+  const loadTask = async () => {
+    const univId = getUnivId();
+    const postData = { pid, univ_id: univId };
+    try {
+      const response = await axios.post("https://cd-api.chals.kim/api/task/load", postData, {
+        headers: { Authorization: process.env.SECRET_API_KEY },
+      });
+      const sortedData = response.data.PAYLOADS.sort((a: any, b: any) => new Date(a.tend).getTime() - new Date(b.tend).getTime());
+      setData(sortedData.slice(0, 3)); // 상위 3개의 작업만 표시
+    } catch (err) {
+      console.error("To-Do List 로드 실패:", err);
     }
-    
+  };
 
-    const loadTask = async() => {
-        const postData: postTaskPayload = {pid: pid, univ_id: tmpUnivId};
-        try{
-            const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            const sortedData = response.data.PAYLOADS.sort((a, b) => {
-                const dateA = new Date(a.tend).getTime();
-                const dateB = new Date(b.tend).getTime();
-                return dateA - dateB;
-            })
-            const sliceData: taskType[] = sortedData.slice(0, 1);
-            setData([...sliceData]);
-        }catch(err){}
-    }
-    return (
-        <div style={{marginLeft: '100px', display: 'relative', justifyContent: 'center', alignItems: 'center', width: '200px', backgroundColor: '#D3D3D3', height: 'calc(100vh - 105px)'}}>
-            {/*미니 Todo List*/}
-            <div style={{height: '150px', width: '99%', backgroundColor: '#F9D984', border: '1px solid #000000', fontSize: '15px'}}>
-                <span>To-Do List</span>
-                <div style={{height: 'calc(100% - 20px)', position: 'relative'}}>
-                    {data.map((item) => (
-                        <div key={item.tid} style={{position: 'absolute', bottom: '5px'}}>
-                            <div>마감 기한 : {item.tend}</div>
-                            <div>{limitTitle(item.tname, 15)}</div>
-                        </div>
-                    ))}
-                </div>
+  const handleToggle = (index: number) => {
+    setVisibleIndex(visibleIndex === index ? null : index);
+    setSelectedButton({ index, subIndex: null });
+  };
+
+  const gotoMenu = (index: number, subIndex: number) => {
+    router.push(routMenu[index][subIndex]);
+  };
+
+  return (
+    <div
+      style={{
+        marginLeft: "100px",
+        display: "relative",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "220px",
+        backgroundColor: "#f4f4f4",
+        height: "calc(100vh - 105px)",
+        padding: "10px",
+        borderRadius: "12px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)"
+      }}
+    >
+      {/* To-Do List */}
+      <div
+        style={{
+          padding: "15px",
+          backgroundColor: "#fff",
+          borderRadius: "10px",
+          marginBottom: "20px",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "10px" }}>To-Do List</h3>
+        {data.length === 0 ? (
+          <p style={{ fontSize: "14px", color: "#777" }}>할 일이 없습니다.</p>
+        ) : (
+          data.map((item) => (
+            <div key={item.tid} style={{ marginBottom: "10px", fontSize: "14px", color: "#333" }}>
+              <p style={{ marginBottom: "5px", fontWeight: "bold", color: "#007BFF" }}>{limitTitle(item.tname, 15)}</p>
+              <p style={{ margin: 0 }}>마감일: {item.tend}</p>
             </div>
+          ))
+        )}
+      </div>
 
-            {/*메뉴 바*/}
-            {[0, 1, 2, 3, 4].map((index: number) => (
-                <div key={index} style={{ margin: '0' }}>
-                    <button 
-                        onClick={() => handleToggle(index)} 
-                        style={{ 
-                            padding: '10px', width: '100%', border: '1px solid #000000',
-                            backgroundColor: selectedButton?.index === index && selectedButton?.subIndex === null ? '#6F5FFF' : '#ffffff',
-                            color: selectedButton?.index === index && selectedButton?.subIndex === null ? '#ffffff' : '#000000', 
-                            fontSize: '15px' }}>
-                        {mainMenu[index]}
-                    </button>
-                    {visibleIndex === index && (
-                        <div style={{ margin: '0px 0 0', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexDirection: 'column', backgroundColor: '#E9E9E9', width: '99%', border: '1px solid #000000'}}>
-                            {[0, 1, 2, 3, 4, 5].map((subIndex) => (
-                                subMenu[index][subIndex] !== null && (
-                                    <div key={subIndex} style={{width: '100%', borderBottom: '1px solid #000000'}}>
-                                        <button onClick={() => gotoMenu(index, subIndex)} style={{margin: '0px 0 0', width: '100%', height: '40px', fontSize: '15px', border: '0'}}>
-                                            {subMenu[index][subIndex]}
-                                        </button>
-                                    </div>
-                                )
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ))}
+      {/* 메뉴 바 */}
+      {mainMenu.map((menu, index) => (
+        <div key={index} style={{ marginBottom: "10px" }}>
+          <button
+            onClick={() => handleToggle(index)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "16px",
+              backgroundColor: selectedButton?.index === index ? "#007BFF" : "#fff",
+              color: selectedButton?.index === index ? "#fff" : "#333",
+              cursor: "pointer",
+              boxShadow: selectedButton?.index === index ? "0 2px 4px rgba(0, 0, 0, 0.2)" : "none",
+              transition: "all 0.3s",
+            }}
+          >
+            {menu}
+          </button>
+          {visibleIndex === index && (
+            <div style={{ marginTop: "5px" }}>
+              {subMenu[index].map((submenu, subIndex) => (
+                <button
+                  key={subIndex}
+                  onClick={() => gotoMenu(index, subIndex)}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "8px 12px",
+                    margin: "2px 0",
+                    border: "none",
+                    backgroundColor: "#f9f9f9",
+                    color: "#333",
+                    textAlign: "left",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
+                >
+                  {submenu}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-    );
+      ))}
+    </div>
+  );
 };
 
-export default MainSide
+export default MainSide;
