@@ -5,8 +5,43 @@ import ico from '../img/logo.png';
 import mb from '@/app/json/msBox.json';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const jinchek = (progress: number) => {
+type fetchType = {
+  "RESULT_CODE": number, 
+  "RESULT_MSG": string, 
+  "PAYLOADS": (string | number)[][]
+}
+
+const jinchek = (pid: number) => {
+  const [persent, setPersent] = useState(0);
+
+  useEffect(() => {
+    loadData();
+  },[])
+
+  const loadData = async() => {
+    const data = {pid : pid}
+    try{
+      const response = await axios.post<fetchType>("https://cd-api.chals.kim/api/wbs/fetch_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      if(response.data.RESULT_CODE === 200){
+        const parsePersent = fixData(response.data.PAYLOADS);
+        setPersent(parsePersent);
+      }else{
+        
+      }
+    }catch(err){
+
+    }
+  };
+
+  const fixData = (data: any[]): number => {
+    const value = data.map((row) => row.progress as number);
+    const total = value.reduce((sum, value) => sum + value, 0);
+    const average = total / value.length;
+    return average || 0;
+  }
+
   return (
     <div style={{ width: "100%" }}>
       <div
@@ -18,7 +53,7 @@ const jinchek = (progress: number) => {
           textAlign: "center",
         }}
       >
-        {mb.header.jinchuk.value} {progress}%
+        {mb.header.jinchuk.value} {persent}%
       </div>
       <div
         style={{
@@ -32,10 +67,10 @@ const jinchek = (progress: number) => {
       >
         <div
           style={{
-            width: `${progress}%`,
+            width: `${persent}%`,
             height: "100%",
             background: `linear-gradient(to right, ${
-              progress >= 75 ? "#4caf50" : progress >= 50 ? "#ff9800" : "#f44336"
+              persent >= 75 ? "#4caf50" : persent >= 50 ? "#ff9800" : "#f44336"
             }, #b3b3b3)`,
             transition: "width 0.4s ease",
             borderRadius: "15px",
@@ -73,7 +108,7 @@ const MainHeader = ({ pid }: { pid: number }) => (
         }}
       />
     </Link>
-    <div style={{ width: '600px' }}>{jinchek(30)}</div>
+    <div style={{ width: '600px' }}>{jinchek(pid)}</div>
   </header>
 );
 

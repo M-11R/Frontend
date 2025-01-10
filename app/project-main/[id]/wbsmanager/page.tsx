@@ -128,6 +128,7 @@ export default function Main(props: any) {
     }
     try{
       const response = await axios.post("https://cd-api.chals.kim/api/wbs/update", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      alert("WBS가 저장되었습니다.")
     }catch(err){
     }
   };
@@ -192,19 +193,23 @@ export default function Main(props: any) {
   const updateRow = (id: string, key: keyof WbsRow, value: any) => {
     setRows((prevRows) =>
       prevRows.map((row) =>
-        row.id === id ? { ...row, [key]: value } : row
+        row.id === id ? { 
+          ...row, 
+          [key]: value,
+          completed: key === "progress" ? value === 100 : row.completed,
+        } : row
       )
     );
   };
 
   // 완료 상태 변경
-  const toggleCompleted = (id: string) => {
-    setRows((prevRows) =>
-      prevRows.map((row) =>
-        row.id === id ? { ...row, completed: !row.completed } : row
-      )
-    );
-  };
+  // const toggleCompleted = (id: string) => {
+  //   setRows((prevRows) =>
+  //     prevRows.map((row) =>
+  //       row.id === id ? { ...row, completed: !row.completed } : row
+  //     )
+  //   );
+  // };
 
   // 행 삭제 기능
   const deleteRow = (id: string) => {
@@ -301,7 +306,7 @@ export default function Main(props: any) {
       group2no: row.group2no,
       group3no: row.group3no,
       group4no: row.group4no,
-      completed: true 
+      completed: row.ratio === 100
       };
     });
   };
@@ -412,7 +417,7 @@ export default function Main(props: any) {
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>진척률</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>시작일</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>마감일</th>
-                <th style={{ padding: "10px", border: "1px solid #ddd" }}>완료</th>
+                {/* <th style={{ padding: "10px", border: "1px solid #ddd" }}>완료</th> */}
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>위/아래</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>삭제</th>
               </tr>
@@ -515,14 +520,14 @@ export default function Main(props: any) {
                       style={{ border: "none", outline: "none" }}
                     />
                   </td>
-                  <td style={{ textAlign: "center" }}>
+                  {/* <td style={{ textAlign: "center" }}>
                     <input
                       type="checkbox"
                       checked={row.completed}
                       onChange={() => toggleCompleted(row.id)}
                       style={{ cursor: "pointer" }}
                     />
-                  </td>
+                  </td> */}
                   <td style={{ textAlign: "center" }}>
                     <button
                       onClick={() => moveRowUp(index)}

@@ -94,12 +94,12 @@ const ClientPage: React.FC = () => {
   };
 
   const handleDelete = async (projectId: number) => {
+    const data = { pid: projectId };
     try {
-      const response = await axios.delete(
-        `https://cd-api.chals.kim/api/project/${projectId}`,
-        {
-          headers: { Authorization: process.env.SECRET_API_KEY },
-        }
+      const response = await axios.post(
+        "https://cd-api.chals.kim/api/project/delete",
+        data,
+        { headers: { Authorization: process.env.SECRET_API_KEY } }
       );
       if (response.status === 200) {
         setProjects((prevProjects) =>
@@ -147,7 +147,7 @@ const ClientPage: React.FC = () => {
       );
       if (response.data.RESULT_CODE === 200) {
         router.push(`/project-main/${response.data.PAYLOADS.PUID}`);
-      }
+      };
     } catch (err) {
       console.error("프로젝트 생성 실패:", err);
     }
