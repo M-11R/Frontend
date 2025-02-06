@@ -1,0 +1,19 @@
+table {
+    width: 100%;
+    display: block;
+}
+
+thead, tbody {
+    display: block;
+}
+
+tr {
+    display: flex;
+    flex-direction: column;
+}
+
+th, td {
+    display: block;
+    text-align: left;
+    padding: 5px;
+}

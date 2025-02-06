@@ -1,92 +1,152 @@
-'use client'
-import MainHeader from '@/app/components/MainHeader'
-import MainSide from '@/app/components/MainSide'
-import { useState } from 'react'
-import styles from '@/app/css/DynOutCom.module.css'
-import axios from 'axios'
-import { useRouter } from 'next/navigation'
-import { getUnivId } from '@/app/util/storage'
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import MainHeader from '@/app/components/MainHeader';
+import MainSide from '@/app/components/MainSide';
+import { getUnivId } from '@/app/util/storage';
+import usePermissionGuard from "@/app/util/usePermissionGuard";
 
 type returnType = {
-    "RESULT_CODE": number,
-    "RESULT_MSG": string,
-    "PAYLOADS": {
-        "file_unique_id": any,
-        "file_name": any,
-        "file_path": any,
-    }
-}
+    RESULT_CODE: number;
+    RESULT_MSG: string;
+    PAYLOADS: {
+        file_unique_id: any;
+        file_name: any;
+        file_path: any;
+    };
+};
 
 export default function Create(props: any) {
     const [tmpfile, setFile] = useState<File | null>(null);
-
     const router = useRouter();
+    const s_no = getUnivId();
+    usePermissionGuard(props.params.id, s_no, {leader: 1, om: 1}, true)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if(e.target.files && e.target.files[0]){
+        if (e.target.files && e.target.files[0]) {
             setFile(e.target.files[0]);
         }
-    }
+    };
 
-    const handleUpload = async() => {
-        if(!tmpfile){
-            alert('파일을 선택해주세요.');
+    const handleUpload = async () => {
+        if (!tmpfile) {
+            alert('📂 파일을 선택해주세요.');
             return;
         }
-        const tmppid:number = props.params.id;
+        const tmppid: number = props.params.id;
         const tmpunivid = getUnivId();
         const formData = new FormData();
         formData.append('file', tmpfile);
         formData.append('pid', tmppid.toString());
         formData.append('univ_id', tmpunivid.toString());
 
-        try{
-            const response = await axios.post<returnType>("https://cd-api.chals.kim/api/output/otherdoc_add", formData, {headers:{Authorization: process.env.SECRET_API_KEY}})
-            if (response.data.RESULT_CODE === 200){
+        try {
+            const response = await axios.post<returnType>(
+                'https://cd-api.chals.kim/api/output/otherdoc_add',
+                formData,
+                { headers: { Authorization: process.env.SECRET_API_KEY } }
+            );
+
+            if (response.data.RESULT_CODE === 200) {
                 router.push(`/project-main/${props.params.id}/outputManagement`);
             }
-        }catch(err){
-            console.log(tmpfile.name);
-            console.log(tmppid);
-            console.log(tmpunivid);
-            alert("파일 업로드 실패")
+        } catch (err) {
+            alert('❌ 파일 업로드 실패');
         }
-    }
+    };
+
     return (
-        <div>
-            <MainHeader pid = {props.params.id}/>
+        <div style={pageContainerStyle}>
+            <MainHeader pid={props.params.id} />
 
-            <div style={{display: 'flex'}}>
-                <MainSide pid = {props.params.id}/>
+            <div style={flexRowStyle}>
+                <MainSide pid={props.params.id} />
 
-                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
-                    <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
-                    <table className={styles.outTable}>
-                        <colgroup>
-                            <col style={{width: `20%`}}/>
-                            <col style={{width: `cal(100 - 20)%`}}/>
-                        </colgroup>
-                        <tbody>
-                            <tr>
-                                <td colSpan={2}>
-                                    <input
-                                        type="file"
-                                        onChange={handleFileChange}
-                                    ></input>
-                                </td>
-                            </tr>
-                            <tr style={{borderBottom: '0'}}>
-                                <td colSpan={2} style={{borderBottom: '0'}}>
-                                    <div style={{margin: 'auto', float: 'right'}}>
-                                        <button onClick={handleUpload}>업로드 </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div style={contentContainerStyle}>
+                    <h1 style={titleStyle}>📄 파일 업로드</h1>
+
+                    <div style={formContainerStyle}>
+                        <p style={{ fontSize: '16px', color: '#6b7280' }}>
+                            프로젝트와 관련된 파일을 업로드하세요.
+                        </p>
+                        <input type="file" onChange={handleFileChange} style={fileInputStyle} />
+                        <button onClick={handleUpload} style={uploadButtonStyle}>
+                            📤 업로드
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
+/*  공통 스타일 적용 */
+const pageContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    height: "auto",
+    fontFamily: "'Roboto', sans-serif",
+    backgroundColor: '#f9fafb',
+} as const;
+
+const flexRowStyle = {
+    display: 'flex',
+    flex: 1,
+} as const;
+
+const contentContainerStyle = {
+    width: 'calc(100% - 200px)',
+    height: 'calc(100vh - 105px)',
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    margin: '20px',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+} as const;
+
+const titleStyle = {
+    fontSize: '24px',
+    color: '#4CAF50',
+    marginBottom: '20px',
+    borderBottom: '2px solid #4CAF50',
+    paddingBottom: '10px',
+} as const;
+
+const formContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '15px',
+    width: '100%',
+    maxWidth: '400px',
+    padding: '20px',
+    backgroundColor: '#f3f4f6',
+    borderRadius: '10px',
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+} as const;
+
+const fileInputStyle = {
+    width: '100%',
+    padding: '10px',
+    fontSize: '16px',
+    border: '1px solid #ddd',
+    borderRadius: '5px',
+    backgroundColor: '#fff',
+} as const;
+
+const uploadButtonStyle = {
+    padding: '12px 20px',
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    fontSize: '16px',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    width: '100%',
+} as const;

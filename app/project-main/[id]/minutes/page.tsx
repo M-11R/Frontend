@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
-import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { CheckPm } from "@/app/util/checkPm";
+import { getUnivId } from "@/app/util/storage";
+import usePermissionGuard from "@/app/util/usePermissionGuard";
 
 export default function MeetingMinutesForm(props: any) {
   const [isMounted, setIsMounted] = useState(false);
@@ -20,10 +23,11 @@ export default function MeetingMinutesForm(props: any) {
     { name: "", studentId: "" },
   ]);
   const router = useRouter();
-
+  const s_no = getUnivId();
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  usePermissionGuard(props.params.id, s_no, {leader: 1, mm: 1}, true)
 
   const handlePreview = () => setIsPreview(true);
   const handleEdit = () => setIsPreview(false);
@@ -65,22 +69,19 @@ export default function MeetingMinutesForm(props: any) {
       });
       router.push(`/project-main/${props.params.id}/outputManagement`);
     } catch (error) {
-      console.error("저장 실패:", error);
       alert("저장 중 오류가 발생했습니다.");
     }
   };
 
-  if (!isMounted) {
-    return null;
-  }
+  if (!isMounted) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={pageContainerStyle}>
       <MainHeader pid={props.params.id} />
-      <div style={{ display: "flex", flex: 1 }}>
+      <div style={flexRowStyle}>
         <MainSide pid={props.params.id} />
-        <div style={{ padding: "20px", width: "100%", overflowY: "auto" }}>
-          <h1 style={{ borderBottom: "2px solid #4CAF50", paddingBottom: "10px" }}>회의록 작성</h1>
+        <div style={contentContainerStyle}>
+          <h1 style={titleStyle}>📌 회의록 작성</h1>
 
           {!isPreview ? (
             <div>
@@ -126,14 +127,14 @@ export default function MeetingMinutesForm(props: any) {
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd", marginBottom: "10px" }}>미리보기</h2>
+              <h2 style={sectionHeaderStyle}>미리보기</h2>
               <PreviewField label="안건" value={agenda} />
               <PreviewField label="회의 날짜" value={meetingDate} />
               <PreviewField label="장소" value={location} />
               <PreviewField label="책임자명" value={responsiblePerson} />
               <PreviewField label="회의 내용" value={meetingContent} />
               <PreviewField label="회의 결과" value={meetingResult} />
-              <h3>참석자 목록</h3>
+              <h3 style={{ marginTop: "20px" }}>참석자 목록</h3>
               <ul>
                 {participants.map((participant, index) => (
                   <li key={index}>
@@ -141,8 +142,10 @@ export default function MeetingMinutesForm(props: any) {
                   </li>
                 ))}
               </ul>
-              <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
-              <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
+              <div style={{ marginTop: "20px" }}>
+                <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+                <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
+              </div>
             </div>
           )}
         </div>
@@ -151,10 +154,47 @@ export default function MeetingMinutesForm(props: any) {
   );
 }
 
+const pageContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  height: "auto",
+  backgroundColor: "#f4f4f4",
+  
+};
+
+const flexRowStyle: CSSProperties = {
+  display: "flex",
+  flex: 1,
+};
+
+const contentContainerStyle: CSSProperties = {
+  padding: "20px",
+  width: "100%",
+  overflowY: "auto",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+  margin: "20px",
+};
+
+const titleStyle: CSSProperties = {
+  borderBottom: "3px solid #4CAF50",
+  paddingBottom: "10px",
+  fontSize: "24px",
+  fontWeight: "bold",
+  color: "#4CAF50",
+};
+
+const sectionHeaderStyle: CSSProperties = {
+  color: "#4CAF50",
+  borderBottom: "1px solid #ddd",
+  marginBottom: "20px",
+};
+
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div style={{ marginBottom: "20px" }}>
-    <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd", marginBottom: "10px" }}>{title}</h2>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px" }}>{children}</div>
+    <h2 style={sectionHeaderStyle}>{title}</h2>
+    {children}
   </div>
 );
 
@@ -170,15 +210,17 @@ const Field = ({
   type?: string;
 }) => (
   <>
-    <label style={{ alignSelf: "center" }}>{label}:</label>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
     <input
       type={type}
       value={value}
       onChange={(e) => setter(e.target.value)}
       style={{
+        width: "100%",
         padding: "10px",
+        borderRadius: "8px",
         border: "1px solid #ddd",
-        borderRadius: "5px",
+        backgroundColor: "#f9f9f9",
       }}
     />
   </>
@@ -194,25 +236,26 @@ const TextAreaField = ({
   setter: (value: string) => void;
 }) => (
   <>
-    <label style={{ alignSelf: "start" }}>{label}:</label>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
     <textarea
       value={value}
       onChange={(e) => setter(e.target.value)}
       style={{
+        width: "100%",
         padding: "10px",
+        borderRadius: "8px",
         border: "1px solid #ddd",
-        borderRadius: "5px",
+        backgroundColor: "#f9f9f9",
         height: "100px",
-        resize: "vertical",
       }}
     />
   </>
 );
 
 const PreviewField = ({ label, value }: { label: string; value: string }) => (
-  <div style={{ marginBottom: "10px" }}>
+  <p>
     <strong>{label}:</strong> {value}
-  </div>
+  </p>
 );
 
 const ActionButton = ({
@@ -229,9 +272,9 @@ const ActionButton = ({
     style={{
       padding: "10px 20px",
       backgroundColor: color,
-      color: "white",
+      color: "#fff",
       border: "none",
-      borderRadius: "5px",
+      borderRadius: "8px",
       cursor: "pointer",
       marginRight: "10px",
     }}

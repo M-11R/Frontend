@@ -3,18 +3,38 @@
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import json from "@/app/json/test.json";
-import Image from "next/image";
-import calendar from "@/app/img/calendar.png";
 import TodoList from "@/app/components/Todo";
+import LLMChat from "@/app/components/LLMChat";
+import axios from "axios";
+import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
+import { useEffect, useState } from "react";
 
 type wbs = {
   Sid: string;
   Sname: string;
   Sscore: number;
 };
+type wbsRatio = {
+  group1no: number 
+  group1: string
+  ratio: number
+}
 
 export default function Main(props: any) {
-  const data: wbs[] = json.score;
+  const [ratio, setRatio] = useState<wbsRatio[]>([])
+
+  const loadWBS = async() => {
+    const pid: number = props.params.id;
+    try{
+      const response = await axios.post("https://cd-api.chals.kim/api/wbs/load_ratio", {pid: pid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      const tmpRatio = response.data.RESULT_MSG;
+      setRatio(tmpRatio);
+    }catch(err){}
+  }
+
+  useEffect(() => {
+    loadWBS()
+  }, [])
 
   return (
     <div style={{ backgroundColor: "#f9f9f9", minHeight: "100vh", padding: "10px" }}>
@@ -51,7 +71,7 @@ export default function Main(props: any) {
             }}
           >
             <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-              {Array.from({ length: Math.ceil(data.length / 3) }, (_, rowIndex) => (
+              {Array.from({ length: Math.ceil(ratio.length / 3) }, (_, rowIndex) => (
                 <div
                   key={rowIndex}
                   style={{
@@ -60,7 +80,7 @@ export default function Main(props: any) {
                     flex: 1, // 높이를 균등하게 설정
                   }}
                 >
-                  {data.slice(rowIndex * 3, rowIndex * 3 + 3).map((item, colIndex) => (
+                  {ratio.slice(rowIndex * 3, rowIndex * 3 + 3).map((item, colIndex) => (
                     <div
                       key={colIndex}
                       style={{
@@ -76,7 +96,7 @@ export default function Main(props: any) {
                         margin: "2px", // 여백 최소화
                       }}
                     >
-                      {item.Sname}: {item.Sscore}
+                      {item.group1}: {item.ratio}
                     </div>
                   ))}
                 </div>
@@ -89,7 +109,7 @@ export default function Main(props: any) {
             {/* Todo List */}
             <div
               style={{
-                flex: 0.9,
+                flex: 1.5, 
                 padding: "10px",
                 backgroundColor: "#ffffff",
                 borderRadius: "10px",
@@ -103,20 +123,23 @@ export default function Main(props: any) {
               <TodoList p_id={props.params.id} />
             </div>
 
-            {/* 캘린더 */}
+            {/* LLM 섹션 */}
             <div
               style={{
-                flex: 1.1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+                flex: 3, 
                 padding: "10px",
                 backgroundColor: "#ffffff",
                 borderRadius: "10px",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                display: "flex",
+                flexDirection: "column",
               }}
             >
-              <Image src={calendar} alt="Calendar" style={{ width: "80%", height: "auto" }} />
+              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>PMS Assistant</div>
+              <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div>
+              <div style={{ fontSize: "14px", color: "#777" }}>
+                <LLMChat pid = {props.params.id} />
+              </div>
             </div>
           </div>
         </div>

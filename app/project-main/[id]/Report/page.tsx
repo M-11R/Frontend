@@ -1,45 +1,63 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import axios from "axios";
-import { checkNull } from "@/app/util/check";
 import { useRouter } from "next/navigation";
+import { getUnivId } from "@/app/util/storage";
+import usePermissionGuard from "@/app/util/usePermissionGuard";
+
+type postType = {
+  rname: string
+    rwriter: string
+    rdate: string
+    pname: string
+    pmember: string
+    pprof: string
+    presearch: string
+    pdesign: string
+    parch: string
+    presult: string
+    pconc: string
+    pid: number
+}
 
 export default function ReportForm(props: any) {
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
+  // 상태 변수
   const [reportTitle, setReportTitle] = useState("");
   const [projectName, setProjectName] = useState("");
   const [submissionDate, setSubmissionDate] = useState("");
   const [writer, setWriter] = useState("");
   const [teamMembers, setTeamMembers] = useState("");
-  const [advisor, setAdvisor] = useState("");
   const [problemDefinition, setProblemDefinition] = useState("");
   const [researchGoal, setResearchGoal] = useState("");
   const [designProcess, setDesignProcess] = useState("");
   const [systemArchitecture, setSystemArchitecture] = useState("");
   const [experimentResults, setExperimentResults] = useState("");
   const [conclusion, setConclusion] = useState("");
+
   const router = useRouter();
+  const s_no = getUnivId();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  usePermissionGuard(props.params.id, s_no, {leader: 1, rp: 1}, true)
 
   const handlePreview = () => setIsPreview(true);
   const handleEdit = () => setIsPreview(false);
 
-  const handleDownload = async () => {
-    const data = {
+  const handleSave = async () => {
+    const data:postType = {
       rname: reportTitle,
       pname: projectName,
       rdate: submissionDate,
       rwriter: writer,
       pmember: teamMembers,
-      padvisor: advisor,
       pprof: problemDefinition,
       presearch: researchGoal,
       pdesign: designProcess,
@@ -49,253 +67,67 @@ export default function ReportForm(props: any) {
       pid: props.params.id,
     };
 
-    if (checkNull(data)) {
-      try {
-        await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {
-          headers: { Authorization: process.env.SECRET_API_KEY },
-        });
-        router.push(`/project-main/${props.params.id}/outputManagement`);
-      } catch (err) {
-        console.error("저장 오류:", err);
-        alert("저장 중 오류가 발생했습니다.");
-      }
-    } else {
-      alert("모든 필드를 입력해주세요.");
+    try {
+      await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {
+        headers: { Authorization: process.env.SECRET_API_KEY },
+      });
+      router.push(`/project-main/${props.params.id}/outputManagement`);
+    } catch (err) {
+      alert("저장 중 오류가 발생했습니다.");
     }
   };
 
-  if (!isMounted) {
-    return null; // 서버와 클라이언트 불일치 방지
-  }
+  if (!isMounted) return null;
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        background: "linear-gradient(to bottom, #f3f4f6, #e2e8f0)",
-        fontFamily: "'Roboto', sans-serif",
-      }}
-    >
+    <div style={pageContainerStyle}>
       <MainHeader pid={props.params.id} />
-
-      <div style={{ display: "flex", flex: 1 }}>
+      <div style={flexRowStyle}>
         <MainSide pid={props.params.id} />
-
-        <div
-          style={{
-            padding: "20px",
-            width: "100%",
-            backgroundColor: "#ffffff",
-            borderRadius: "12px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-            margin: "20px",
-            overflowY: "auto",
-          }}
-        >
-          <h1
-            style={{
-              borderBottom: "2px solid #4CAF50",
-              paddingBottom: "10px",
-              color: "#4CAF50",
-              fontSize: "24px",
-            }}
-          >
-            보고서 작성
-          </h1>
+        <div style={contentContainerStyle}>
+          <h1 style={titleStyle}>보고서 작성</h1>
 
           {!isPreview ? (
             <div>
-              {/* 기본 정보 입력 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>기본 정보</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>보고서 제목:</label>
-                  <input
-                    type="text"
-                    value={reportTitle}
-                    onChange={(e) => setReportTitle(e.target.value)}
-                    placeholder="보고서 제목 입력"
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <label>프로젝트 명:</label>
-                  <input
-                    type="text"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="프로젝트 이름 입력"
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <label>작성일:</label>
-                  <input
-                    type="date"
-                    value={submissionDate}
-                    onChange={(e) => setSubmissionDate(e.target.value)}
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <label>작성자:</label>
-                  <input
-                    type="text"
-                    value={writer}
-                    onChange={(e) => setWriter(e.target.value)}
-                    placeholder="작성자 이름 입력"
-                    style={{
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-              </div>
+              {/* 기본 정보 */}
+              <Section title="기본 정보">
+                <Field label="보고서 제목" value={reportTitle} setter={setReportTitle} />
+                <Field label="프로젝트 명" value={projectName} setter={setProjectName} />
+                <Field label="작성일" value={submissionDate} setter={setSubmissionDate} type="date" />
+                <Field label="작성자" value={writer} setter={setWriter} />
+              </Section>
 
-              {/* 상세 내용 입력 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>세부 내용</h2>
-                <div style={{ display: "grid", gap: "15px" }}>
-                  <textarea
-                    value={teamMembers}
-                    onChange={(e) => setTeamMembers(e.target.value)}
-                    placeholder="팀원 및 지도 교수 정보 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <textarea
-                    value={problemDefinition}
-                    onChange={(e) => setProblemDefinition(e.target.value)}
-                    placeholder="문제 정의 및 연구 목표 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <textarea
-                    value={designProcess}
-                    onChange={(e) => setDesignProcess(e.target.value)}
-                    placeholder="설계 및 개발 과정 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <textarea
-                    value={systemArchitecture}
-                    onChange={(e) => setSystemArchitecture(e.target.value)}
-                    placeholder="시스템 아키텍처 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <textarea
-                    value={experimentResults}
-                    onChange={(e) => setExperimentResults(e.target.value)}
-                    placeholder="실험 및 결과 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <textarea
-                    value={conclusion}
-                    onChange={(e) => setConclusion(e.target.value)}
-                    placeholder="결론 입력"
-                    style={{
-                      width: "100%",
-                      height: "100px",
-                      padding: "10px",
-                      borderRadius: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                </div>
-              </div>
+              {/* 상세 정보 */}
+              <Section title="세부 내용">
+                <TextAreaField label="팀원 및 지도 교수" value={teamMembers} setter={setTeamMembers} />
+                <TextAreaField label="문제 정의" value={problemDefinition} setter={setProblemDefinition} />
+                <TextAreaField label="연구 목표" value={researchGoal} setter={setResearchGoal} />
+                <TextAreaField label="설계 및 개발 과정" value={designProcess} setter={setDesignProcess} />
+                <TextAreaField label="시스템 아키텍처" value={systemArchitecture} setter={setSystemArchitecture} />
+                <TextAreaField label="실험 및 결과" value={experimentResults} setter={setExperimentResults} />
+                <TextAreaField label="결론" value={conclusion} setter={setConclusion} />
+              </Section>
 
-              {/* 버튼 */}
-              <button
-                onClick={handlePreview}
-                style={{
-                  padding: "12px 25px",
-                  backgroundColor: "#4CAF50",
-                  color: "#fff",
-                  borderRadius: "8px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                미리보기
-              </button>
+              <ActionButton label="미리보기" onClick={handlePreview} color="#4CAF50" />
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd", marginBottom: "10px" }}>미리보기</h2>
-              <p><strong>보고서 제목:</strong> {reportTitle}</p>
-              <p><strong>프로젝트 명:</strong> {projectName}</p>
-              <p><strong>작성일:</strong> {submissionDate}</p>
-              <p><strong>작성자:</strong> {writer}</p>
-              <p><strong>팀원 및 지도 교수:</strong> {teamMembers}</p>
-              <p><strong>문제 정의 및 연구 목표:</strong> {problemDefinition}</p>
-              <p><strong>설계 및 개발 과정:</strong> {designProcess}</p>
-              <p><strong>시스템 아키텍처:</strong> {systemArchitecture}</p>
-              <p><strong>실험 및 결과:</strong> {experimentResults}</p>
-              <p><strong>결론:</strong> {conclusion}</p>
+              <h2 style={sectionHeaderStyle}>미리보기</h2>
+              <PreviewField label="보고서 제목" value={reportTitle} />
+              <PreviewField label="프로젝트 명" value={projectName} />
+              <PreviewField label="작성일" value={submissionDate} />
+              <PreviewField label="작성자" value={writer} />
+              <PreviewField label="팀원 및 지도 교수" value={teamMembers} />
+              <PreviewField label="문제 정의" value={problemDefinition} />
+              <PreviewField label="연구 목표" value={researchGoal} />
+              <PreviewField label="설계 및 개발 과정" value={designProcess} />
+              <PreviewField label="시스템 아키텍처" value={systemArchitecture} />
+              <PreviewField label="실험 및 결과" value={experimentResults} />
+              <PreviewField label="결론" value={conclusion} />
 
-              {/* 수정 및 저장 버튼 */}
               <div style={{ marginTop: "20px" }}>
-                <button
-                  onClick={handleEdit}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#f0ad4e",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                  }}
-                >
-                  수정
-                </button>
-                <button
-                  onClick={handleDownload}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#2196F3",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  저장
-                </button>
+                <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+                <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
               </div>
             </div>
           )}
@@ -305,3 +137,131 @@ export default function ReportForm(props: any) {
   );
 }
 
+const pageContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  height: "auto",
+  backgroundColor: "#f4f4f4",
+};
+
+const flexRowStyle: CSSProperties = {
+  display: "flex",
+  flex: 1,
+};
+
+const contentContainerStyle: CSSProperties = {
+  padding: "20px",
+  width: "100%",
+  overflowY: "auto",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+  margin: "20px",
+};
+
+const titleStyle: CSSProperties = {
+  borderBottom: "3px solid #4CAF50",
+  paddingBottom: "10px",
+  fontSize: "24px",
+  fontWeight: "bold",
+  color: "#4CAF50",
+};
+
+const sectionHeaderStyle: CSSProperties = {
+  color: "#4CAF50",
+  borderBottom: "1px solid #ddd",
+  marginBottom: "20px",
+};
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div style={{ marginBottom: "20px" }}>
+    <h2 style={sectionHeaderStyle}>{title}</h2>
+    {children}
+  </div>
+);
+
+const Field = ({
+  label,
+  value,
+  setter,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  setter: (value: string) => void;
+  type?: string;
+}) => (
+  <>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => setter(e.target.value)}
+      style={{
+        width: "99%",
+        padding: "10px",
+        borderRadius: "8px",
+        border: "1px solid #ddd",
+        backgroundColor: "#f9f9f9",
+      }}
+    />
+  </>
+);
+
+const TextAreaField = ({
+  label,
+  value,
+  setter,
+}: {
+  label: string;
+  value: string;
+  setter: (value: string) => void;
+}) => (
+  <>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
+    <textarea
+      value={value}
+      onChange={(e) => setter(e.target.value)}
+      style={{
+        width: "99%",
+        padding: "10px",
+        borderRadius: "8px",
+        border: "1px solid #ddd",
+        backgroundColor: "#f9f9f9",
+        height: "100px",
+        resize: "vertical",
+      }}
+    />
+  </>
+);
+
+const PreviewField = ({ label, value }: { label: string; value: string }) => (
+  <p>
+    <strong>{label}:</strong> {value}
+  </p>
+);
+
+const ActionButton = ({
+  label,
+  onClick,
+  color,
+}: {
+  label: string;
+  onClick: () => void;
+  color: string;
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      padding: "10px 20px",
+      backgroundColor: color,
+      color: "#fff",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      marginRight: "10px",
+    }}
+  >
+    {label}
+  </button>
+);

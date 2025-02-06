@@ -58,6 +58,24 @@ type inputTaskType = {
     w_person: string
     w_start: string
 }
+type permissionList = {
+    pid: number
+    univ_id: number
+    user: number
+    wbs: number
+    od: number
+    mm: number
+    ut: number
+    rs: number
+    rp: number
+    om: number
+    task: number
+    llm: number
+}
+type returnPermissionType = {
+    "RESULT_CODE": number, 
+    "RESULT_MSG": permissionList
+}
 export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; closeModal: () => void; children?: React.ReactNode }) {
     
     return (
@@ -77,6 +95,17 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
     const [permision, setPer] = useState(input.permission);
     const [role, setRole] = useState(input.role);
     const [hak, setHak] = useState(input.univ_id);
+    const [permissions, setPermissions] = useState<Record<string, number>>({
+        'WBS': 0,
+        '개요서': 0,
+        '회의록': 0,
+        '테스트케이스': 0,
+        '요구사항 명세서': 0,
+        '보고서': 0,
+        '기타 산출물': 0,
+        '업무': 0,
+        "LLM": 0
+    })
 
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
@@ -90,6 +119,7 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
     useEffect(() => {
         if(isOpen === true){
             checkPm();
+            loadData();
         }
     }, [isOpen])
 
@@ -110,6 +140,27 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
         }
     }
 
+    const loadData = async() => {
+        const postData = {pid: pid, univ_id: hak}
+        try{
+            const response = await axios.post<returnPermissionType>("https://cd-api.chals.kim/api/pm/load_one", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const fetch_data = {
+                'WBS': response.data.RESULT_MSG.wbs,
+                '개요서': response.data.RESULT_MSG.od,
+                '회의록': response.data.RESULT_MSG.mm,
+                '테스트케이스': response.data.RESULT_MSG.ut,
+                '요구사항 명세서': response.data.RESULT_MSG.rs,
+                '보고서': response.data.RESULT_MSG.rp,
+                '기타 산출물': response.data.RESULT_MSG.om,
+                '업무': response.data.RESULT_MSG.task,
+                "LLM": response.data.RESULT_MSG.llm
+            }
+            
+            setPermissions(fetch_data)
+            
+        }catch(err){}finally{}
+    }
+
     const handleConfigUser = (e: React.FormEvent) => {
         e.preventDefault();
         if(permision === '' || role === ''){
@@ -118,17 +169,44 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
             postData();
             closeModal();
         }
-        console.log(data);
+        
     };
 
     const postData = async() => {
+        const dataP: permissionList = {
+            pid: pid,
+            univ_id: hak,
+            user: 0,
+            wbs: permissions['WBS'],
+            od: permissions['개요서'],
+            mm: permissions['회의록'],
+            ut: permissions['테스트케이스'],
+            rs: permissions['요구사항 명세서'],
+            rp: permissions['보고서'],
+            om: permissions['기타 산출물'],
+            task: permissions['업무'],
+            llm: permissions['LLM']
+        }
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/project/edituser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            
+            const responsePermission = await axios.post("https://cd-api.chals.kim/api/pm/edit_manual", dataP, {headers:{Authorization: process.env.SECRET_API_KEY}});
         } catch(err){
             alert('error');
         }
-        
+    };
+
+    
+    const permissionLabel: Record<number, string> = {
+        0: '권한 없음',
+        1: '읽기 + 쓰기',
+        2: '읽기'
+    };
+    const handleClick = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        setPermissions((prevPermissions) => ({
+            ...prevPermissions,
+            [key]: (prevPermissions[key] + 1) % 3,
+        }));
     };
 
     return (
@@ -137,16 +215,17 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 <div style={{fontSize: '32px', paddingBottom: '20px'}}>{mb.modal.fixinfotitle.value}</div>
                 <form onSubmit={handleConfigUser} style={{fontSize: '18px'}}>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>{mb.user.per.value}</span>
+                    {/* <div style={{padding: '15px'}}>
+                        <span style={{padding: '10px'}}>팀장 {mb.user.per.value}</span>
                         <input 
                             type="text" 
                             value={permision} 
+                            readOnly
                             onChange={(e) => setPer(e.target.value)}
                             placeholder={`${input.permission}`}
                             style={{width: '170px', height: '20px'}}
                         />
-                    </div>
+                    </div> */}
                     <div style={{padding: '15px'}}>
                         <span style={{padding: '10px'}}>{mb.user.role.value}</span>
                         <input 
@@ -157,6 +236,40 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
                             style={{width: '170px', height: '20px'}}
                         />
                     </div>
+                    {permision ? (<div></div>) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {Object.keys(permissions).map((key) => (
+                            <div
+                                key={key}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    border: '1px solid #ccc',
+                                    padding: '10px',
+                                    borderRadius: '5px',
+                                    backgroundColor: '#f9f9f9',
+                                }}
+                            >
+                                <span>{key}</span>
+                                <button
+                                    onClick={(event) => handleClick(key, event)}
+                                    style={{
+                                        padding: '5px 10px',
+                                        backgroundColor: '#007BFF',
+                                        color: '#fff',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {permissionLabel[permissions[key]]}
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    )}
+                    
                     <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
                 </form>
             </Modal>
@@ -168,6 +281,7 @@ export function AddUser({p_id}: {p_id: number}) {
     const [isOpen, setIsOpen] = useState(false);
     const [hak, setHak] = useState(0);
     const [role, setRole] = useState("");
+    const [readOnly, setReadOnly] = useState(false);
 
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
@@ -203,7 +317,15 @@ export function AddUser({p_id}: {p_id: number}) {
         } catch(err){
             alert('error');
         }
-        
+        if(readOnly){
+            try{
+                const response = await axios.post("https://cd-api.chals.kim/api/pm/add_ro", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            }catch(err){}
+        }else{
+            try{
+                const response = await axios.post("https://cd-api.chals.kim/api/pm/add_default", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            }catch(err){}
+        }
     };
 
     const checkPm = async() => {
@@ -222,7 +344,9 @@ export function AddUser({p_id}: {p_id: number}) {
             alert("권한이 없습니다.");
         }
     }
-
+    const handleReadOnly = () => {
+        setReadOnly(!readOnly)
+    }
     return (
         <div>
             <button onClick={openModal} style={{fontSize: '15px'}}>{mb.modal.adduserbtn.value}</button>
@@ -245,6 +369,14 @@ export function AddUser({p_id}: {p_id: number}) {
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
                             style={{width: '170px', height: '20px'}}
+                        />
+                    </div>
+                    <div style={{padding: '15px'}}>
+                        <span style={{padding: '10px'}}>읽기 전용</span>
+                        <input
+                            type='checkbox'
+                            checked={readOnly}
+                            onChange={handleReadOnly}
                         />
                     </div>
                     <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
@@ -416,7 +548,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
-    // const router = useRouter();
+    // const router = useRouter(); 
     type postType = {
         tname: string
         tperson: string
@@ -485,7 +617,6 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
             if(response.data.RESULT_CODE === 200){
                 closeModal()
                 reloadPage()
-                console.log('test')
             }
         }catch(err){
         }
@@ -494,7 +625,7 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
         <div>
             <button onClick={openModal} style={{fontSize: '15px', border: '0', background: '0'}}>업무 수정</button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
-                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 수정.</div>
+                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 수정</div>
                 <form onSubmit={handleFixTask} style={{fontSize: '18px'}}>
                     <div style={{padding: '15px'}}>
                         <span style={{padding: '10px'}}>할일 제목</span>
@@ -576,4 +707,92 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
             </Modal>
         </div>
     );
+}
+
+export function GradeModal({p_id, name, univ_id, grade, comment}: {p_id: number, name: string, univ_id: number, grade: string, comment: string}){
+    const [isOpen, setIsOpen] = useState(false);
+    const openModal = () => setIsOpen(true);
+    const closeModal = () => setIsOpen(false);
+
+    const [tmpGrade, setGrade] = useState(grade || '');
+    const [tmpComment, setComment] = useState(comment || '');
+    const data = {
+        pid: p_id.toString(),
+        univ_id: univ_id,
+        grade: tmpGrade,
+        comment: tmpComment
+    }
+
+    const handleFixGrade = (e: React.FormEvent) => {
+        e.preventDefault();
+        if(tmpGrade === ''){
+            alert('학점을 선택해주세요.');
+        }else{
+            postGrade()
+        }
+    }
+
+    const postGrade = async() => {
+        try{
+            const response = await axios.post("https://cd-api.chals.kim/api/grade/assign", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            closeModal()
+        }catch{}
+    }
+
+    return(
+        <div>
+            <button onClick={openModal} style={{width: '100px', padding: '5px', fontSize: '16px'}}>학점 설정</button>
+            <Modal isOpen={isOpen} closeModal={closeModal}>
+                <div style={{fontSize: '32px', paddingBottom: '20px'}}>학점 수정</div>
+                <form onSubmit={handleFixGrade} style={{fontSize: '18px'}}>
+                    <div style={{padding: '15px'}}>
+                        <span style={{padding: '10px'}}>이름</span>
+                        <input 
+                            type="text" 
+                            value={name} 
+                            readOnly
+                            style={{width: '170px', height: '20px'}}
+                        />
+                    </div>
+                    <div style={{padding: '15px'}}>
+                        <span style={{padding: '10px'}}>학번</span>
+                        <input 
+                            type="number" 
+                            value={univ_id} 
+                            readOnly
+                            style={{width: '170px', height: '20px'}}
+                        />
+                    </div>
+                    <div style={{padding: '15px'}}>
+                        <span style={{padding: '10px'}}>학점</span>
+                        <select
+                            value={tmpGrade}
+                            onChange={(e) => setGrade(e.target.value)}
+                            style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                        >
+                            <option value=''>--</option>
+                            <option value='A+'>A+</option>
+                            <option value='A'>A</option>
+                            <option value='B+'>B+</option>
+                            <option value='B'>B</option>
+                            <option value='C+'>C+</option>
+                            <option value='C'>C</option>
+                            <option value='D+'>D+</option>
+                            <option value='D'>D</option>
+                            <option value='F'>F</option>
+                        </select>
+                    </div>
+                    <div style={{padding: '15px'}}><span>코멘트</span></div>
+                    <div><textarea
+                        value={tmpComment}
+                        onChange={(e) => setComment(e.target.value)}
+                        style={{width: '80%', height: '100%', minHeight: '100px'}}
+                    /></div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', gap: '10px' }}>
+                        <button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button>
+                    </div>
+                </form>
+            </Modal>
+        </div>
+    )
 }

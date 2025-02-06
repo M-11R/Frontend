@@ -1,0 +1,9 @@
+{
+    "dType": {
+        "summary": 0,
+        "meeting_minutes": 1,
+        "testcase": 2,
+        "reqspec": 3,
+        "report": 4
+    }
+}

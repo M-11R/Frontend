@@ -18,7 +18,7 @@ const jinchek = (pid: number) => {
 
   useEffect(() => {
     loadData();
-  },[])
+  },[]);
 
   const loadData = async() => {
     const data = {pid : pid}
@@ -36,10 +36,10 @@ const jinchek = (pid: number) => {
   };
 
   const fixData = (data: any[]): number => {
-    const value = data.map((row) => row.progress as number);
+    const value = data.map((row) => row.ratio as number);
     const total = value.reduce((sum, value) => sum + value, 0);
     const average = total / value.length;
-    return average || 0;
+    return Math.round(average) || 0;
   }
 
   return (
@@ -89,7 +89,7 @@ const MainHeader = ({ pid }: { pid: number }) => (
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      width: '91%',
+      width: '100%',
       padding: '10px 0',
       borderBottom: '2px solid #ddd',
       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',

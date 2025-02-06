@@ -22,7 +22,7 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     alignItems: "center",
     height: "100vh",
     fontFamily: "'Roboto', sans-serif",
-    background: "linear-gradient(135deg, #eef2f3, #dfe9f3)",
+    background: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)",
   },
   card: {
     width: "400px",
@@ -39,7 +39,7 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     marginBottom: "20px",
   },
   input: {
-    width: "100%",
+    width: "93%",
     padding: "13px",
     fontSize: "18px",
     border: "1px solid #ddd",

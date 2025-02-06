@@ -34,7 +34,10 @@ const TodoList = ({p_id}: {p_id: number}) => {
         const postData: postTaskPayload = {pid: p_id, univ_id: tmpUnivId};
         try{
             const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            const sortedData = response.data.PAYLOADS.sort((a, b) => {
+            
+            const filteredData = response.data.PAYLOADS.filter((item) => !item.tfinish)
+            
+            const sortedData = filteredData.sort((a, b) => {
                 const dateA = new Date(a.tend).getTime();
                 const dateB = new Date(b.tend).getTime();
                 return dateA - dateB;
@@ -44,15 +47,19 @@ const TodoList = ({p_id}: {p_id: number}) => {
         }catch(err){}
     }
 
+    const isOver = (tend: string) => {
+        const today = new Date().setHours(0, 0, 0, 0);
+        const dueDate = new Date(tend).setHours(0, 0, 0, 0);
+        return dueDate < today;
+    }
+
     return(
         <div>
             {data.length > 0 ? (
                 data.map((item: taskType) => (
-                    <div>
-                        <div key={item.tid} style={{margin: '10px 10px', fontSize: '15px'}}>
-                            <div>마감 기한 : {item.tend}</div>
-                            <div>내용 : {limitTitle(item.tname, 15)}</div>
-                        </div>
+                    <div key={item.tid} style={{margin: '10px 10px', fontSize: '15px'}}>
+                        <div style={{color: isOver(item.tend) ? "red" : "#007BFF"}}>마감 기한 : {item.tend}</div>
+                        <div>내용 : {limitTitle(item.tname, 15)}</div>
                     </div>
                 )
             )) : (

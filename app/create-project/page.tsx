@@ -22,6 +22,8 @@ type pjinit = {
   pperiod: string;
   pmm: number;
   univ_id: number;
+  wizard: number;
+  prof_id: number;
 };
 type returnPJ = {
   RESULT_CODE: number;
@@ -125,15 +127,19 @@ const ClientPage: React.FC = () => {
     name: string,
     description: string,
     startDate: string,
-    endDate: string
+    endDate: string,
+    psize: number,
+    profId: number
   ) => {
     const newProject: pjinit = {
       pname: name,
       pdetails: description,
       psize: 5,
       pperiod: `${fixDate(startDate)}-${fixDate(endDate)}`,
-      pmm: 0,
+      pmm: psize,
       univ_id: getUnivId(),
+      wizard: 0,
+      prof_id: profId
     };
     postPJ(newProject);
   };

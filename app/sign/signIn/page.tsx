@@ -25,12 +25,12 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(135deg, #eef2f3, #dfe9f3)",
+    background: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)",
     fontFamily: "'Roboto', sans-serif",
   },
   card: {
     width: "400px",
-    padding: "30px",
+    padding: "50px",
     backgroundColor: "#ffffff",
     borderRadius: "16px",
     boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
@@ -43,12 +43,13 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     marginBottom: "20px",
   },
   input: {
-    width: "100%",
+    width: "93%",
     padding: "12px",
     fontSize: "16px",
     borderRadius: "8px",
-    border: "1px solid #ddd",
+    border: "1px solid #ccc",
     marginBottom: "15px",
+    transition: "border-color 0.3s ease",
   },
   button: {
     width: "100%",
@@ -60,6 +61,13 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     borderRadius: "8px",
     cursor: "pointer",
     transition: "background-color 0.3s",
+  },
+  buttonHover: {
+    backgroundColor: "#0056b3",
+  },
+  buttonDisabled: {
+    backgroundColor: "#cccccc",
+    cursor: "not-allowed",
   },
 };
 
@@ -119,7 +127,7 @@ export default function Login() {
       }
     } catch (err) {
       console.error("로그인 실패:", err);
-      alert("로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+      alert("❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +139,7 @@ export default function Login() {
   return (
     <div style={commonStyles.container}>
       <div style={commonStyles.card}>
-        <h2 style={commonStyles.title}>로그인</h2>
+        <h2 style={commonStyles.title}>🔑 로그인</h2>
         <form onSubmit={handleLogin}>
           <input
             type="text"
@@ -154,13 +162,14 @@ export default function Login() {
             disabled={isLoading}
             style={{
               ...commonStyles.button,
-              backgroundColor: isLoading ? "#cccccc" : "#007bff",
-              cursor: isLoading ? "not-allowed" : "pointer",
+              ...(isLoading ? commonStyles.buttonDisabled : {}),
             }}
           >
-            {isLoading ? "로그인 중..." : "로그인"}
+            {isLoading ? "⏳ 로그인 중..." : "로그인"}
           </button>
         </form>
+
+        {/* 회원가입 / 아이디 찾기 버튼 */}
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "space-between" }}>
           <button
             onClick={handleNavigateToRegister}
@@ -170,17 +179,17 @@ export default function Login() {
               backgroundColor: "#6c757d",
             }}
           >
-            회원가입
+            📝 회원가입
           </button>
           <button
-            onClick={handleNavigateToMain}
-            style={{
-              ...commonStyles.button,
-              width: "48%",
-              backgroundColor: "#6c757d",
-            }}
+             onClick={() => router.push("/sign/find-password")}
+             style={{
+                ...commonStyles.button,
+                width: "48%",
+                backgroundColor: "#6c757d",
+             }}
           >
-            메인화면
+            🔍 비밀번호 찾기
           </button>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import axios from "axios";
+import { getUnivId } from "@/app/util/storage";
+import usePermissionGuard from "@/app/util/usePermissionGuard";
 
 interface WbsRow {
   id: string;
@@ -69,37 +71,42 @@ export default function Main(props: any) {
   const [rows, setRows] = useState<WbsRow[]>([]);
   const [list, setList] = useState<(string | number)[][]>([])
   
+  
   const [hasSavedData, setHasSavedData] = useState<boolean>(false); // 저장된 데이터 여부 확인
+
+  const s_no = getUnivId();
+  usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, true)
+  const hasPermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
 
   // 폭포수 모델 초기 데이터
   const waterfallRows: WbsRow[] = [
-    { id: "1", category: "계획", subCategory: "프로젝트 관리", subSubCategory: "", subSubSubCategory: "", taskName: "위험 관리", product: "위험 등록부", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2024-01-10", completed: false },
-    { id: "2", category: "계획", subCategory: "프로젝트 관리", subSubCategory: "", subSubSubCategory: "", taskName: "자원 계획", product: "자원 계획서", assignee: "김철수", note: "", progress: 20, startDate: "2024-01-11", endDate: "2024-01-15", completed: false },
-    { id: "3", category: "분석", subCategory: "요구사항 수집 및 분석", subSubCategory: "", subSubSubCategory: "", taskName: "요구사항 수집", product: "요구사항 정의서", assignee: "이영희", note: "", progress: 30, startDate: "2024-01-16", endDate: "2024-01-20", completed: false },
-    { id: "4", category: "분석", subCategory: "요구사항 수집 및 분석", subSubCategory: "", subSubSubCategory: "", taskName: "요구사항 분석", product: "요구사항 분석 보고서", assignee: "김영희", note: "", progress: 40, startDate: "2024-01-21", endDate: "2024-01-25", completed: false },
-    { id: "5", category: "설계", subCategory: "시스템 설계", subSubCategory: "", subSubSubCategory: "", taskName: "인터페이스 설계", product: "인터페이스 설계서", assignee: "홍길동", note: "", progress: 50, startDate: "2024-01-26", endDate: "2024-01-30", completed: false },
-    { id: "6", category: "설계", subCategory: "시스템 설계", subSubCategory: "", subSubSubCategory: "", taskName: "데이터베이스 설계", product: "DB 설계 문서", assignee: "김철수", note: "", progress: 60, startDate: "2024-02-01", endDate: "2024-02-05", completed: false },
-    { id: "7", category: "구현", subCategory: "개발", subSubCategory: "", subSubSubCategory: "", taskName: "프론트엔드 개발", product: "UI 컴포넌트", assignee: "이영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2024-02-15", completed: false },
-    { id: "8", category: "구현", subCategory: "개발", subSubCategory: "", subSubSubCategory: "", taskName: "백엔드 개발", product: "API 모듈", assignee: "김철수", note: "", progress: 80, startDate: "2024-02-16", endDate: "2024-02-28", completed: false },
-    { id: "9", category: "테스트", subCategory: "QA", subSubCategory: "", subSubSubCategory: "", taskName: "단위 테스트", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 90, startDate: "2024-03-01", endDate: "2024-03-05", completed: false },
-    { id: "10", category: "테스트", subCategory: "QA", subSubCategory: "", subSubSubCategory: "", taskName: "통합 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 95, startDate: "2024-03-06", endDate: "2024-03-10", completed: false },
-    { id: "11", category: "배포", subCategory: "릴리스 및 유지보수", subSubCategory: "", subSubSubCategory: "", taskName: "운영 환경 설정", product: "배포 기록", assignee: "홍길동", note: "", progress: 100, startDate: "2024-03-11", endDate: "2024-03-15", completed: false },
+    { id: "1", category: "계획", subCategory: "프로젝트 관리", subSubCategory: "리스크 관리", subSubSubCategory: "위험 평가", taskName: "위험 관리", product: "위험 등록부", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2029-01-10", completed: false },
+    { id: "2", category: "계획", subCategory: "프로젝트 관리", subSubCategory: "자원 관리", subSubSubCategory: "자원 할당 계획", taskName: "자원 계획", product: "자원 계획서", assignee: "김철수", note: "", progress: 20, startDate: "2024-01-11", endDate: "2029-01-15", completed: false },
+    { id: "3", category: "분석", subCategory: "요구사항 수집 및 분석", subSubCategory: "요구사항 수집", subSubSubCategory: "이해관리자 인터뷰", taskName: "요구사항 수집", product: "요구사항 정의서", assignee: "이영희", note: "", progress: 30, startDate: "2024-01-16", endDate: "2029-01-20", completed: false },
+    { id: "4", category: "분석", subCategory: "요구사항 수집 및 분석", subSubCategory: "여구사항 분석", subSubSubCategory: "우선순위 결정", taskName: "요구사항 분석", product: "요구사항 분석 보고서", assignee: "김영희", note: "", progress: 40, startDate: "2024-01-21", endDate: "2029-01-25", completed: false },
+    { id: "5", category: "설계", subCategory: "시스템 설계", subSubCategory: "인터페이스 설계", subSubSubCategory: "UI/UX 디자인", taskName: "인터페이스 설계", product: "인터페이스 설계서", assignee: "홍길동", note: "", progress: 50, startDate: "2024-01-26", endDate: "2029-01-30", completed: false },
+    { id: "6", category: "설계", subCategory: "시스템 설계", subSubCategory: "데이터베이스 설계", subSubSubCategory: "ERD 모델링", taskName: "데이터베이스 설계", product: "DB 설계 문서", assignee: "김철수", note: "", progress: 60, startDate: "2024-02-01", endDate: "2029-02-05", completed: false },
+    { id: "7", category: "구현", subCategory: "개발", subSubCategory: "프론트엔드 개발", subSubSubCategory: "React 컴포넌트 개발", taskName: "프론트엔드 개발", product: "UI 컴포넌트", assignee: "이영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2029-02-15", completed: false },
+    { id: "8", category: "구현", subCategory: "개발", subSubCategory: "백엔드 개발", subSubSubCategory: "API 설계 및 구현", taskName: "백엔드 개발", product: "API 모듈", assignee: "김철수", note: "", progress: 80, startDate: "2024-02-16", endDate: "2029-02-28", completed: false },
+    { id: "9", category: "테스트", subCategory: "QA", subSubCategory: "단위 테스트", subSubSubCategory: "테스트 케이스 작성", taskName: "단위 테스트", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 90, startDate: "2024-03-01", endDate: "2029-03-05", completed: false },
+    { id: "10", category: "테스트", subCategory: "QA", subSubCategory: "통합 테스트", subSubSubCategory: "시스템 통합 검증", taskName: "통합 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 95, startDate: "2024-03-06", endDate: "2029-03-10", completed: false },
+    { id: "11", category: "배포", subCategory: "릴리스 및 유지보수", subSubCategory: "운영 환경 설정", subSubSubCategory: "서버 구성 및 배포", taskName: "운영 환경 설정", product: "배포 기록", assignee: "홍길동", note: "", progress: 100, startDate: "2024-03-11", endDate: "2029-03-15", completed: false },
   ];
 
   // 애자일 모델 초기 데이터
   const agileRows: WbsRow[] = [
-    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "", subSubSubCategory: "", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2024-01-03", completed: false },
-    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "", subSubSubCategory: "", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2024-01-06", completed: false },
-    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "", subSubSubCategory: "", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2024-01-09", completed: false },
-    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "", subSubSubCategory: "", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2024-01-12", completed: false },
-    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "", subSubSubCategory: "", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2024-01-20", completed: false },
-    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "", subSubSubCategory: "", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2024-01-30", completed: false },
-    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "", subSubSubCategory: "", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2024-02-05", completed: false },
-    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "", subSubSubCategory: "", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2024-02-10", completed: false },
-    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "", subSubSubCategory: "", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2024-02-15", completed: false },
-    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "", subSubSubCategory: "", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2024-02-20", completed: false },
-    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "", subSubSubCategory: "", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2024-02-25", completed: false },
-  ];
+    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "요구사항 정의", subSubSubCategory: "스토리 맵 작성", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2024-01-03", completed: false },
+    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "우선순위 결정", subSubSubCategory: "MoSCoW 기법 적용", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2024-01-06", completed: false },
+    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "스프린트 범위 결정", subSubSubCategory: "기능 분류 및 선정", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2024-01-09", completed: false },
+    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "팀별 업무 배정", subSubSubCategory: "페어 프로그래밍 구성", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2024-01-12", completed: false },
+    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "UI 개발", subSubSubCategory: "컴포넌트 설계 및 구현", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2024-01-20", completed: false },
+    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "API 개발", subSubSubCategory: "RESTful API 설계 및 구현", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2024-01-30", completed: false },
+    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "테스트 코드 작성", subSubSubCategory: "Jest 테스트 적용", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2024-02-05", completed: false },
+    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "기능 및 성능 검증", subSubSubCategory: "CI/CD 파이프라인 활용", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2024-02-10", completed: false },
+    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "개선 사항 도출", subSubSubCategory: "KPT(Keep, Problem, Try) 분석", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2024-02-15", completed: false },
+    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "배포 환경 구성", subSubSubCategory: "AWS 서버 설정", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2024-02-20", completed: false },
+    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2024-02-25", completed: false },
+];
 
   // 초기 로드: 로컬 저장소에서 데이터 불러오기
   useEffect(() => {
@@ -121,16 +128,23 @@ export default function Main(props: any) {
 
   // 저장 기능
   const saveData = async() => {
-    // const pidData = {pid: props.params.id}
-    const data = {
-      wbs_data: transWbs(rows),
-      pid : parseInt(props.params.id)
+    if (hasPermission === null) {
+      alert("권한 확인 중입니다. 잠시만 기다려주세요.");
+      return;
     }
-    try{
-      const response = await axios.post("https://cd-api.chals.kim/api/wbs/update", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-      alert("WBS가 저장되었습니다.")
-    }catch(err){
+    if (hasPermission) {
+      const data = {
+        wbs_data: transWbs(rows),
+        pid : parseInt(props.params.id)
+      };
+      try{
+        const response = await axios.post("https://cd-api.chals.kim/api/wbs/update", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        alert("WBS가 저장되었습니다.")
+      }catch(err){}
+    } else {
+      alert("권한이 없습니다.");
     }
+    
   };
 
   // 불러오기
@@ -140,7 +154,15 @@ export default function Main(props: any) {
       const response = await axios.post<fetchType>("https://cd-api.chals.kim/api/wbs/fetch_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
       if(response.data.RESULT_CODE === 200){
         const parseRow = parseData(response.data.PAYLOADS);
-        setRows(parseRow);
+        const tmpRow: WbsRow[] = parseRow
+        tmpRow.map((row) => {
+          if(row.assignee === "INITWBS"){
+            setRows([...waterfallRows])
+          }else{
+            setRows(parseRow);
+          }
+        })
+        
       }else{
         alert('저장된 WBS가 없습니다.')
       }
@@ -149,19 +171,9 @@ export default function Main(props: any) {
     }
   };
 
-  const deleteData = async() => {
-    const data: pidPost = {pid: props.params.id}
-    try{
-      const response = await axios.post("https://cd-api.chals.kim/api/wbs/delete_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-    }catch(err){
-
-    };
-  }
-
   // 초기화
   const clearData = () => {
-    if (window.confirm("초기화하시겠습니까? 저장된 데이터도 초기화됩니다.")) {
-      deleteData();
+    if (window.confirm("초기화하시겠습니까?")) {
       if (model === "Waterfall") {
         setRows(waterfallRows);
       } else {
@@ -311,6 +323,12 @@ export default function Main(props: any) {
     });
   };
 
+  const isOver = (tend: string) => {
+    const today = new Date().setHours(0, 0, 0, 0);
+    const dueDate = new Date(tend).setHours(0, 0, 0, 0);
+    return dueDate < today;
+}
+
   return (
     <div>
       <MainHeader pid={props.params.id} />
@@ -319,7 +337,7 @@ export default function Main(props: any) {
         <div
           style={{
             height: "calc(100vh - 105px)",
-            width: "calc(90% - 200px)",
+            width: "calc(95% - 150px)",
             border: "1px solid #000000",
             padding: "20px",
             overflowX: "auto",
@@ -333,11 +351,12 @@ export default function Main(props: any) {
               onClick={() => setModel("Waterfall")}
               style={{
                 padding: "10px 20px",
-                marginRight: "10px",
-                backgroundColor: model === "Waterfall" ? "#007BFF" : "#E0E0E0",
+                backgroundColor: model === "Agile" ? "#808080" : "#4CAF50", 
                 color: "#fff",
                 border: "none",
+                borderRadius: "8px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               폭포수 모델
@@ -346,10 +365,12 @@ export default function Main(props: any) {
               onClick={() => setModel("Agile")}
               style={{
                 padding: "10px 20px",
-                backgroundColor: model === "Agile" ? "#007BFF" : "#E0E0E0",
+                backgroundColor: model === "Agile" ? "#4CAF50" : "#808080", 
                 color: "#fff",
                 border: "none",
+                borderRadius: "8px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               애자일 모델
@@ -358,11 +379,12 @@ export default function Main(props: any) {
               onClick={saveData}
               style={{
                 padding: "10px 20px",
-                marginLeft: "10px",
                 backgroundColor: "#4CAF50",
                 color: "#fff",
                 border: "none",
+                borderRadius: "8px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               저장하기
@@ -371,11 +393,12 @@ export default function Main(props: any) {
               onClick={loadData}
               style={{
                 padding: "10px 20px",
-                marginLeft: "10px",
                 backgroundColor: "#FFA500",
                 color: "#fff",
                 border: "none",
+                borderRadius: "8px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               불러오기
@@ -384,11 +407,12 @@ export default function Main(props: any) {
               onClick={clearData}
               style={{
                 padding: "10px 20px",
-                marginLeft: "10px",
-                backgroundColor: "#FF4D4D",
+                backgroundColor: "#FF4D4D", 
                 color: "#fff",
                 border: "none",
+                borderRadius: "8px",
                 cursor: "pointer",
+                marginRight: "10px",
               }}
             >
               초기화
@@ -427,7 +451,7 @@ export default function Main(props: any) {
                 <tr
                   key={row.id}
                   style={{
-                    backgroundColor: row.completed ? "#DFFFD6" : "transparent",
+                    backgroundColor: row.completed ? "#DFFFD6" : (isOver(row.endDate) ? "#ffe4e1" : "transparent"),
                   }}
                 >
                   <td style={{ padding: "10px" }}>
@@ -435,7 +459,14 @@ export default function Main(props: any) {
                       type="text"
                       value={row.category}
                       onChange={(e) => updateRow(row.id, "category", e.target.value)}
-                      style={{ width: "60px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -443,7 +474,15 @@ export default function Main(props: any) {
                       type="text"
                       value={row.subCategory}
                       onChange={(e) => updateRow(row.id, "subCategory", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
+                      
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -451,7 +490,14 @@ export default function Main(props: any) {
                       type="text"
                       value={row.subSubCategory}
                       onChange={(e) => updateRow(row.id, "subSubCategory", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -459,7 +505,14 @@ export default function Main(props: any) {
                       type="text"
                       value={row.subSubSubCategory}
                       onChange={(e) => updateRow(row.id, "subSubSubCategory", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -467,7 +520,14 @@ export default function Main(props: any) {
                       type="text"
                       value={row.taskName}
                       onChange={(e) => updateRow(row.id, "taskName", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -475,15 +535,29 @@ export default function Main(props: any) {
                       type="text"
                       value={row.product}
                       onChange={(e) => updateRow(row.id, "product", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
-                  <td style={{ padding: "10px" }}>
+                  <td style={{ padding: "5px" }}>
                     <input
                       type="text"
                       value={row.assignee}
                       onChange={(e) => updateRow(row.id, "assignee", e.target.value)}
-                      style={{ width: "60px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -491,7 +565,14 @@ export default function Main(props: any) {
                       type="text"
                       value={row.note}
                       onChange={(e) => updateRow(row.id, "note", e.target.value)}
-                      style={{ width: "120px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -499,7 +580,14 @@ export default function Main(props: any) {
                       type="number"
                       value={row.progress}
                       onChange={(e) => updateRow(row.id, "progress", parseInt(e.target.value))}
-                      style={{ width: "40px", border: "none", outline: "none" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                        backgroundColor: "#f9f9f9",
+                        outline: "none",
+                      }}
                       min="0"
                       max="100"
                     />
@@ -509,7 +597,8 @@ export default function Main(props: any) {
                       type="date"
                       value={row.startDate}
                       onChange={(e) => updateRow(row.id, "startDate", e.target.value)}
-                      style={{ border: "none", outline: "none" }}
+                      style={{ padding: "10px", border: "1px solid #ddd" }}
+
                     />
                   </td>
                   <td style={{ padding: "10px" }}>
@@ -517,7 +606,8 @@ export default function Main(props: any) {
                       type="date"
                       value={row.endDate}
                       onChange={(e) => updateRow(row.id, "endDate", e.target.value)}
-                      style={{ border: "none", outline: "none" }}
+                      style={{ padding: "10px", border: "1px solid #ddd" }}
+
                     />
                   </td>
                   {/* <td style={{ textAlign: "center" }}>
@@ -532,24 +622,28 @@ export default function Main(props: any) {
                     <button
                       onClick={() => moveRowUp(index)}
                       style={{
-                        padding: "5px 10px",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
                         backgroundColor: "#FF4D4D",
                         color: "#fff",
-                        border: "none",
-                        cursor: "pointer",
                       }}
+                      
                     >
                       ▲
                     </button>
                     <button
                       onClick={() => moveRowDown(index)}
                       style={{
-                        padding: "5px 10px",
+                        padding: "10px 20px",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
                         backgroundColor: "#FF4D4D",
                         color: "#fff",
-                        border: "none",
-                        cursor: "pointer",
                       }}
+                      
                     >
                       ▼
                     </button>
@@ -558,12 +652,15 @@ export default function Main(props: any) {
                     <button
                       onClick={() => deleteRow(row.id)}
                       style={{
-                        padding: "5px 10px",
-                        backgroundColor: "#FF4D4D",
-                        color: "#fff",
-                        border: "none",
-                        cursor: "pointer",
+                        padding: "10px 20px",
+                       backgroundColor: "#FF4D4D",
+                       color: "#fff",
+                       border: "none",
+                       borderRadius: "8px",
+                       cursor: "pointer",
+                       marginRight: "10px",
                       }}
+                      
                     >
                       삭제
                     </button>
@@ -591,3 +688,4 @@ export default function Main(props: any) {
     </div>
   );
 }
+

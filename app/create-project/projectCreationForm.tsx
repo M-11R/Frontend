@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 interface ProjectCreationFormProps {
-    onCreate: (name: string, description: string, startDate: string, endDate: string, members: number, goal: string, method: string) => void;
+    onCreate: (name: string, description: string, startDate: string, endDate: string, members: number, profId: number) => void;
 }
 
 const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) => {
@@ -15,6 +15,7 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
     const [goal, setGoal] = useState('');
     const [method, setMethod] = useState('');
     const [showForm, setShowForm] = useState(false);
+    const [profId, setProfId] = useState<number | "">('');
 
     const handleCreateClick = () => {
         setShowForm(true);
@@ -23,7 +24,7 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (projectName.trim()) {
-            onCreate(projectName.trim(), projectDescription.trim(), startDate, endDate, Number(members), goal.trim(), method.trim());
+            onCreate(projectName.trim(), projectDescription.trim(), startDate, endDate, Number(members), Number(profId));
             setProjectName('');
             setProjectDescription('');
             setStartDate('');
@@ -75,6 +76,17 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
                         />
                     </div>
                     <div style={{ marginBottom: '15px' }}>
+                        <label htmlFor="members" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>교수 번호:</label>
+                        <input
+                            type="number"
+                            id="prof_id"
+                            value={profId}
+                            onChange={(e) => setProfId(Number(e.target.value))}
+                            required
+                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                        />
+                    </div>
+                    {/* <div style={{ marginBottom: '15px' }}>
                         <label htmlFor="goal" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 목표:</label>
                         <input
                             type="text"
@@ -84,7 +96,7 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
                             required
                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
                         />
-                    </div>
+                    </div> */}
                     <div style={{ marginBottom: '15px' }}>
                         <label htmlFor="method" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>개발 방식:</label>
                         <input

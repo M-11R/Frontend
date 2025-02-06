@@ -38,3 +38,6 @@ next-env.d.ts
 #API key
 .env
 .env.local
+
+#upload directory
+/public

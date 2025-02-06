@@ -4,6 +4,8 @@ import DynOutDelbtn from '@/app/components/DynOutDelbtn'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import MsBox from '@/app/json/msBox.json'
+import DocumentDownloadBtn from '@/app/components/DocumentDownload'
+import DType from '@/app/json/typeBox.json'
 
 type delData = {
     oid: number
@@ -119,6 +121,25 @@ export const OutputEtc = ({oid, pid}: {oid: number, pid: number}) => {
         }catch(err){}
     }
     
+    const downloadFile = async() => {
+        try{
+            const response = await axios.post("https://cd-api.chals.kim/api/output/otherdoc_download", {file_no: oid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+
+            const fileUrl = `/uploads/${data?.file_name}`;
+            const link = document.createElement("a");
+            link.href = fileUrl;
+            link.download = data?.file_name || 'null'
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }catch(err){
+        }
+    }
+
+    const handleDownload = () => {
+        downloadFile();
+    }
+
     return(
         <table className={styles.outTable}>
             <colgroup>
@@ -141,18 +162,31 @@ export const OutputEtc = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr>
                     <td colSpan={2}>
                         <div>
-                            <a href='https://google.com' target='_blank' rel='noopener noreferror' style={{textDecoration: 'none', fontSize: '15px'}}>
+                            {/* <a href='https://google.com' target='_blank' rel='noopener noreferror' style={{textDecoration: 'none', fontSize: '15px'}}>
                                 {data?.file_name}
-                            </a>
+                            </a> */}
+                            <button
+                                onClick={handleDownload}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#007BFF',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                }}
+                                >
+                                파일 다운로드
+                                </button>
                         </div>
                     </td>
                 </tr>
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
-                        <div style={{margin: 'auto', float: 'right'}}>
+                        {/* <div style={{margin: 'auto', float: 'right'}}>
                             <div style={{float: 'right'}}><button>수정</button></div>
                             <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.etc.value, oid: data?.file_no ?? -1}} pid={pid}/></div>
-                        </div>
+                        </div> */}
                     </td>
                 </tr>
             </tbody>
@@ -226,8 +260,9 @@ export const OutputOvr = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
-                            <div style={{float: 'right'}}><button>수정</button></div>
-                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.overview.value, oid: data?.doc_s_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.overview.value, oid: data?.doc_s_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><button>수정</button></div>
+                            <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.summary} d_no={data?.doc_s_no || 0} d_name={data?.doc_s_name || ''}/></div>
                         </div>
                     </td>
                 </tr>
@@ -290,8 +325,9 @@ export const OutputMm = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
-                            <div style={{float: 'right'}}><button>수정</button></div>
-                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.minutes.value, oid: data?.doc_m_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.minutes.value, oid: data?.doc_m_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><button>수정</button></div>
+                            <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.meeting_minutes} d_no={data?.doc_m_no || 0} d_name={data?.doc_m_title || ''}/></div>
                         </div>
                     </td>
                 </tr>
@@ -342,8 +378,9 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
-                            <div style={{float: 'right'}}><button>수정</button></div>
-                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.testcase.value, oid: data?.doc_t_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.testcase.value, oid: data?.doc_t_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><button>수정</button></div>
+                            <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.testcase} d_no={data?.doc_t_no || 0} d_name={data?.doc_t_name || ''}/></div>
                         </div>
                     </td>
                 </tr>
@@ -414,8 +451,9 @@ export const OutputReq = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
-                            <div style={{float: 'right'}}><button>수정</button></div>
-                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.request.value, oid: data?.doc_r_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.request.value, oid: data?.doc_r_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><button>수정</button></div>
+                            <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.reqspec} d_no={data?.doc_r_no || 0} d_name={data?.doc_r_s_name || ''}/></div>
                         </div>
                     </td>
                 </tr>
@@ -494,8 +532,9 @@ export const OutputReport = ({oid, pid}: {oid: number, pid: number}) => {
                 <tr style={{borderBottom: '0'}}>
                     <td colSpan={2} style={{borderBottom: '0'}}>
                         <div style={{margin: 'auto', float: 'right'}}>
-                            <div style={{float: 'right'}}><button>수정</button></div>
-                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.report.value, oid: data?.doc_rep_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.report.value, oid: data?.doc_rep_no ?? -1}} pid={pid}/></div>
+                            <div style={{float: 'right', padding: '5px'}}><button>수정</button></div>
+                            <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.report} d_no={data?.doc_rep_no || 0} d_name={data?.doc_rep_name || ''}/></div>
                         </div>
                     </td>
                 </tr>

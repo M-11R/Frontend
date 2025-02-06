@@ -1,13 +1,18 @@
-import MainHeader from '@/app/components/MainHeader';
-import MainSide from '@/app/components/MainSide';
-import Pagenation from '@/app/components/pagenation';
-import Link from 'next/link';
-import DocumentTable from '@/app/components/DocumentTable';
 
-export default function OutputManagement({ params, searchParams }: { params: { id: number }; searchParams: { page?: string } }) {
+import MainHeader from "@/app/components/MainHeader"
+import MainSide from "@/app/components/MainSide"
+import libraryList from "@/app/json/library.json"
+import LibraryTable from "@/app/components/LibraryTable";
+
+export default function library({ params, searchParams }: { params: { id: number }; searchParams: { page?: string } }){
     const page = parseInt(searchParams.page || '1', 10);
+    const data = libraryList.list;
+    const itemsPerPage = 10; // 한 페이지당 표시할 글 수
+    const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+    const totalItems = data.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    return (
+    return(
         <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', fontFamily: "'Roboto', sans-serif", backgroundColor: '#f9fafb' }}>
             <MainHeader pid={params.id} />
 
@@ -27,7 +32,7 @@ export default function OutputManagement({ params, searchParams }: { params: { i
                     }}
                 >
                     <h1 style={{ fontSize: '24px', color: '#4CAF50', marginBottom: '20px', borderBottom: '2px solid #4CAF50', paddingBottom: '10px' }}>
-                        산출물 관리
+                        자료실
                     </h1>
 
                     <div
@@ -40,19 +45,15 @@ export default function OutputManagement({ params, searchParams }: { params: { i
                         }}
                     >
                         <p style={{ fontSize: '16px', color: '#6b7280' }}>
-                            현재 프로젝트 산출물을 관리하고 확인하세요. 산출물 제목을 클릭하여 세부 내용을 확인할 수 있습니다.
+                            제공된 자료를 다운받아 사용할 수 있습니다.
                         </p>
                     </div>
 
-                    <DocumentTable page={page} pid={params.id} />
+                    
+                    <LibraryTable pid={params.id} />
 
-                    <Pagenation
-                        currentPage={page}
-                        totalPages={10} // 실제 데이터의 총 페이지 수로 변경
-                        basePath={`/project-main/${params.id}/outputManagement`}
-                    />
                 </div>
             </div>
         </div>
-    );
+    )
 }

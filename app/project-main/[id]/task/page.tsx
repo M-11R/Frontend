@@ -8,6 +8,7 @@ import MsBox from '@/app/json/msBox.json'
 export default function Task({ params, searchParams }: { params: { id: number }, searchParams: { page?: string } }) {
     // const itemsPerPage = 10; // 한 페이지당 표시할 글 수
     const page = parseInt(searchParams.page || "1", 10);
+    
     return(
         <div>
             <MainHeader pid = {params.id}/>

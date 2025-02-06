@@ -1,0 +1,14 @@
+{
+    "summary": { "name": "개요서.docx", "link": "/public/library/개요서.docx" },
+    "report": { "name": "보고서.docx", "link": "/public/library/보고서.docx" },
+    "reqspec": { "name": "요구사항.docx", "link": "/public/library/요구사항.docx" },
+    "testcase": { "name": "테스트케이스.docx", "link": "/public/library/테스트케이스.docx" },
+    "meeting_minutes": { "name": "회의록.docx", "link": "/public/library/회의록.docx" },
+    "list": [
+        {"key": 0, "type": "summary", "name": "개요서.docx"},
+        {"key": 1, "type": "report", "name": "보고서.docx"},
+        {"key": 2, "type": "reqspec", "name": "요구사항.docx"},
+        {"key": 3, "type": "testcase", "name": "테스트케이스.docx"},
+        {"key": 4, "type": "meeting_minutes", "name": "회의록.docx"}
+    ]
+}
