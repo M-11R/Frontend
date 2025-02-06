@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import axios from "axios";
-import { fixDate } from "@/app/util/fixDate";
-import { checkNull } from "@/app/util/check";
 import { useRouter } from "next/navigation";
+import { getUnivId } from "@/app/util/storage";
+import usePermissionGuard from "@/app/util/usePermissionGuard";
 
 export default function ServiceTestForm(props: any) {
-  // 상태 관리
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -18,160 +17,70 @@ export default function ServiceTestForm(props: any) {
   const [testItemName, setTestItemName] = useState("");
   const [testPassStatus, setTestPassStatus] = useState(false);
   const router = useRouter();
-
-  // 클라이언트 렌더링 여부 확인
+  const s_no = getUnivId();
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  usePermissionGuard(props.params.id, s_no, {leader: 1, ut: 1}, true)
 
-  // 미리보기 핸들러
   const handlePreview = () => setIsPreview(true);
-
-  // 수정 핸들러
   const handleEdit = () => setIsPreview(false);
 
-  // 다운로드 핸들러
-  const handleDownload = async() => {
+  const handleSave = async () => {
     const data = {
       tcname: testItemName,
-      tcstart: fixDate(testStartDate),
-      tcend: fixDate(testEndDate),
+      tcstart: testStartDate,
+      tcend: testEndDate,
       tcpass: testPassStatus,
       pid: props.params.id,
     };
 
-    // const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    // const url = URL.createObjectURL(blob);
-
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.download = "service_test.json";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-    // URL.revokeObjectURL(url);
-    if(checkNull(data)){
-      try{
-        const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        router.push(`/project-main/${props.params.id}/outputManagement`);
-      }catch(err){
-  
-      }
-    }else{
-      alert("데이터를 모두 입력해주세요.");
+    try {
+      await axios.post("https://cd-api.chals.kim/api/output/testcase_add", data, {
+        headers: { Authorization: process.env.SECRET_API_KEY },
+      });
+      router.push(`/project-main/${props.params.id}/outputManagement`);
+    } catch (err) {
+      alert("저장 중 오류가 발생했습니다.");
     }
   };
 
-  if (!isMounted) {
-    return null; // 서버와 클라이언트 불일치 방지
-  }
+  if (!isMounted) return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={pageContainerStyle}>
       <MainHeader pid={props.params.id} />
-
-      <div style={{ display: "flex", flex: 1 }}>
+      <div style={flexRowStyle}>
         <MainSide pid={props.params.id} />
-
-        <div style={{ padding: "20px", width: "100%", overflowY: "auto" }}>
-          <h1 style={{ borderBottom: "2px solid #4CAF50", paddingBottom: "10px" }}>서비스 테스트 작성</h1>
+        <div style={contentContainerStyle}>
+          <h1 style={titleStyle}>📝서비스 테스트 작성</h1>
 
           {!isPreview ? (
             <div>
-              {/* 테스트 정보 입력 섹션 */}
-              <div style={{ marginBottom: "20px" }}>
-                <h2 style={{ color: "#4CAF50", borderBottom: "1px solid #ddd" }}>테스트 정보</h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "10px", marginTop: "10px" }}>
-                  <label>테스트 시작일:</label>
-                  <input
-                    type="date"
-                    value={testStartDate}
-                    onChange={(e) => setTestStartDate(e.target.value)}
-                  />
+              {/* 테스트 정보 섹션 */}
+              <Section title="테스트 정보">
+                <Field label="테스트 시작일" value={testStartDate} setter={setTestStartDate} type="date" />
+                <Field label="테스트 종료일" value={testEndDate} setter={setTestEndDate} type="date" />
+                <Field label="테스트 항목 이름" value={testItemName} setter={setTestItemName} />
+                <CheckboxField
+                  label="테스트 통과 여부"
+                  checked={testPassStatus}
+                  setter={setTestPassStatus}
+                />
+              </Section>
 
-                  <label>테스트 종료일:</label>
-                  <input
-                    type="date"
-                    value={testEndDate}
-                    onChange={(e) => setTestEndDate(e.target.value)}
-                  />
-
-                  <label>테스트 항목 이름:</label>
-                  <input
-                    type="text"
-                    value={testItemName}
-                    onChange={(e) => setTestItemName(e.target.value)}
-                    placeholder="테스트 항목 입력"
-                  />
-
-                  <label>테스트 통과 여부:</label>
-                  <input
-                    type="checkbox"
-                    id="checkbox"
-                    checked={testPassStatus}
-                    onChange={(e) => setTestPassStatus(e.target.checked)}
-                  />
-                </div>
-              </div>
-
-              {/* 미리보기 버튼 */}
-              <button
-                onClick={handlePreview}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#4CAF50",
-                  color: "white",
-                  border: "none",
-                  cursor: "pointer",
-                  marginTop: "20px",
-                }}
-              >
-                미리보기
-              </button>
+              <ActionButton label="미리보기" onClick={handlePreview} color="#4CAF50" />
             </div>
           ) : (
             <div>
-              <h2 style={{ borderBottom: "1px solid #ddd" }}>미리보기</h2>
-              <div>
-                <strong>테스트 시작일:</strong> {testStartDate}
-              </div>
-              <div>
-                <strong>테스트 종료일:</strong> {testEndDate}
-              </div>
-              <div>
-                <strong>테스트 항목 이름:</strong> {testItemName}
-              </div>
-              <div>
-                <strong>테스트 통과 여부:</strong> {testPassStatus}
-              </div>
-
-              {/* 수정 및 다운로드 버튼 */}
+              <h2 style={sectionHeaderStyle}>미리보기</h2>
+              <PreviewField label="테스트 시작일" value={testStartDate} />
+              <PreviewField label="테스트 종료일" value={testEndDate} />
+              <PreviewField label="테스트 항목 이름" value={testItemName} />
+              <PreviewField label="테스트 통과 여부" value={testPassStatus ? "예" : "아니오"} />
               <div style={{ marginTop: "20px" }}>
-                <button
-                  onClick={handleEdit}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#f0ad4e",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                  }}
-                >
-                  수정
-                </button>
-                <button
-                  onClick={handleDownload}
-                  style={{
-                    padding: "10px 20px",
-                    backgroundColor: "#2196F3",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  다운로드
-                </button>
+                <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+                <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
               </div>
             </div>
           )}
@@ -180,3 +89,128 @@ export default function ServiceTestForm(props: any) {
     </div>
   );
 }
+
+const pageContainerStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  height: "auto",
+  backgroundColor: "#f4f4f4",
+};
+
+const flexRowStyle: CSSProperties = {
+  display: "flex",
+  flex: 1,
+};
+
+const contentContainerStyle: CSSProperties = {
+  padding: "20px",
+  width: "100%",
+  overflowY: "auto",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+  margin: "20px",
+};
+
+const titleStyle: CSSProperties = {
+  borderBottom: "3px solid #4CAF50",
+  paddingBottom: "10px",
+  fontSize: "24px",
+  fontWeight: "bold",
+  color: "#4CAF50",
+};
+
+const sectionHeaderStyle: CSSProperties = {
+  color: "#4CAF50",
+  borderBottom: "1px solid #ddd",
+  marginBottom: "20px",
+};
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div style={{ marginBottom: "20px" }}>
+    <h2 style={sectionHeaderStyle}>{title}</h2>
+    {children}
+  </div>
+);
+
+const Field = ({
+  label,
+  value,
+  setter,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  setter: (value: string) => void;
+  type?: string;
+}) => (
+  <>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => setter(e.target.value)}
+      style={{
+        width: "99%",
+        padding: "10px",
+        borderRadius: "8px",
+        border: "1px solid #ddd",
+        backgroundColor: "#f9f9f9",
+      }}
+    />
+  </>
+);
+
+const CheckboxField = ({
+  label,
+  checked,
+  setter,
+}: {
+  label: string;
+  checked: boolean;
+  setter: (checked: boolean) => void;
+}) => (
+  <>
+    <label style={{ fontWeight: "bold" }}>{label}:</label>
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => setter(e.target.checked)}
+      style={{
+        marginLeft: "10px",
+        transform: "scale(1.2)",
+      }}
+    />
+  </>
+);
+
+const PreviewField = ({ label, value }: { label: string; value: string }) => (
+  <p>
+    <strong>{label}:</strong> {value}
+  </p>
+);
+
+const ActionButton = ({
+  label,
+  onClick,
+  color,
+}: {
+  label: string;
+  onClick: () => void;
+  color: string;
+}) => (
+  <button
+    onClick={onClick}
+    style={{
+      padding: "10px 20px",
+      backgroundColor: color,
+      color: "#fff",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      marginRight: "10px",
+    }}
+  >
+    {label}
+  </button>
+);

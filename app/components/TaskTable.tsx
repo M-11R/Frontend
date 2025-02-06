@@ -6,6 +6,8 @@ import MsBox from '@/app/json/msBox.json'
 import styles from '@/app/css/DivTable.module.css'
 import { AddTask, ConfigTask } from "@/app/components/Modal";
 import { limitTitle } from "../util/string"
+import { getUnivId } from '@/app/util/storage'
+import usePermissionGuard from '@/app/util/usePermissionGuard'
 
 type taskType = {
     p_no: number
@@ -29,7 +31,8 @@ type postTaskPayload = {
 
 const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
     const [data, setData] = useState<taskType[]>([]);
-
+    const s_no = getUnivId()
+    usePermissionGuard(p_id, s_no, {leader: 1, task: [1, 2]}, true);
     useEffect(() => {
         loadTask();
     }, []);
@@ -55,6 +58,13 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
         }
     }
 
+    const tf = (data: number) => {
+        if(data === 0){
+            return false;
+        }else{
+            return true;
+        }
+    }
 
     return (
         <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
@@ -80,7 +90,7 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
                             <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_person}</div>
                             <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_start}</div>
                             <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_end}</div>
-                            <div className={styles.cell} style={{width: '10%', height: '100%'}}>{item.w_checked}</div>
+                            <div className={styles.cell} style={{width: '10%', height: '100%'}}>{item.w_checked ? '완료' : '진행 중'}</div>
                             <div className={styles.endCell} style={{width: '14%'}}><ConfigTask data={item} p_id={p_id}/></div>
                         </div>
                     ))}

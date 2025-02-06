@@ -11,32 +11,32 @@
         {
             "Sid" : "s001",
             "Sname" : "계획",
-            "Sscore" : 0
+            "Sscore" : 90
         },
         {
             "Sid" : "s002",
             "Sname" : "분석",
-            "Sscore" : 0
+            "Sscore" : 60
         },
         {
             "Sid" : "s003",
             "Sname" : "설계",
-            "Sscore" : 0
+            "Sscore" : 30
         },
         {
             "Sid" : "s004",
             "Sname" : "구현",
-            "Sscore" : 0
+            "Sscore" : 10
         },
         {
             "Sid" : "s005",
             "Sname" : "테스트",
-            "Sscore" : 0
+            "Sscore" : 10
         },
         {
             "Sid" : "s006",
             "Sname" : "유지보수",
-            "Sscore" : 0
+            "Sscore" : 5
         }
     ],
 

@@ -12,6 +12,20 @@ type userList = {
     "name": string,
     "permission": string
 }
+type permissionList = {
+    pid: number
+    univ_id: number
+    user: number
+    wbs: number
+    od: number
+    mm: number
+    ut: number
+    rs: number
+    rp: number
+    om: number
+    task: number
+    llm: number
+}
 type returnType = {
     "RESULT_CODE": number,
     "RESULT_MSG": string,
@@ -36,8 +50,7 @@ const UserDataTable = ({p_id}: {p_id: any}) => {
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkuser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
             setUser(response.data.PAYLOADS);
         }catch(err){
-            // console.log(err);
-            console.log(data.pid);
+            
         }
         
     }
@@ -57,7 +70,7 @@ const UserDataTable = ({p_id}: {p_id: any}) => {
                     <td>{Item.name}</td>
                     <td>{Item.univ_id}</td>
                     <td>{Item.role}</td>
-                    <td>{Item.permission}</td>
+                    <td>{(Item.permission ? "팀장" : "팀원")}</td>
                     <td><UserConfigBtn input = {Item} pid = {p_id}/></td>
                 </tr>)}
             </tbody>
