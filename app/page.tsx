@@ -82,7 +82,7 @@ export default function Home() {
             fontWeight: "bold",
           }}
         >
-          Capstone Design
+          대학생을 위한 웹 기반 PMS
         </h1>
         <p style={{ fontSize: "1.2em", lineHeight: "1.8", marginBottom: "30px" }}>
           대학생 프로젝트 매니저. 사용자가 원하는 목표를 달성할 수 있도록 돕는
@@ -116,7 +116,7 @@ export default function Home() {
           textAlign: "center",
         }}
       >
-        <p>문의: support@capstonedesign.com | Capstone Design © 2025</p>
+        <p>문의: leemir01011@nsu.ac.kr | Capstone Design © 2025</p>
       </footer>
     </div>
   );

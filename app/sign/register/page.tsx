@@ -103,7 +103,7 @@ export default function Signup() {
         setToken(response.data.PAYLOADS.Token);
         setUserId(id);
         setUnivId(Number(hak));
-        router.push("/");
+        router.push("/create-project");
       } else {
         alert(response.data.RESULT_MSG || "회원가입 중 문제가 발생했습니다.");
       }

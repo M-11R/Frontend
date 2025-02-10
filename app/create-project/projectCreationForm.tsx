@@ -36,13 +36,20 @@ const ProjectCreationForm: React.FC<ProjectCreationFormProps> = ({ onCreate }) =
         }
     };
 
+    const handlehide = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowForm(false)
+    }
+
     return (
         <div className="create-project-container" style={{ padding: '20px', maxWidth: '600px', margin: '40px auto', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '12px', backgroundColor: '#f9f9f9' }}>
             {!showForm ? (
                 <button onClick={handleCreateClick} style={{ position: 'fixed', bottom: '20px', left: '20px', padding: '15px 25px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', cursor: 'pointer' }}>프로젝트 생성</button>
             ) : (
                 <form onSubmit={handleSubmit} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
+                    <button onClick={handlehide} style={{ bottom: '20px', left: '20px', padding: '15px 25px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', cursor: 'pointer' }}>X</button>
                     <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 개설</h2>
+                    
                     <div style={{ marginBottom: '15px' }}>
                         <label htmlFor="projectName" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 이름:</label>
                         <input

@@ -12,12 +12,12 @@ const LLMChat = ({pid}: {pid: number}) => {
         if (input.trim() === '') return; // 빈 입력 방지
         
         setMessages((prevMessages) => [...prevMessages, input]); // 사용자 메시지 추가
-        setMessages((prevMessages) => [...prevMessages, '현재 점검중입니다.']); // 상대방 메시지 추가
-        // try{
-        //     const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: input}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        //     const tmpMessage = response.data.response.text
-            
-        // }catch(err){}
+        // setMessages((prevMessages) => [...prevMessages, '현재 점검중입니다.']); // 상대방 메시지 추가
+        try{
+            const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: input}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const tmpMessage = response.data.response.text
+            setMessages((prevMessages) => [...prevMessages, tmpMessage]); // 상대방 메시지 추가
+        }catch(err){}
         
         setInput(''); // 입력 필드 초기화
     };
@@ -35,7 +35,7 @@ const LLMChat = ({pid}: {pid: number}) => {
     return (
         <div
             style={{
-                width: '1200px',
+                width: '100%',
                 height: '550px',
                 border: '1px solid #ccc',
                 borderRadius: '10px',

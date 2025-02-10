@@ -88,8 +88,8 @@ export default function Main(props: any) {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        fontSize: "16px",
-                        fontWeight: "bold",
+                        fontSize: "24px",
+                        // fontWeight: "bold",
                         backgroundColor: "#ffffff",
                         border: "1px solid #ddd",
                         borderRadius: "5px",
@@ -109,7 +109,7 @@ export default function Main(props: any) {
             {/* Todo List */}
             <div
               style={{
-                flex: 1.5, 
+                flex: 1, 
                 padding: "10px",
                 backgroundColor: "#ffffff",
                 borderRadius: "10px",

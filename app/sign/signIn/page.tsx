@@ -121,7 +121,7 @@ export default function Login() {
         setToken(response.data.PAYLOADS.Token);
         setUnivId(response.data.PAYLOADS.Univ_ID);
         setUserId(data.id);
-        router.push("/");
+        router.push("/create-project");
       } else {
         alert(response.data.RESULT_MSG);
       }

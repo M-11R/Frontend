@@ -108,12 +108,18 @@ export default function Main(props: any) {
     { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2024-02-25", completed: false },
 ];
 
+  const etcRows: WbsRow[] = [
+    { id: "1", category: "", subCategory: "", subSubCategory: "", subSubSubCategory: "", taskName: "", product: "", assignee: "", note: "", progress: 0, startDate: "2024-01-01", endDate: "2099-01-03", completed: false },
+  ]
+
   // 초기 로드: 로컬 저장소에서 데이터 불러오기
   useEffect(() => {
     if (model === "Waterfall") {
       setRows([...waterfallRows]);
     } else if (model === "Agile") {
       setRows([...agileRows]);
+    } else if (model === "etc"){
+      setRows([...etcRows])
     }
   }, [model]);
   useEffect(() => {
@@ -176,8 +182,10 @@ export default function Main(props: any) {
     if (window.confirm("초기화하시겠습니까?")) {
       if (model === "Waterfall") {
         setRows(waterfallRows);
-      } else {
+      } else if (model === "Agile"){
         setRows(agileRows);
+      } else {
+        setRows(etcRows)
       }
     }
   };
@@ -343,7 +351,7 @@ export default function Main(props: any) {
             overflowX: "auto",
           }}
         >
-          <h2>{model === "Waterfall" ? "폭포수 모델" : "애자일 모델"} WBS</h2>
+          <h2>{model === "Waterfall" ? "폭포수 모델" : (model === "Agile" ? "애자일 모델" : "기타 모델")} WBS</h2>
 
           {/* 모델 선택 및 데이터 관리 */}
           <div style={{ marginBottom: "20px" }}>
@@ -351,7 +359,7 @@ export default function Main(props: any) {
               onClick={() => setModel("Waterfall")}
               style={{
                 padding: "10px 20px",
-                backgroundColor: model === "Agile" ? "#808080" : "#4CAF50", 
+                backgroundColor: model === "Waterfall" ? "#4CAF50" : "#808080", 
                 color: "#fff",
                 border: "none",
                 borderRadius: "8px",
@@ -376,6 +384,22 @@ export default function Main(props: any) {
               애자일 모델
             </button>
             <button
+              onClick={() => setModel("etc")}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: model === "etc" ? "#4CAF50" : "#808080", 
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                marginRight: "10px",
+              }}
+            >
+              기타 모델
+            </button>
+
+            <div style={{float: 'right'}}>
+            <button
               onClick={saveData}
               style={{
                 padding: "10px 20px",
@@ -388,20 +412,6 @@ export default function Main(props: any) {
               }}
             >
               저장하기
-            </button>
-            <button
-              onClick={loadData}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#FFA500",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                marginRight: "10px",
-              }}
-            >
-              불러오기
             </button>
             <button
               onClick={clearData}
@@ -417,6 +427,7 @@ export default function Main(props: any) {
             >
               초기화
             </button>
+            </div>
           </div>
           {/* 스크롤 관리 */}
           <div style={{overflow: 'auto', whiteSpace: 'nowrap'}}> 
