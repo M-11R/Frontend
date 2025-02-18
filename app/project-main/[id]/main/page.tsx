@@ -19,6 +19,15 @@ type wbsRatio = {
   group1: string
   ratio: number
 }
+type pjlist = {
+  pid: number
+  pname: string
+  pdetails: string
+  psize: number
+  pperiod: string
+  pmm: string
+  wizard: number
+}
 
 export default function Main(props: any) {
   const [ratio, setRatio] = useState<wbsRatio[]>([])
@@ -32,17 +41,18 @@ export default function Main(props: any) {
     }catch(err){}
   }
 
+
   useEffect(() => {
     loadWBS()
   }, [])
 
   return (
-    <div style={{ backgroundColor: "#f9f9f9", minHeight: "100vh", padding: "10px" }}>
+    <div style={{ backgroundColor: "#f9f9f9", height: "100vh", padding: "10px" }}>
       {/* 메인 헤더 */}
       <MainHeader pid={props.params.id} />
 
       {/* Body */}
-      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+      <div style={{ display: "flex", gap: "10px", marginTop: "10px", }}>
         {/* 왼쪽 사이드 */}
         <MainSide pid={props.params.id} />
 
@@ -60,53 +70,71 @@ export default function Main(props: any) {
           }}
         >
           {/* 페이지 위 : 진척도 */}
-          <div
-            style={{
-              height: "35%",
-              width: "100%",
-              padding: "10px",
-              borderRadius: "10px",
-              backgroundColor: "#f0f7ff",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-              {Array.from({ length: Math.ceil(ratio.length / 3) }, (_, rowIndex) => (
-                <div
-                  key={rowIndex}
-                  style={{
-                    display: "flex",
-                    width: "100%",
-                    flex: 1, // 높이를 균등하게 설정
-                  }}
-                >
-                  {ratio.slice(rowIndex * 3, rowIndex * 3 + 3).map((item, colIndex) => (
-                    <div
-                      key={colIndex}
-                      style={{
-                        flex: 1, // 너비를 균등하게 설정
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontSize: "24px",
-                        // fontWeight: "bold",
-                        backgroundColor: "#ffffff",
-                        border: "1px solid #ddd",
-                        borderRadius: "5px",
-                        margin: "2px", // 여백 최소화
-                      }}
-                    >
-                      {item.group1}: {item.ratio}
-                    </div>
-                  ))}
-                </div>
-              ))}
+          <div style={{ display: "flex", gap: "10px", height: "25%" }}>
+            {/* 진척도 섹션 */}
+            <div
+              style={{
+                flex: 7,
+                padding: "10px",
+                borderRadius: "10px",
+                backgroundColor: "#f0f7ff",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                {Array.from({ length: Math.ceil(ratio.length / 3) }, (_, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    style={{
+                      display: "flex",
+                      width: "100%",
+                      flex: 1, // 높이를 균등하게 설정
+                    }}
+                  >
+                    {ratio.slice(rowIndex * 3, rowIndex * 3 + 3).map((item, colIndex) => (
+                      <div
+                        key={colIndex}
+                        style={{
+                          flex: 1,
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            fontSize: "24px",
+                            backgroundColor: "#ffffff",
+                            border: "1px solid #ddd",
+                            borderRadius: "5px",
+                            margin: "2px",
+                        }}
+                      >
+                        {item.group1}: {item.ratio}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
+            {/* Todo List 섹션 */}
+            <div
+                style={{
+                  flex: 4,
+                  padding: "10px",
+                  borderRadius: "10px",
+                  backgroundColor: "#ffffff",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>Todo List</div>
+                <div style={{ borderBottom: "2px solid #ddd", marginBottom: "5px" }}></div>
+                <TodoList p_id={props.params.id} />
+              </div>
           </div>
-
           {/* 페이지 아래 */}
-          <div style={{ display: "flex", gap: "10px", flex: 1 }}>
-            {/* Todo List */}
+          <div style={{ display: "flex", gap: "10px"}}>
+            {/* 팀원 */}
             <div
               style={{
                 flex: 1, 
@@ -118,9 +146,9 @@ export default function Main(props: any) {
                 flexDirection: "column",
               }}
             >
-              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>Todo List</div>
+              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>팀원</div>
               <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div>
-              <TodoList p_id={props.params.id} />
+              
             </div>
 
             {/* LLM 섹션 */}

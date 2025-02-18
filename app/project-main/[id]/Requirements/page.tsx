@@ -8,44 +8,35 @@ import { useRouter } from "next/navigation";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 
-type reqType = {
-  feature_name: string
-  description: string
-  priority: number
-  non_functional_requirement_name: string
-  non_functional_description: string
-  non_functional_priority: number
-  system_item: string
-  system_description: string
-  pid: number
-}
-
-
 export default function RequirementsForm(props: any) {
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
 
+  // ✅ 요구사항 입력 상태값
   const [creationDate, setCreationDate] = useState("");
   const [systemRequirements, setSystemRequirements] = useState("");
   const [systemRequirementsDesc, setSystemRequirementsDesc] = useState("");
   const [functionalRequirements, setFunctionalRequirements] = useState("");
   const [functionalRequirementsDesc, setFunctionalRequirementsDesc] = useState("");
-  const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState<number>(0);
+  const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState<number>(1);
   const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState("");
   const [nonFunctionalRequirementsDesc, setNonFunctionalRequirementsDesc] = useState("");
-  const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState<number>(0);
+  const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState<number>(1);
+
   const router = useRouter();
   const s_no = getUnivId();
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  usePermissionGuard(props.params.id, s_no, {leader: 1, rs: 1}, true)
+
+  usePermissionGuard(props.params.id, s_no, { leader: 1, rs: 1 }, true);
 
   const handlePreview = () => setIsPreview(true);
   const handleEdit = () => setIsPreview(false);
 
   const handleSave = async () => {
-    const data: reqType = {
+    const data = {
       system_item: systemRequirements,
       system_description: systemRequirementsDesc,
       feature_name: functionalRequirements,
@@ -75,7 +66,7 @@ export default function RequirementsForm(props: any) {
       <div style={flexRowStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentContainerStyle}>
-          <h1 style={titleStyle}>📝요구사항 작성</h1>
+          <h1 style={titleStyle}>📝 요구사항 작성</h1>
 
           {!isPreview ? (
             <div>
@@ -86,70 +77,40 @@ export default function RequirementsForm(props: any) {
 
               {/* 시스템 요구사항 */}
               <Section title="시스템 요구사항">
-                <Field label="시스템 요구사항" value={systemRequirements} setter={setSystemRequirements} />
-                <TextAreaField
-                  label="시스템 요구사항 설명"
-                  value={systemRequirementsDesc}
-                  setter={setSystemRequirementsDesc}
-                />
+                <Field label="요구사항" value={systemRequirements} setter={setSystemRequirements} />
+                <TextAreaField label="설명" value={systemRequirementsDesc} setter={setSystemRequirementsDesc} />
               </Section>
 
               {/* 기능 요구사항 */}
               <Section title="기능 요구사항">
-                <Field label="기능 요구사항" value={functionalRequirements} setter={setFunctionalRequirements} />
-                <TextAreaField
-                  label="기능 요구사항 설명"
-                  value={functionalRequirementsDesc}
-                  setter={setFunctionalRequirementsDesc}
-                />
-                <Field
-                  label="기능 요구사항 우선순위"
-                  value={functionalRequirementsPriority.toString()}
-                  setter={(val) => setFunctionalRequirementsPriority(Number(val))}
-                  type="number"
-                />
+                <Field label="요구사항" value={functionalRequirements} setter={setFunctionalRequirements} />
+                <TextAreaField label="설명" value={functionalRequirementsDesc} setter={setFunctionalRequirementsDesc} />
+                <Field label="우선순위 (1~3)" value={functionalRequirementsPriority.toString()} setter={(val) => setFunctionalRequirementsPriority(Number(val))} type="number" />
               </Section>
 
               {/* 비기능 요구사항 */}
               <Section title="비기능 요구사항">
-                <Field
-                  label="비기능 요구사항"
-                  value={nonFunctionalRequirements}
-                  setter={setNonFunctionalRequirements}
-                />
-                <TextAreaField
-                  label="비기능 요구사항 설명"
-                  value={nonFunctionalRequirementsDesc}
-                  setter={setNonFunctionalRequirementsDesc}
-                />
-                <Field
-                  label="비기능 요구사항 우선순위"
-                  value={nonFunctionalRequirementsPriority.toString()}
-                  setter={(val) => setNonFunctionalRequirementsPriority(Number(val))}
-                  type="number"
-                />
+                <Field label="요구사항" value={nonFunctionalRequirements} setter={setNonFunctionalRequirements} />
+                <TextAreaField label="설명" value={nonFunctionalRequirementsDesc} setter={setNonFunctionalRequirementsDesc} />
+                <Field label="우선순위 (1~3)" value={nonFunctionalRequirementsPriority.toString()} setter={(val) => setNonFunctionalRequirementsPriority(Number(val))} type="number" />
               </Section>
 
               <ActionButton label="미리보기" onClick={handlePreview} color="#4CAF50" />
             </div>
           ) : (
-            <div>
-              <h2 style={sectionHeaderStyle}>미리보기</h2>
-              <PreviewField label="작성일" value={creationDate} />
-              <PreviewField label="시스템 요구사항" value={systemRequirements} />
-              <PreviewField label="시스템 요구사항 설명" value={systemRequirementsDesc} />
-              <PreviewField label="기능 요구사항" value={functionalRequirements} />
-              <PreviewField label="기능 요구사항 설명" value={functionalRequirementsDesc} />
-              <PreviewField label="기능 요구사항 우선순위" value={functionalRequirementsPriority.toString()} />
-              <PreviewField label="비기능 요구사항" value={nonFunctionalRequirements} />
-              <PreviewField label="비기능 요구사항 설명" value={nonFunctionalRequirementsDesc} />
-              <PreviewField label="비기능 요구사항 우선순위" value={nonFunctionalRequirementsPriority.toString()} />
-
-              <div style={{ marginTop: "20px" }}>
-                <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
-                <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
-              </div>
-            </div>
+            <Preview
+              creationDate={creationDate}
+              systemRequirements={systemRequirements}
+              systemRequirementsDesc={systemRequirementsDesc}
+              functionalRequirements={functionalRequirements}
+              functionalRequirementsDesc={functionalRequirementsDesc}
+              functionalRequirementsPriority={functionalRequirementsPriority}
+              nonFunctionalRequirements={nonFunctionalRequirements}
+              nonFunctionalRequirementsDesc={nonFunctionalRequirementsDesc}
+              nonFunctionalRequirementsPriority={nonFunctionalRequirementsPriority}
+              handleEdit={handleEdit}
+              handleSave={handleSave}
+            />
           )}
         </div>
       </div>
@@ -157,6 +118,110 @@ export default function RequirementsForm(props: any) {
   );
 }
 
+// ✅ 미리보기 컴포넌트
+const Preview = ({
+  creationDate,
+  systemRequirements,
+  systemRequirementsDesc,
+  functionalRequirements,
+  functionalRequirementsDesc,
+  functionalRequirementsPriority,
+  nonFunctionalRequirements,
+  nonFunctionalRequirementsDesc,
+  nonFunctionalRequirementsPriority,
+  handleEdit,
+  handleSave,
+}: any) => (
+  <div style={previewContainerStyle}>
+    <h2 style={sectionHeaderStyle}>📝 요구사항 미리보기</h2>
+
+    <table style={tableStyle}>
+      <tbody>
+        <tr>
+          <th style={thStyle}>작성일</th>
+          <td colSpan={3} style={tdStyle}>{creationDate}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>시스템 요구사항</th>
+          <td colSpan={3} style={tdStyle}>{systemRequirements}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>설명</th>
+          <td colSpan={3} style={tdStyle}>{systemRequirementsDesc}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>기능 요구사항</th>
+          <td style={tdStyle}>{functionalRequirements}</td>
+          <th style={thStyle}>우선순위</th>
+          <td style={tdStyle}>{["낮음", "보통", "높음"][functionalRequirementsPriority - 1]}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>설명</th>
+          <td colSpan={3} style={tdStyle}>{functionalRequirementsDesc}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>비기능 요구사항</th>
+          <td style={tdStyle}>{nonFunctionalRequirements}</td>
+          <th style={thStyle}>우선순위</th>
+          <td style={tdStyle}>{["낮음", "보통", "높음"][nonFunctionalRequirementsPriority - 1]}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>설명</th>
+          <td colSpan={3} style={tdStyle}>{nonFunctionalRequirementsDesc}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style={buttonContainerStyle}>
+      <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+      <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
+    </div>
+  </div>
+);
+
+// ✅ 미리보기 컨테이너 스타일
+const previewContainerStyle: CSSProperties = {
+  padding: "20px",
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+  marginTop: "20px",
+};
+
+// ✅ 테이블 스타일
+const tableStyle: CSSProperties = {
+  width: "100%",
+  borderCollapse: "collapse",
+  marginBottom: "20px",
+};
+
+const thStyle: CSSProperties = {
+  backgroundColor: "#f8f9fa",
+  padding: "12px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+  fontWeight: "bold",
+  verticalAlign: "middle",
+  width: "20%",
+};
+
+const tdStyle: CSSProperties = {
+  padding: "12px",
+  border: "1px solid #ddd",
+  textAlign: "center",
+  verticalAlign: "middle",
+  backgroundColor: "#fff",
+  width: "40%",
+};
+
+// ✅ 버튼 컨테이너 스타일
+const buttonContainerStyle: CSSProperties = {
+  display: "flex",
+  justifyContent: "flex-end",
+  marginTop: "20px",
+};
+
+// ✅ 페이지 레이아웃 스타일
 const pageContainerStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
@@ -179,6 +244,7 @@ const contentContainerStyle: CSSProperties = {
   margin: "20px",
 };
 
+// ✅ 제목 스타일
 const titleStyle: CSSProperties = {
   borderBottom: "3px solid #4CAF50",
   paddingBottom: "10px",
@@ -187,12 +253,14 @@ const titleStyle: CSSProperties = {
   color: "#4CAF50",
 };
 
+// ✅ 섹션 헤더 스타일
 const sectionHeaderStyle: CSSProperties = {
   color: "#4CAF50",
   borderBottom: "1px solid #ddd",
   marginBottom: "20px",
 };
 
+// ✅ 섹션 컴포넌트
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <div style={{ marginBottom: "20px" }}>
     <h2 style={sectionHeaderStyle}>{title}</h2>
@@ -200,6 +268,7 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </div>
 );
 
+// ✅ 입력 필드 컴포넌트
 const Field = ({
   label,
   value,
@@ -218,16 +287,18 @@ const Field = ({
       value={value}
       onChange={(e) => setter(e.target.value)}
       style={{
-        width: "99%",
+        width: "100%",
         padding: "10px",
         borderRadius: "8px",
         border: "1px solid #ddd",
         backgroundColor: "#f9f9f9",
+        boxSizing: "border-box",
       }}
     />
   </>
 );
 
+// ✅ 텍스트 영역 필드 컴포넌트
 const TextAreaField = ({
   label,
   value,
@@ -243,24 +314,27 @@ const TextAreaField = ({
       value={value}
       onChange={(e) => setter(e.target.value)}
       style={{
-        width: "99%",
+        width: "100%",
         padding: "10px",
         borderRadius: "8px",
         border: "1px solid #ddd",
         backgroundColor: "#f9f9f9",
         height: "100px",
         resize: "vertical",
+        boxSizing: "border-box",
       }}
     />
   </>
 );
 
+// ✅ 미리보기 필드 컴포넌트
 const PreviewField = ({ label, value }: { label: string; value: string }) => (
   <p>
     <strong>{label}:</strong> {value}
   </p>
 );
 
+// ✅ 버튼 컴포넌트
 const ActionButton = ({
   label,
   onClick,

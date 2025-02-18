@@ -7,19 +7,25 @@ const LLMChat = ({pid}: {pid: number}) => {
     const [messages, setMessages] = useState<string[]>(['테스트 1']);
     const [input, setInput] = useState<string>('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const [nowLoading, setLoading] = useState(false);
 
     const handleSendMessage = async() => {
+        if(nowLoading) return;
         if (input.trim() === '') return; // 빈 입력 방지
-        
+        setInput(''); // 입력 필드 초기화
+        setLoading(true)
         setMessages((prevMessages) => [...prevMessages, input]); // 사용자 메시지 추가
         // setMessages((prevMessages) => [...prevMessages, '현재 점검중입니다.']); // 상대방 메시지 추가
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: input}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            const tmpMessage = response.data.response.text
+            const tmpMessage = response.data
             setMessages((prevMessages) => [...prevMessages, tmpMessage]); // 상대방 메시지 추가
-        }catch(err){}
+        }catch(err){
+            setLoading(false);
+        }
         
-        setInput(''); // 입력 필드 초기화
+        
+        setLoading(false);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -113,7 +119,7 @@ const LLMChat = ({pid}: {pid: number}) => {
                         cursor: 'pointer',
                     }}
                 >
-                    확인
+                    {(nowLoading ? "로딩 중" : "확인")}
                 </button>
             </div>
         </div>

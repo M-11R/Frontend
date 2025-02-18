@@ -15,6 +15,7 @@ type postType = {
   };
 };
 
+// ✅ 스타일 공통 적용
 const commonStyles: { [key: string]: React.CSSProperties } = {
   container: {
     display: "flex",
@@ -39,12 +40,13 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
     marginBottom: "20px",
   },
   input: {
-    width: "93%",
-    padding: "13px",
-    fontSize: "18px",
+    width: "100%",
+    padding: "12px",
+    fontSize: "16px",
     border: "1px solid #ddd",
     borderRadius: "6px",
     marginBottom: "15px",
+    boxSizing: "border-box",
   },
   button: {
     padding: "10px 20px",
@@ -58,7 +60,9 @@ const commonStyles: { [key: string]: React.CSSProperties } = {
 export default function Signup() {
   const [name, setName] = useState("");
   const [hak, setHak] = useState<string | number>("");
-  const [email, setEmail] = useState("");
+  const [emailId, setEmailId] = useState("");
+  const [emailDomain, setEmailDomain] = useState("naver.com");
+  const [customEmailDomain, setCustomEmailDomain] = useState(""); // 직접 입력 도메인
   const [id, setID] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
@@ -66,18 +70,34 @@ export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+  // ✅ 대표적인 이메일 도메인 목록
+  const emailProviders = [
+    "naver.com",
+    "gmail.com",
+    "daum.net",
+    "kakao.com",
+    "nate.com",
+    "hanmail.net",
+    "outlook.com",
+    "hotmail.com",
+    "icloud.com",
+    "yahoo.com",
+    "protonmail.com",
+    "zoho.com",
+    "직접 입력"
+  ];
 
   const data = {
     name,
     univ_id: hak,
-    email,
+    email: `${emailId}@${emailDomain === "직접 입력" ? customEmailDomain : emailDomain}`,
     id,
     pw: password,
     department,
   };
 
   useEffect(() => {
-    if (getToken()) {
+    if (getToken() && router) {
       router.push("/");
     }
   }, [router]);
@@ -87,6 +107,11 @@ export default function Signup() {
 
     if (password !== repassword) {
       alert(mb.register.wrongpass.value);
+      return;
+    }
+
+    if (emailDomain === "직접 입력" && !customEmailDomain) {
+      alert("이메일 도메인을 입력해주세요.");
       return;
     }
 
@@ -120,10 +145,10 @@ export default function Signup() {
       <div style={commonStyles.card}>
         <div style={commonStyles.title}>{mb.register.title.value}</div>
         <form onSubmit={handleSignup}>
+          {/* ✅ 입력 필드들 */}
           {[
             { label: mb.user.name.value, value: name, setter: setName, type: "text" },
             { label: mb.user.hak.value, value: hak, setter: setHak, type: "number" },
-            { label: mb.user.email.value, value: email, setter: setEmail, type: "email" },
             { label: mb.user.id.value, value: id, setter: setID, type: "text" },
             { label: mb.user.password.value, value: password, setter: setPassword, type: "password" },
             {
@@ -134,49 +159,51 @@ export default function Signup() {
             },
           ].map(({ label, value, setter, type }, index) => (
             <div key={index}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  color: "#555",
-                  marginBottom: "5px",
-                }}
-              >
+              <label style={{ display: "block", fontSize: "16px", fontWeight: "bold", color: "#555", marginBottom: "5px" }}>
                 {label}
               </label>
-              <input
-                type={type}
-                value={value}
-                onChange={(e) => setter(e.target.value)}
-                required
-                style={commonStyles.input}
-              />
+              <input type={type} value={value} onChange={(e) => setter(e.target.value)} required style={commonStyles.input} />
             </div>
           ))}
+
+          {/* ✅ 이메일 입력 필드 (수정된 부분) */}
+          <div>
+            <label style={{ display: "block", fontSize: "16px", fontWeight: "bold", color: "#555", marginBottom: "5px" }}>
+              {mb.user.email.value}
+            </label>
+            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+              <input
+                type="text"
+                value={emailId}
+                onChange={(e) => setEmailId(e.target.value)}
+                placeholder="아이디 입력"
+                required
+                style={{ flex: 2, ...commonStyles.input }}
+              />
+              <span style={{ fontSize: "16px", fontWeight: "bold" }}>@</span>
+              <select
+                value={emailDomain}
+                onChange={(e) => setEmailDomain(e.target.value)}
+                style={{ flex: 2, ...commonStyles.input }}
+              >
+                {emailProviders.map((provider, index) => (
+                  <option key={index} value={provider}>
+                    {provider}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {emailDomain === "직접 입력" && (
+              <input type="text" value={customEmailDomain} onChange={(e) => setCustomEmailDomain(e.target.value)} placeholder="도메인 입력" style={commonStyles.input} />
+            )}
+          </div>
+
+          {/* ✅ 버튼 */}
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              style={{
-                ...commonStyles.button,
-                backgroundColor: "#6c757d",
-                color: "#fff",
-                border: "none",
-              }}
-            >
+            <button type="button" onClick={() => router.push("/")} style={{ ...commonStyles.button, backgroundColor: "#6c757d", color: "#fff" }}>
               {mb.register["start-page"].value}
             </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                ...commonStyles.button,
-                backgroundColor: isLoading ? "#cccccc" : "#007bff",
-                color: "#fff",
-                border: "none",
-              }}
-            >
+            <button type="submit" disabled={isLoading} style={{ ...commonStyles.button, backgroundColor: isLoading ? "#cccccc" : "#007bff", color: "#fff" }}>
               {isLoading ? "가입 중..." : mb.register.registerbtn.value}
             </button>
           </div>

@@ -59,7 +59,7 @@ const MainSide = ({ pid }: { pid: number }) => {
       // 완료되지 않은 작업만 필터링하고 마감일 순으로 정렬
       const filteredData = response.data.PAYLOADS.filter((item) => !item.tfinish)
         .sort((a, b) => new Date(a.tend).getTime() - new Date(b.tend).getTime())
-        .slice(0, 3); // 최대 3개만 표시
+        .slice(0, 2); // 최대 3개만 표시
       setTasks(filteredData);
     } catch (err) {
       
@@ -85,7 +85,7 @@ const MainSide = ({ pid }: { pid: number }) => {
         maxWidth: "220px",
         flexGrow: 0,
         backgroundColor: "#f4f4f4",
-        minHeight: "100vh",
+        minHeight: "calc(100vh - 150px)",
         height: "auto",
         padding: "10px",
         borderRadius: "12px",

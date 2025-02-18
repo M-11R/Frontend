@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from 'react';
+import { LoginModal } from "./components/AccountModal";
 
 
 export default function Home() {
@@ -45,23 +46,9 @@ export default function Home() {
             로그아웃
           </a>
         </Link>
-        <Link href="/sign/signIn" legacyBehavior>
-          <a
-            style={{
-              fontSize: "1em",
-              color: "#FFFFFF",
-              backgroundColor: "#5858FA",
-              textDecoration: "none",
-              fontWeight: "bold",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              transition: "all 0.3s",
-            }}
-          >
-            로그인
-          </a>
-        </Link>
+        <LoginModal />
       </header>
+      
 
       {/* 메인 콘텐츠 */}
       <main

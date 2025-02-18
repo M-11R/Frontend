@@ -5,6 +5,8 @@ import ico from '../img/logo.png';
 import mb from '@/app/json/msBox.json';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import TapList from '@/app/components/ProjectTap'
+
 import axios from 'axios';
 
 type fetchType = {
@@ -108,6 +110,7 @@ const MainHeader = ({ pid }: { pid: number }) => (
         }}
       />
     </Link>
+    <TapList pid={pid} />
     <div style={{ width: '600px' }}>{jinchek(pid)}</div>
   </header>
 );
