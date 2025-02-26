@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { getUnivId } from "../util/storage";
+import { ProjectCreateModal } from "./ProjectCreateModal";
+import { EditDraftProjectModal } from "./EditDraftProjectModal";
 
 type returnTask = {
   RESULT_CODE: number;
@@ -51,6 +53,7 @@ const MainSide = ({ pid }: { pid: number }) => {
 
   // ✅ To-Do List 데이터 불러오기
   const loadTasks = async () => {
+    if(pid === 0) return;
     try {
       const response = await axios.post<returnTask>("https://cd-api.chals.kim/api/task/load", {pid: pid, univ_id: tmpUnivId}, {
         headers: { Authorization: process.env.SECRET_API_KEY },
@@ -141,6 +144,29 @@ const MainSide = ({ pid }: { pid: number }) => {
           {visibleIndex === index && (
             <div style={{ marginTop: "5px" }}>
               {subMenu[index].map((submenu, subIndex) => (
+                pid === 0 ? (
+                  <button
+                  key={subIndex}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "8px 12px",
+                    margin: "2px 0",
+                    border: "none",
+                    backgroundColor: "#f9f9f9",
+                    color: "#333",
+                    textAlign: "left",
+                    borderRadius: "5px",
+                    fontSize: "14px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
+                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
+                >
+                  {submenu}
+                </button>
+              ) :(
                 <button
                   key={subIndex}
                   onClick={() => gotoMenu(index, subIndex)}
@@ -163,11 +189,13 @@ const MainSide = ({ pid }: { pid: number }) => {
                 >
                   {submenu}
                 </button>
-              ))}
+              )))}
             </div>
           )}
         </div>
       ))}
+      <EditDraftProjectModal />
+      <ProjectCreateModal />
     </div>
   );
 };

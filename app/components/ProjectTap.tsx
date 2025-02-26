@@ -25,6 +25,7 @@ type returnType = {
 const TabList = ({pid}: {pid: number}) => {
   const [data, setData] = useState<DataItem[]>([]);
   const s_no = getUnivId();
+  const [showScrollbar, setShowScrollbar] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -40,7 +41,14 @@ const TabList = ({pid}: {pid: number}) => {
   }, []);
 
   return (
-    <div style={containerStyle}>
+    <div
+      style={{
+        ...containerStyle,
+        overflowX: showScrollbar ? "auto" : "hidden", // 조건부 overflowX 설정
+      }}
+      onMouseEnter={() => setShowScrollbar(true)}
+      onMouseLeave={() => setShowScrollbar(false)}
+    >
       {data.map((item) => (
         <HoverTab key={item.pid} item={item} />
       ))}
@@ -124,7 +132,6 @@ const containerStyle: CSSProperties = {
   bottom: "0",
   width: "1100px",
   height: "30px",
-  overflowX: "auto",
   overflowY: "hidden",
   display: "flex",
   flexWrap: "nowrap",

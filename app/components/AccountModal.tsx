@@ -108,7 +108,7 @@ export function LoginModal() {
         token: getToken(),
       };
       if (check.token !== "") {
-        CheckSession(check);
+        // CheckSession(check);
       }
     }, []);
   
@@ -123,7 +123,7 @@ export function LoginModal() {
           router.push("/");
         }
       } catch (err) {
-        console.error("세션 확인 실패:", err);
+        console.error("세션 확인 실패 : ", err);
       }
     };
   
@@ -141,7 +141,7 @@ export function LoginModal() {
           setToken(response.data.PAYLOADS.Token);
           setUnivId(response.data.PAYLOADS.Univ_ID);
           setUserId(data.id);
-          router.push("/create-project");
+          router.push("/project-main");
         } else {
           alert(response.data.RESULT_MSG);
         }

@@ -133,41 +133,80 @@ const Preview = ({
   handleSave,
 }: any) => (
   <div style={previewContainerStyle}>
-    <h2 style={sectionHeaderStyle}>📝 요구사항 미리보기</h2>
+    <h2 style={sectionHeaderStyle}>📝 요구사항 명세서 미리보기</h2>
 
     <table style={tableStyle}>
+      <thead>
+        <tr>
+          <th colSpan={4} style={thStyle}>기본 정보</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
-          <th style={thStyle}>작성일</th>
+          <td style={thStyle}>작성일</td>
           <td colSpan={3} style={tdStyle}>{creationDate}</td>
         </tr>
+      </tbody>
+
+      <thead>
         <tr>
-          <th style={thStyle}>시스템 요구사항</th>
-          <td colSpan={3} style={tdStyle}>{systemRequirements}</td>
+          <th colSpan={4} style={thStyle}>시스템 요구사항</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colSpan={4} style={tdStyle}>{systemRequirements}</td>
         </tr>
         <tr>
-          <th style={thStyle}>설명</th>
-          <td colSpan={3} style={tdStyle}>{systemRequirementsDesc}</td>
+          <td colSpan={4} style={tdStyle}>{systemRequirementsDesc}</td>
         </tr>
+      </tbody>
+
+      <thead>
         <tr>
-          <th style={thStyle}>기능 요구사항</th>
+          <th colSpan={4} style={thStyle}>기능 요구사항</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style={thStyle}>항목</td>
           <td style={tdStyle}>{functionalRequirements}</td>
-          <th style={thStyle}>우선순위</th>
-          <td style={tdStyle}>{["낮음", "보통", "높음"][functionalRequirementsPriority - 1]}</td>
+          <td style={thStyle}>우선순위</td>
+          <td style={{ 
+            ...tdStyle, 
+            fontWeight: "bold", 
+            color: functionalRequirementsPriority === 3 ? "#D32F2F" : functionalRequirementsPriority === 2 ? "#F57C00" : "#2E7D32",
+            backgroundColor: functionalRequirementsPriority === 3 ? "#FFEBEE" : functionalRequirementsPriority === 2 ? "#FFF3E0" : "#E8F5E9"
+          }}>
+            {["낮음", "보통", "높음"][functionalRequirementsPriority - 1]}
+          </td>
         </tr>
         <tr>
-          <th style={thStyle}>설명</th>
-          <td colSpan={3} style={tdStyle}>{functionalRequirementsDesc}</td>
+          <td colSpan={4} style={tdStyle}>{functionalRequirementsDesc}</td>
         </tr>
+      </tbody>
+
+      <thead>
         <tr>
-          <th style={thStyle}>비기능 요구사항</th>
+          <th colSpan={4} style={thStyle}>비기능 요구사항</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style={thStyle}>항목</td>
           <td style={tdStyle}>{nonFunctionalRequirements}</td>
-          <th style={thStyle}>우선순위</th>
-          <td style={tdStyle}>{["낮음", "보통", "높음"][nonFunctionalRequirementsPriority - 1]}</td>
+          <td style={thStyle}>우선순위</td>
+          <td style={{ 
+            ...tdStyle, 
+            fontWeight: "bold", 
+            color: nonFunctionalRequirementsPriority === 3 ? "#D32F2F" : nonFunctionalRequirementsPriority === 2 ? "#F57C00" : "#2E7D32",
+            backgroundColor: nonFunctionalRequirementsPriority === 3 ? "#FFEBEE" : nonFunctionalRequirementsPriority === 2 ? "#FFF3E0" : "#E8F5E9"
+          }}>
+            {["낮음", "보통", "높음"][nonFunctionalRequirementsPriority - 1]}
+          </td>
         </tr>
         <tr>
-          <th style={thStyle}>설명</th>
-          <td colSpan={3} style={tdStyle}>{nonFunctionalRequirementsDesc}</td>
+          <td colSpan={4} style={tdStyle}>{nonFunctionalRequirementsDesc}</td>
         </tr>
       </tbody>
     </table>
@@ -179,47 +218,50 @@ const Preview = ({
   </div>
 );
 
+
 // ✅ 미리보기 컨테이너 스타일
-const previewContainerStyle: CSSProperties = {
-  padding: "20px",
-  backgroundColor: "#fff",
-  borderRadius: "12px",
+const previewContainerStyle: CSSProperties = { 
+  padding: "20px", 
+  backgroundColor: "#fff", 
+  borderRadius: "12px", 
   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-  marginTop: "20px",
+  marginTop: "20px"
 };
 
-// ✅ 테이블 스타일
-const tableStyle: CSSProperties = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginBottom: "20px",
+const tableStyle: CSSProperties = { 
+  width: "100%", 
+  borderCollapse: "collapse", 
+  marginBottom: "20px", 
 };
 
-const thStyle: CSSProperties = {
-  backgroundColor: "#f8f9fa",
-  padding: "12px",
-  border: "1px solid #ddd",
-  textAlign: "center",
+const thStyle: CSSProperties = { 
+  backgroundColor: "#dbdbdb", 
+  padding: "12px", 
+  border: "1px solid #000000", 
+  textAlign: "center", 
   fontWeight: "bold",
   verticalAlign: "middle",
-  width: "20%",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
-const tdStyle: CSSProperties = {
-  padding: "12px",
-  border: "1px solid #ddd",
+const tdStyle: CSSProperties = { 
+  padding: "12px", 
+  border: "1px solid #000000", 
   textAlign: "center",
   verticalAlign: "middle",
   backgroundColor: "#fff",
-  width: "40%",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
-// ✅ 버튼 컨테이너 스타일
 const buttonContainerStyle: CSSProperties = {
   display: "flex",
-  justifyContent: "flex-end",
+  justifyContent: "center",
   marginTop: "20px",
+  gap: "10px"
 };
+
 
 // ✅ 페이지 레이아웃 스타일
 const pageContainerStyle: CSSProperties = {

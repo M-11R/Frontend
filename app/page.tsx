@@ -3,9 +3,47 @@
 import Link from "next/link";
 import React, { useState, useEffect } from 'react';
 import { LoginModal } from "./components/AccountModal";
+import axios from "axios";
+import { getToken, getUnivId, getUserId, clearStorage } from "./util/storage";
 
 
 export default function Home() {
+  const [session, setSession] = useState(false);
+
+  // const sno = getUnivId();
+  const id = getUserId();
+  const token = getToken();
+
+  useEffect(() => {
+    checkSession();
+  }, [])
+
+  const checkSession = async() => {
+    try{
+      const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: id, token: token}, {headers: { Authorization: process.env.SECRET_API_KEY },});
+      if(response.data.RESULT_CODE === 200){
+        setSession(true)
+      }else{
+        setSession(false)
+      }
+    }catch(err){
+      setSession(false)
+    }
+  }
+
+  const signOut = async() => {
+    try{
+        const response = await axios.post("https://cd-api.chals.kim/api/acc/signout", {token: token}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        if(response.data.RESULT_CODE === 200){
+            clearStorage();
+            setSession(false)
+            alert('로그아웃 되었습니다.');
+        }
+    }catch(err){
+
+    }
+}
+
   return (
     <div
       style={{
@@ -30,8 +68,10 @@ export default function Home() {
           gap: "15px",
         }}
       >
-        <Link href="/util/SignOut" legacyBehavior>
-          <a
+        {session ? (
+          
+          <button
+            onClick={signOut}
             style={{
               fontSize: "1em",
               color: "#5858FA",
@@ -44,9 +84,13 @@ export default function Home() {
             }}
           >
             로그아웃
-          </a>
-        </Link>
-        <LoginModal />
+          </button>
+
+        ):(
+          <LoginModal />
+        )}
+        
+        
       </header>
       
 
@@ -75,7 +119,7 @@ export default function Home() {
           대학생 프로젝트 매니저. 사용자가 원하는 목표를 달성할 수 있도록 돕는
           웹 애플리케이션입니다.
         </p>
-        <Link href="/create-project" legacyBehavior>
+        <Link href="/project-main" legacyBehavior>
           <a
             style={{
               display: "inline-block",

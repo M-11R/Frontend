@@ -161,30 +161,54 @@ const Preview = ({
 
     {/* ✅ 회의 정보 테이블 */}
     <table style={tableStyle}>
+      <thead>
+        <tr>
+          <th colSpan={4} style={thStyle}>회의 정보</th>
+        </tr>
+      </thead>
       <tbody>
         <tr>
-          <th style={thStyle}>안건</th>
+          <td style={thStyle}>안건</td>
           <td colSpan={3} style={tdStyle}>{agenda}</td>
         </tr>
         <tr>
-          <th style={thStyle}>회의 날짜</th>
+          <td style={thStyle}>회의 날짜</td>
           <td style={tdStyle}>{meetingDate}</td>
-          <th style={thStyle}>장소</th>
-          <td style={tdStyle}>{location}</td>
+          <td rowSpan={2} style={thStyle}>회의 장소 및 책임자</td>
+          <td rowSpan={2} style={tdStyle}>
+            <strong>장소:</strong> {location} <br />
+            <strong>책임자:</strong> {responsiblePerson}
+          </td>
         </tr>
         <tr>
-          <th style={thStyle}>책임자</th>
-          <td colSpan={3} style={tdStyle}>{responsiblePerson}</td>
+          <td style={thStyle}>작성일</td>
+          <td style={tdStyle}>{new Date().toLocaleDateString()}</td>
         </tr>
       </tbody>
     </table>
 
-    {/* ✅ 회의 내용 */}
-    <div style={textBlockStyle}><strong>회의 내용:</strong> {meetingContent}</div>
-    <div style={textBlockStyle}><strong>회의 결과:</strong> {meetingResult}</div>
+    {/* ✅ 회의 내용 및 결과 */}
+    <table style={tableStyle}>
+      <thead>
+        <tr>
+          <th colSpan={4} style={thStyle}>회의 내용 및 결과</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colSpan={4} style={tdStyle}>{meetingContent}</td>
+        </tr>
+        <tr>
+          <th colSpan={4} style={thStyle}>회의 결과</th>
+        </tr>
+        <tr>
+          <td colSpan={4} style={tdStyle}>{meetingResult}</td>
+        </tr>
+      </tbody>
+    </table>
 
     {/* ✅ 참석자 목록 */}
-    <h3 style={{ marginTop: "20px" }}>참석자 목록</h3>
+    <h3 style={{ marginTop: "20px", fontSize: "18px", color: "#4CAF50" }}>참석자 목록</h3>
     <table style={tableStyle}>
       <thead>
         <tr>
@@ -193,16 +217,22 @@ const Preview = ({
         </tr>
       </thead>
       <tbody>
-        {participants.map((participant: any, index: number) => (
-          <tr key={index}>
-            <td style={tdStyle}>{participant.name}</td>
-            <td style={tdStyle}>{participant.studentId}</td>
+        {participants.length > 0 ? (
+          participants.map((participant: any, index: number) => (
+            <tr key={index}>
+              <td style={tdStyle}>{participant.name}</td>
+              <td style={tdStyle}>{participant.studentId}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={2} style={tdStyle}>등록된 참석자가 없습니다.</td>
           </tr>
-        ))}
+        )}
       </tbody>
     </table>
 
-    {/* ✅ 버튼 */}
+    {/* ✅ 버튼 영역 */}
     <div style={buttonContainerStyle}>
       <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
       <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
@@ -212,27 +242,30 @@ const Preview = ({
 
 
 
+
 const previewContainerStyle: CSSProperties = { padding: "20px", backgroundColor: "#fff", borderRadius: "12px", boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", marginTop: "20px" };
 
 const tableStyle: CSSProperties = { width: "100%", borderCollapse: "collapse", marginBottom: "10px" };
 
 const thStyle: CSSProperties = { 
-  backgroundColor: "#f8f9fa", 
+  backgroundColor: "#dbdbdb", 
   padding: "12px", 
-  border: "1px solid #ddd", 
+  border: "1px solid #000000", 
   textAlign: "center", 
   fontWeight: "bold",
-  verticalAlign: "middle", // ✅ 세로 중앙 정렬
-  width: "20%" 
+  verticalAlign: "middle",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
 const tdStyle: CSSProperties = { 
   padding: "12px", 
-  border: "1px solid #ddd", 
+  border: "1px solid #000000", 
   textAlign: "center",
-  verticalAlign: "middle", // ✅ 세로 중앙 정렬
-  backgroundColor: "#fff", 
-  width: "35%" 
+  verticalAlign: "middle",
+  backgroundColor: "#fff",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
 const textBlockStyle: CSSProperties = { padding: "10px", backgroundColor: "#f9f9f9", borderRadius: "8px", marginBottom: "10px" };

@@ -128,27 +128,6 @@ const Preview = ({ title, startDate, endDate, teamMembers, roles, overview, goal
   <div style={previewContainerStyle}>
   <h2 style={sectionHeaderStyle}>📄 프로젝트 개요서</h2>
 
-  {/* ✅ 프로젝트 기본 정보 테이블 */}
-  {/* <table style={tableStyle}>
-  <tbody>
-    <tr>
-      <th style={thStyle}>제목</th>
-      <td colSpan={3} style={tdStyle}>{title}</td>
-    </tr>
-    <tr>
-      <th style={thStyle}>팀원</th>
-      <td style={tdStyle}>{teamMembers}</td>
-      <th style={thStyle}>역할</th>
-      <td style={tdStyle}>{roles}</td>
-    </tr>
-    <tr>
-      <th style={thStyle}>시작일</th>
-      <td style={tdStyle}>{startDate}</td>
-      <th style={thStyle}>종료일</th>
-      <td style={tdStyle}>{endDate}</td>
-    </tr>
-  </tbody>
-</table> */}
 
 <table style={tableStyle}>
   <thead>
@@ -213,15 +192,6 @@ const Preview = ({ title, startDate, endDate, teamMembers, roles, overview, goal
 </table>
 
 
-  {/* ✅ 프로젝트 상세 정보 */}
-  {/* <div style={detailSectionStyle}>
-    <div style={textBlockStyle}><strong>개요:</strong> {overview}</div>
-    <div style={textBlockStyle}><strong>목표:</strong> {goal}</div>
-    <div style={textBlockStyle}><strong>범위:</strong> {scope}</div>
-    <div style={textBlockStyle}><strong>기술 스택:</strong> {techStack}</div>
-    <div style={textBlockStyle}><strong>예상 결과:</strong> {expectedOutcomes}</div>
-  </div> */}
-
   {/* ✅ 버튼 영역 */}
   <div style={buttonContainerStyle}>
     <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
@@ -230,8 +200,6 @@ const Preview = ({ title, startDate, endDate, teamMembers, roles, overview, goal
 </div>
 
 );
-
-
 
 
 const commonBorder = "1px solid #ddd";

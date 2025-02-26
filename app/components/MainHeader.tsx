@@ -23,6 +23,7 @@ const jinchek = (pid: number) => {
   },[]);
 
   const loadData = async() => {
+    if(pid === 200) return;
     const data = {pid : pid}
     try{
       const response = await axios.post<fetchType>("https://cd-api.chals.kim/api/wbs/fetch_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});

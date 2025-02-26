@@ -35,11 +35,9 @@ export default function SignOut(){
                 router.push('/');
                 alert('로그아웃 되었습니다.');
             }
-            console.log(data);
             router.push('/');
         }catch(err){
             router.push('/');
-            console.log(data);
         }
     }
     return(<div>Loading</div>)

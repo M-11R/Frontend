@@ -4,12 +4,13 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 
 const LLMChat = ({pid}: {pid: number}) => {
-    const [messages, setMessages] = useState<string[]>(['테스트 1']);
+    const [messages, setMessages] = useState<string[]>(['인녕하세요. 프로젝트 진행을 도와드릴 PMS Assistant입니다.']);
     const [input, setInput] = useState<string>('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
     const [nowLoading, setLoading] = useState(false);
 
     const handleSendMessage = async() => {
+        if(pid === 0) return;
         if(nowLoading) return;
         if (input.trim() === '') return; // 빈 입력 방지
         setInput(''); // 입력 필드 초기화

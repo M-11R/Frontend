@@ -22,6 +22,11 @@ interface WbsRow {
   endDate: string;
   completed: boolean; // 완료 여부 필드 추가
 }
+interface tmpWbsRow {
+  category: string;
+  subCategory: string;
+  subSubCategory: string;
+}
 
 interface postWbs {
   group1: string
@@ -70,7 +75,40 @@ export default function Main(props: any) {
   const [model, setModel] = useState<string>("Waterfall"); // 기본값: 폭포수 모델
   const [rows, setRows] = useState<WbsRow[]>([]);
   const [list, setList] = useState<(string | number)[][]>([])
-  
+  const [tmpRow, setTmpRow] = useState<WbsRow>({
+    id: "1",
+    category: "계획",
+    subCategory: "프로젝트 관리",
+    subSubCategory: "리스크 관리",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+});
+  const tmp: WbsRow = {
+    id: "1",
+    category: "계획",
+    subCategory: "프로젝트 관리",
+    subSubCategory: "리스크 관리",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+  }
+
+  const [tempCategory, setTempCategory] = useState<string>("계획");
+  const [tempSubCategory, setTempSubCategory] = useState<string>("프로젝트 관리");
+  const [tempSubSubCategory, setTempSubSubCategory] = useState<string>("리스크 관리");
   
   const [hasSavedData, setHasSavedData] = useState<boolean>(false); // 저장된 데이터 여부 확인
 
@@ -207,6 +245,95 @@ export default function Main(props: any) {
       completed: false,
     };
     setRows((prevRows) => [...prevRows, newRow]);
+  };
+
+  const handleAddTmpRow = () => {
+    const newRow: WbsRow = {
+      id: Date.now().toString(),
+      category: tmpRow.category,
+      subCategory: tmpRow.subCategory,
+      subSubCategory: tmpRow.subSubCategory,
+      subSubSubCategory: tmpRow.subSubSubCategory,
+      taskName: tmpRow.taskName,
+      product: tmpRow.product,
+      assignee: tmpRow.assignee,
+      note: "",
+      progress: 0,
+      startDate: tmpRow.startDate,
+      endDate: tmpRow.endDate,
+      completed: false,
+    };
+
+    setRows((prevRows) => [...prevRows, newRow])
+    setTmpRow(tmp)
+  }
+
+  const handleCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setTempCategory(value);
+    if (value !== "") {
+      // 임시 변수가 "직접 입력"이 아니라면 원래 변수도 업데이트
+      setTmpRow((prev) => ({ ...prev, category: value }));
+    }
+  };
+
+  // Category input onChange 핸들러
+  const handleCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    // input으로 직접 입력한 값은 원래 변수에 바로 업데이트
+    setTmpRow((prev) => ({ ...prev, category: value }));
+  };
+
+  // SubCategory select onChange 핸들러
+  const handleSubCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setTempSubCategory(value);
+    if (value !== "") {
+      setTmpRow((prev) => ({ ...prev, subCategory: value }));
+    }
+  };
+
+  // SubCategory input onChange 핸들러
+  const handleSubCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setTmpRow((prev) => ({ ...prev, subCategory: value }));
+  };
+
+  // SubSubCategory select onChange 핸들러
+  const handleSubSubCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setTempSubSubCategory(value);
+    if (value !== "") {
+      setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
+    }
+  };
+
+  // SubSubCategory input onChange 핸들러
+  const handleSubSubCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
+  };
+
+  const handleEtcChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof WbsRow
+  ) => {
+    const value = e.target.value;
+    
+    setTmpRow((prev) => ({ ...prev, [field]: value }));
+
   };
 
   // 기존 데이터 업데이트
@@ -681,7 +808,8 @@ export default function Main(props: any) {
             </tbody>
           </table>
           </div>
-          <button
+          {model === "etc" ? (
+            <button
             onClick={addRow}
             style={{
               marginTop: "20px",
@@ -691,9 +819,281 @@ export default function Main(props: any) {
               border: "none",
               cursor: "pointer",
             }}
-          >
-            행 추가
-          </button>
+            >
+              행 추가
+            </button>
+            
+          ) : (
+            <div style={{width: '95%', backgroundColor: '#F1EEEE', borderRadius: '15px', padding: '10px', marginTop: '15px'}}>
+              {/* WBS 위자드 */}
+              {/* 제목 */}
+              <div>
+                <span style={{padding: '5px', fontSize: '24px'}}>WBS 위자드</span>
+              </div>
+              {/* Form */}
+              <form onSubmit={(e) => e.preventDefault()} >
+                {/* 윗쪽: 대분류, 중분류, 소분류 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>대분류 :</label>
+                    <select
+                      value={tempCategory}
+                      onChange={handleCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value='계획'>계획</option>
+                      <option value='분석'>분석</option>
+                      <option value='설계'>설계</option>
+                      <option value='구현'>구현</option>
+                      <option value='테스트'>테스트</option>
+                      <option value='배포'>배포</option>
+                      <option value='기타'>기타</option>
+                      <option value=''>직접 입력</option>
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {tempCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.category}
+                          onChange={handleCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{tempCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>중분류 :</label>
+                    <select
+                      value={tempSubCategory}
+                      onChange={handleSubCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value='프로젝트 관리'>프로젝트 관리</option>
+                      <option value='요구사항 수집 및 분석'>요구사항 수집 및 분석</option>
+                      <option value='시스템 설계'>시스템 설계</option>
+                      <option value='개발'>개발</option>
+                      <option value='QA'>QA</option>
+                      <option value='릴리스 및 유지보수'>릴리스 및 유지보수</option>
+                      <option value='기타'>기타</option>
+                      <option value=''>직접 입력</option>
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {tempSubCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.subCategory}
+                          onChange={handleSubCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{tempSubCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>소분류 :</label>
+                    <select
+                      value={tempSubSubCategory}
+                      onChange={handleSubSubCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value='리스크 관리'>리스크 관리</option>
+                      <option value='자원 관리'>자원 관리</option>
+                      <option value='요구사항 수집'>요구사항 수집</option>
+                      <option value='요구사항 분석'>요구사항 분석</option>
+                      <option value='인터페이스 설계'>인터페이스 설계</option>
+                      <option value='데이터베이스 설계'>데이터베이스 설계</option>
+                      <option value='프론트엔드 개발'>프론트엔드 개발</option>
+                      <option value='백엔드 개발'>백엔드 개발</option>
+                      <option value='단위 테스트'>단위 테스트</option>
+                      <option value='통합 테스트'>통합 테스트</option>
+                      <option value='운영 환경 설정'>운영 환경 설정</option>
+                      <option value='기타'>기타</option>
+                      <option value=''>직접 입력</option>
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {tempSubSubCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.subSubCategory}
+                          onChange={handleSubSubCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{tempSubSubCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* 중간: 소소분류, 작업명 산출물, 담당자 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 3}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>소소분류 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.subSubSubCategory}
+                          onChange={(e) => handleEtcChange(e, "subSubSubCategory")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "60%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 3}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>작업명 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.taskName}
+                          onChange={(e) => handleEtcChange(e, "taskName")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "60%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 2}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>산출물 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.product}
+                          onChange={(e) => handleEtcChange(e, "product")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "40%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 2}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>담당자 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.assignee}
+                          onChange={(e) => handleEtcChange(e, "assignee")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "40%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{flex: 1}}></div>
+                </div>
+                {/* 중간: 소소분류, 작업명 산출물, 담당자 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>시작일 :</label>
+                    <input
+                      type="date"
+                      value={tmpRow.startDate}
+                      onChange={(e) => handleEtcChange(e, "startDate")}
+                      style={{
+                        padding: "5px",
+                        fontSize: "16px",
+                        width: "60%",
+                        border: '1px solid #000',
+                        backgroundColor: '#fff',
+                        height: '20px',
+                      }}
+                    />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>마감일 :</label>
+                    <input
+                      type="date"
+                      value={tmpRow.endDate}
+                      onChange={(e) => handleEtcChange(e, "endDate")}
+                      style={{
+                        padding: "5px",
+                        fontSize: "16px",
+                        width: "60%",
+                        border: '1px solid #000',
+                        backgroundColor: '#fff',
+                        height: '20px',
+                      }}
+                    />
+                  </div>
+                  <div style={{flex: 1}}></div>
+                </div>
+                <button
+                  onClick={handleAddTmpRow}
+                  style={{
+                    marginTop: "20px",
+                    padding: "10px 20px",
+                    backgroundColor: "#4CAF50",
+                    color: "#fff",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  행 추가
+                </button>
+              </form>
+            </div>
+          )}
+          
+          
         </div>
       </div>
     </div>

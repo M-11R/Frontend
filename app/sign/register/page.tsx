@@ -128,7 +128,7 @@ export default function Signup() {
         setToken(response.data.PAYLOADS.Token);
         setUserId(id);
         setUnivId(Number(hak));
-        router.push("/create-project");
+        router.push("/project-main");
       } else {
         alert(response.data.RESULT_MSG || "회원가입 중 문제가 발생했습니다.");
       }
@@ -147,22 +147,23 @@ export default function Signup() {
         <form onSubmit={handleSignup}>
           {/* ✅ 입력 필드들 */}
           {[
-            { label: mb.user.name.value, value: name, setter: setName, type: "text" },
-            { label: mb.user.hak.value, value: hak, setter: setHak, type: "number" },
-            { label: mb.user.id.value, value: id, setter: setID, type: "text" },
-            { label: mb.user.password.value, value: password, setter: setPassword, type: "password" },
+            { label: mb.user.name.value, value: name, setter: setName, type: "text", placeholder: "" },
+            { label: mb.user.hak.value, value: hak, setter: setHak, type: "number", placeholder: "" },
+            { label: mb.user.id.value, value: id, setter: setID, type: "text", placeholder: "" },
+            { label: mb.user.password.value, value: password, setter: setPassword, type: "password", placeholder: "8자리, 특수문자를 입력해주세요." },
             {
               label: mb.register["re-password"].value,
               value: repassword,
               setter: setRePassword,
               type: "password",
+              placeholder: "비밀번호를 다시 입력해주세요."
             },
-          ].map(({ label, value, setter, type }, index) => (
+          ].map(({ label, value, setter, type, placeholder }, index) => (
             <div key={index}>
               <label style={{ display: "block", fontSize: "16px", fontWeight: "bold", color: "#555", marginBottom: "5px" }}>
                 {label}
               </label>
-              <input type={type} value={value} onChange={(e) => setter(e.target.value)} required style={commonStyles.input} />
+              <input type={type} value={value} onChange={(e) => setter(e.target.value)} required style={commonStyles.input} placeholder={placeholder}/>
             </div>
           ))}
 

@@ -109,90 +109,133 @@ export default function ReportForm(props: any) {
               <ActionButton label="미리보기" onClick={handlePreview} color="#4CAF50" />
             </div>
           ) : (
-            <div style={previewContainerStyle}>
-              <h2 style={sectionHeaderStyle}>📄 미리보기</h2>
-              <table style={tableStyle}>
-                <tbody>
-                  <tr>
-                    <th style={thStyle}>보고서 제목</th>
-                    <td colSpan={3} style={tdStyle}>{reportTitle}</td>
-                  </tr>
-                  <tr>
-                    <th style={thStyle}>프로젝트 명</th>
-                    <td style={tdStyle}>{projectName}</td>
-                    <th style={thStyle}>작성일</th>
-                    <td style={tdStyle}>{submissionDate}</td>
-                  </tr>
-                  <tr>
-                    <th style={thStyle}>작성자</th>
-                    <td style={tdStyle}>{writer}</td>
-                    <th style={thStyle}>팀원 및 지도 교수</th>
-                    <td style={tdStyle}>{teamMembers}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div style={textBlockStyle}><strong>문제 정의:</strong> {problemDefinition}</div>
-              <div style={textBlockStyle}><strong>연구 목표:</strong> {researchGoal}</div>
-              <div style={textBlockStyle}><strong>설계 및 개발 과정:</strong> {designProcess}</div>
-              <div style={textBlockStyle}><strong>시스템 아키텍처:</strong> {systemArchitecture}</div>
-              <div style={textBlockStyle}><strong>실험 및 결과:</strong> {experimentResults}</div>
-              <div style={textBlockStyle}><strong>결론:</strong> {conclusion}</div>
-
-              <div style={buttonContainerStyle}>
-                <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
-                <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
-              </div>
-            </div>
+            <ReportPreview
+              reportTitle={reportTitle}
+              projectName={projectName}
+              submissionDate={submissionDate}
+              writer={writer}
+              teamMembers={teamMembers}
+              problemDefinition={problemDefinition}
+              researchGoal={researchGoal}
+              designProcess={designProcess}
+              systemArchitecture={systemArchitecture}
+              experimentResults={experimentResults}
+              conclusion={conclusion}
+              handleEdit={handleEdit}
+              handleSave={handleSave}
+            />
           )}
         </div>
       </div>
     </div>
   );
 }
+const ReportPreview = ({
+  reportTitle,
+  projectName,
+  submissionDate,
+  writer,
+  teamMembers,
+  problemDefinition,
+  researchGoal,
+  designProcess,
+  systemArchitecture,
+  experimentResults,
+  conclusion,
+  handleEdit,
+  handleSave,
+}: any) => (
+  <div style={previewContainerStyle}>
+    <h2 style={sectionHeaderStyle}>📄 보고서 미리보기</h2>
+
+    <table style={tableStyle}>
+      <tbody>
+        <tr>
+          <th style={thStyle}>보고서 제목</th>
+          <td colSpan={3} style={tdStyle}>{reportTitle}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>프로젝트 명</th>
+          <td style={tdStyle}>{projectName}</td>
+          <th style={thStyle}>작성일</th>
+          <td style={tdStyle}>{submissionDate}</td>
+        </tr>
+        <tr>
+          <th style={thStyle}>작성자</th>
+          <td style={tdStyle}>{writer}</td>
+          <th style={thStyle}>팀원 및 지도 교수</th>
+          <td style={tdStyle}>{teamMembers}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table style={tableStyle}>
+      <tbody>
+        <tr><th colSpan={4} style={thStyle}>문제 정의</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{problemDefinition}</td></tr>
+        <tr><th colSpan={4} style={thStyle}>연구 목표</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{researchGoal}</td></tr>
+        <tr><th colSpan={4} style={thStyle}>설계 및 개발 과정</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{designProcess}</td></tr>
+        <tr><th colSpan={4} style={thStyle}>시스템 아키텍처</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{systemArchitecture}</td></tr>
+        <tr><th colSpan={4} style={thStyle}>실험 및 결과</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{experimentResults}</td></tr>
+        <tr><th colSpan={4} style={thStyle}>결론</th></tr>
+        <tr><td colSpan={4} style={tdStyle}>{conclusion}</td></tr>
+      </tbody>
+    </table>
+
+    <div style={buttonContainerStyle}>
+      <ActionButton label="수정" onClick={handleEdit} color="#f0ad4e" />
+      <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
+    </div>
+  </div>
+);
 
 
-// ✅ 미리보기 컨테이너 스타일
-const previewContainerStyle: CSSProperties = {
-  padding: "20px",
-  backgroundColor: "#fff",
-  borderRadius: "12px",
+const previewContainerStyle: CSSProperties = { 
+  padding: "20px", 
+  backgroundColor: "#fff", 
+  borderRadius: "12px", 
   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-  marginTop: "20px",
+  marginTop: "20px"
 };
 
-// ✅ 테이블 스타일 (미리보기용)
-const tableStyle: CSSProperties = {
-  width: "100%",
-  borderCollapse: "collapse",
-  marginBottom: "20px",
+const tableStyle: CSSProperties = { 
+  width: "100%", 
+  borderCollapse: "collapse", 
+  marginBottom: "20px", 
 };
 
-const thStyle: CSSProperties = {
-  backgroundColor: "#f8f9fa",
-  padding: "12px",
-  border: "1px solid #ddd",
-  textAlign: "center",
+const thStyle: CSSProperties = { 
+  backgroundColor: "#dbdbdb", 
+  padding: "12px", 
+  border: "1px solid #000000", 
+  textAlign: "center", 
   fontWeight: "bold",
   verticalAlign: "middle",
-  width: "20%",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
-const tdStyle: CSSProperties = {
-  padding: "12px",
-  border: "1px solid #ddd",
+const tdStyle: CSSProperties = { 
+  padding: "12px", 
+  border: "1px solid #000000", 
   textAlign: "center",
   verticalAlign: "middle",
   backgroundColor: "#fff",
-  width: "40%",
+  whiteSpace: "pre-wrap",
+  wordWrap: "break-word",
 };
 
-// ✅ 버튼 컨테이너 스타일
 const buttonContainerStyle: CSSProperties = {
   display: "flex",
-  justifyContent: "flex-end",
+  justifyContent: "center",
   marginTop: "20px",
+  gap: "10px"
 };
+
 
 // ✅ 정보 블록 스타일 (텍스트 위주)
 const textBlockStyle: CSSProperties = {

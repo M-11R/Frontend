@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { getUnivId } from '../util/storage';
-import { waterfallRows, agileRows, etcRows, WbsRow } from '../util/wbs';
 
 export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; closeModal: () => void; children?: React.ReactNode }) {
     
@@ -35,6 +34,21 @@ type draft = {
     subject: number | null
 }
 
+type getDraft = {
+    leader_univ_id: number
+    new: boolean
+    draft_id: number
+
+    pname: string
+    pdetails: string
+    psize: number
+    pperiod: string
+    pmm: number
+    univ_id: string
+    prof_id: number
+    subject: number
+}
+
 type project = {
     wizard: number //# 프로젝트 Setup Wizard의 완료 여부를 기록
 
@@ -61,7 +75,16 @@ type subjectType = {
     subj_name: string
 }
 
-export function ProjectCreateModal() {
+type draftPayLoad = {
+    RESULT_CODE: number
+    RESULT_MSG: string
+    draft_num: number
+    draft_data: {
+        draft_id: getDraft[]
+    }
+}
+
+export function EditDraftProjectModal() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -82,12 +105,31 @@ export function ProjectCreateModal() {
     const [method, setMethod] = useState(0);
     const [profId, setProfId] = useState<number>(0);
     const [subject, setSubject] = useState(13230);
+    const [draftId, setDraftId] = useState(0);
+
+    const [draftList, setDraftList] = useState<getDraft[]>([
+        {
+            leader_univ_id: 0,
+            new: false,
+            draft_id: 0,
+            pname: "Loading...",
+            pdetails: '',
+            psize: 0,
+            pperiod: '',
+            pmm: 0,
+            univ_id: '',
+            prof_id: 0,
+            subject: 0,
+            
+        }
+    ]);
 
     const [page, setPage] = useState(0);
 
     useEffect(() => {
         if(isOpen){
             loadSubject();
+            loadDraft();
         }
     }, [isOpen])
 
@@ -110,9 +152,10 @@ export function ProjectCreateModal() {
         setEndDate('');
         setMembers(0);
         setMethod(0);
-        setSubject(0)
+        setSubject(13230)
         setProfId(0)
         setPage(0)
+        setDraftList([])
     }
 
     const loadProf = async() => {
@@ -130,12 +173,33 @@ export function ProjectCreateModal() {
         }catch(err){}
     }
 
+    const loadDraft = async() => {
+        const postDraft: draft = {
+            leader_univ_id: s_no,
+            new: false,
+            draft_id: 0,
+
+            pname: 'a',
+            pdetails: 'a',
+            psize: 0,
+            pperiod: `a`,
+            pmm: 0,
+            univ_id: '',
+            prof_id: 0,
+            subject: 0
+        }
+        try{
+            const response = await axios.post<draftPayLoad>("https://cd-api.chals.kim/api/project/load_draft", postDraft, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const tmp = response.data.draft_data.draft_id;
+            setDraftList(Object.values(tmp));
+        }catch(err){}
+    }
+
     const postDraft = async() => {
         const postDraft: draft = {
             leader_univ_id: s_no,
-            new: true,
-            draft_id: 0,
-
+            new: false,
+            draft_id: draftId,
             pname: projectName,
             pdetails: projectDescription,
             psize: members,
@@ -147,9 +211,11 @@ export function ProjectCreateModal() {
         }
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/project/save_draft", postDraft, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            closeModal();
-            // console.log(postDraft)
-        }catch(err){}
+            closeModal()
+        }catch(err){
+            console.log(postDraft)
+            console.log(postDraft.draft_id)
+        }
     }
 
     const postInit = async() => {
@@ -165,11 +231,26 @@ export function ProjectCreateModal() {
             subject: subject
         }
 
+        const postDraft: draft = {
+            leader_univ_id: s_no,
+            new: false,
+            draft_id: draftId,
+            pname: projectName,
+            pdetails: projectDescription,
+            psize: members,
+            pperiod: `${fixDate(startDate)}-${fixDate(endDate)}`,
+            pmm: method,
+            univ_id: '',
+            prof_id: profId,
+            subject: subject
+        }
+
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/project/init", postInit, {headers:{Authorization: process.env.SECRET_API_KEY}});
             // console.log(postInit)
             if (response.data.RESULT_CODE === 200) {
                 router.push(`/project-main/${response.data.PAYLOADS.PUID}`);
+                const response2 = await axios.post("https://cd-api.chals.kim/api/project/del_draft", postDraft, {headers:{Authorization: process.env.SECRET_API_KEY}});
             };
         }catch(err){}
     }
@@ -181,7 +262,7 @@ export function ProjectCreateModal() {
     };
 
     const handlePageUp = () => {
-        if(page < 2){
+        if(page < 3){
             const tmpPage = page;
             setPage(tmpPage + 1)
         }
@@ -194,11 +275,39 @@ export function ProjectCreateModal() {
         }
     }
 
+    const handleDraftClick = (item: getDraft, index: number) => {
+        if(item.pperiod === "-"){
+            setStartDate('');
+            setEndDate('');
+        }else{
+            const [sStr = "", eStr = ""] = item.pperiod.split("-");
+            let sDate = "";
+            let eDate = "";
+
+            if(sStr && sStr.length === 6){
+                sDate = `20${sStr.slice(0,2)}-${sStr.slice(2,4)}-${sStr.slice(4,6)}`
+                setStartDate(sDate)
+            }
+            if(eStr && eStr.length === 6){
+                eDate = `20${eStr.slice(0,2)}-${eStr.slice(2,4)}-${eStr.slice(4,6)}`
+                setEndDate(eDate)
+            }
+        }
+        setProjectName(item.pname);
+        setProjectDescription(item.pdetails);
+        
+        setMethod(item.pmm);
+        setSubject(item.subject)
+        setProfId(item.prof_id)
+        setDraftId(index)
+        setPage(1)
+    }
+
     return (
         <div>
             <button onClick={openModal} style={{ 
                 position: 'fixed', 
-                bottom: '20px', 
+                bottom: '75px', 
                 left: '20px', 
                 padding: '15px 25px', 
                 backgroundColor: '#007bff', 
@@ -208,12 +317,25 @@ export function ProjectCreateModal() {
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', 
                 cursor: 'pointer' 
             }}>
-                프로젝트 생성
+                임시 저장 프로젝트30
             </button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 {(() => {
                     switch (page){
                         case 0:
+                            return (
+                                <div style={{width: '100%', height: '100%',marginBottom: '15px', overflowY: 'auto', maxHeight: '500px'}}>
+                                    <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>임시 프로젝트 리스트</h2>
+                                    {draftList.map((item: getDraft, index: number) => (
+                                        <div key={item.draft_id} style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                            <button onClick={() => handleDraftClick(item, index)} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                                <span style={{fontSize: '18px'}}>{index+1}: {item.pname}</span>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        case 1:
                             return (
                                 <form onSubmit={handleSubmit} onKeyDown={(e) => {if (e.key === "Enter"){e.preventDefault();}}} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
                                 <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 개설</h2>
@@ -259,11 +381,12 @@ export function ProjectCreateModal() {
                                 </div>
                                 <div style={{width: '100%', display: 'flex'}}>
                                     <button type="button" onClick={postDraft} style={{ padding: '5px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', width: 'auto', fontWeight: 'bold' }}>임시 저장</button>
-                                    <button type="button" onClick={handlePageUp} style={{ padding: '5px', marginLeft: 'auto', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', width: 'auto', fontWeight: 'bold' }}>다음 페이지</button>
+                                    <button type="button" onClick={handlePageDown} style={{ padding: '5px', marginLeft: 'auto', marginRight: '0px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', width: 'auto', fontWeight: 'bold' }}>이전 페이지</button>
+                                    <button type="button" onClick={handlePageUp} style={{ padding: '5px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', width: 'auto', fontWeight: 'bold' }}>다음 페이지</button>
                                 </div>
                             </form>
                         )
-                        case 1:
+                        case 2:
                             return (
                                 <div>
                                     <form onSubmit={handleSubmit} onKeyDown={(e) => {if (e.key === "Enter"){e.preventDefault();}}} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
@@ -304,7 +427,7 @@ export function ProjectCreateModal() {
                                 </div>
                                 
                             )
-                        case 2:
+                        case 3:
                             return (
                                 <div>
                                     <form onSubmit={handleSubmit} onKeyDown={(e) => {if (e.key === "Enter"){e.preventDefault();}}} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
