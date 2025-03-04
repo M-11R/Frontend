@@ -6,6 +6,8 @@ import MainSide from "@/app/components/MainSide";
 import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
+import { WfOptionsinterface, wfOptions } from "@/app/util/wbs";
+import { useRouter } from "next/navigation";
 
 interface WbsRow {
   id: string;
@@ -72,6 +74,7 @@ type pidPost = {
   pid: number
 }
 export default function Main(props: any) {
+  const router = useRouter()
   const [model, setModel] = useState<string>("Waterfall"); // 기본값: 폭포수 모델
   const [rows, setRows] = useState<WbsRow[]>([]);
   const [list, setList] = useState<(string | number)[][]>([])
@@ -109,12 +112,18 @@ export default function Main(props: any) {
   const [tempCategory, setTempCategory] = useState<string>("계획");
   const [tempSubCategory, setTempSubCategory] = useState<string>("프로젝트 관리");
   const [tempSubSubCategory, setTempSubSubCategory] = useState<string>("리스크 관리");
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
+  const [selectedSubSubCategory, setSelectedSubSubCategory] = useState<string>("");
   
   const [hasSavedData, setHasSavedData] = useState<boolean>(false); // 저장된 데이터 여부 확인
 
+  const [pLoading, setpLoading] = useState(false);
+
   const s_no = getUnivId();
-  usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, true)
-  const hasPermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
+  const readPermission = usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, false)
+  const writePermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
 
   // 폭포수 모델 초기 데이터
   const waterfallRows: WbsRow[] = [
@@ -164,19 +173,32 @@ export default function Main(props: any) {
     loadData();
   }, [])
 
+  // 현재 선택된 옵션에 따른 중분류 목록
+  const subCategories = selectedCategory && wfOptions[selectedCategory]
+    ? Object.keys(wfOptions[selectedCategory].subCategories)
+    : [];
+
+  // 현재 선택된 중분류에 따른 소분류 목록
+  const subSubCategories =
+    selectedCategory && selectedSubCategory && wfOptions[selectedCategory].subCategories[selectedSubCategory]
+      ? wfOptions[selectedCategory].subCategories[selectedSubCategory]
+      : [];
+
     // 모델 설정 및 데이터 초기화
     const handleModelChange = (selectedModel: string) => {
       setModel(selectedModel);
       localStorage.removeItem("wbsData"); // 모델 변경 시 기존 저장된 데이터 삭제
     };
 
+    
+
   // 저장 기능
   const saveData = async() => {
-    if (hasPermission === null) {
+    if (writePermission === null) {
       alert("권한 확인 중입니다. 잠시만 기다려주세요.");
       return;
     }
-    if (hasPermission) {
+    if (writePermission) {
       const data = {
         wbs_data: transWbs(rows),
         pid : parseInt(props.params.id)
@@ -272,10 +294,12 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const value = e.target.value;
-    setTempCategory(value);
+    setSelectedCategory(value);
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
     if (value !== "") {
       // 임시 변수가 "직접 입력"이 아니라면 원래 변수도 업데이트
-      setTmpRow((prev) => ({ ...prev, category: value }));
+      setTmpRow((prev) => ({ ...prev, category: value, subCategory: "", subSubCategory: ""  }));
     }
   };
 
@@ -284,8 +308,11 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
+    setSelectedCategory(value);
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
     // input으로 직접 입력한 값은 원래 변수에 바로 업데이트
-    setTmpRow((prev) => ({ ...prev, category: value }));
+    setTmpRow((prev) => ({ ...prev, category: value, subCategory: "", subSubCategory: "" }));
   };
 
   // SubCategory select onChange 핸들러
@@ -293,9 +320,10 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const value = e.target.value;
-    setTempSubCategory(value);
+    setSelectedSubCategory(value);
+    setSelectedSubSubCategory("");
     if (value !== "") {
-      setTmpRow((prev) => ({ ...prev, subCategory: value }));
+      setTmpRow((prev) => ({ ...prev, subCategory: value, subSubCategory: "" }));
     }
   };
 
@@ -304,7 +332,9 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
-    setTmpRow((prev) => ({ ...prev, subCategory: value }));
+    setSelectedSubCategory(value);
+    setSelectedSubSubCategory("");
+    setTmpRow((prev) => ({ ...prev, subCategory: value, subSubCategory: ""  }));
   };
 
   // SubSubCategory select onChange 핸들러
@@ -312,7 +342,7 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
     const value = e.target.value;
-    setTempSubSubCategory(value);
+    setSelectedSubSubCategory(value);
     if (value !== "") {
       setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
     }
@@ -323,6 +353,7 @@ export default function Main(props: any) {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
+    setSelectedSubSubCategory(value);
     setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
   };
 
@@ -463,6 +494,16 @@ export default function Main(props: any) {
     const dueDate = new Date(tend).setHours(0, 0, 0, 0);
     return dueDate < today;
 }
+  if(readPermission === null){
+    return (
+      <div>Loading...</div>
+    )
+  }
+  if(!readPermission){
+    router.push(`/project-main/${props.params.id}/main`);
+    return null
+  }  
+
 
   return (
     <div>
@@ -478,6 +519,11 @@ export default function Main(props: any) {
             overflowX: "auto",
           }}
         >
+          
+          
+          
+
+          
           <h2>{model === "Waterfall" ? "폭포수 모델" : (model === "Agile" ? "애자일 모델" : "기타 모델")} WBS</h2>
 
           {/* 모델 선택 및 데이터 관리 */}
@@ -571,7 +617,7 @@ export default function Main(props: any) {
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>대분류</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>중분류</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>소분류</th>
-                <th style={{ padding: "10px", border: "1px solid #ddd" }}>소소분류</th>
+                <th style={{ padding: "10px", border: "1px solid #ddd" }}>액티비티</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>작업명</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>산출물</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>담당자</th>
@@ -837,21 +883,19 @@ export default function Main(props: any) {
                   <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
                     <label style={{ fontWeight: "bold", marginRight: "10px" }}>대분류 :</label>
                     <select
-                      value={tempCategory}
+                      value={selectedCategory}
                       onChange={handleCategorySelectChange}
                       style={{width: '100px', padding: '5px', fontSize: '16px'}}
                     >
-                      <option value='계획'>계획</option>
-                      <option value='분석'>분석</option>
-                      <option value='설계'>설계</option>
-                      <option value='구현'>구현</option>
-                      <option value='테스트'>테스트</option>
-                      <option value='배포'>배포</option>
-                      <option value='기타'>기타</option>
-                      <option value=''>직접 입력</option>
+                      <option value="">직접 입력</option>
+                      {Object.keys(wfOptions).map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
                     </select>
                     <div style={{width: '40%'}}>
-                      {tempCategory === "" ? (
+                      {selectedCategory === "" ? (
                         <input
                           type="text"
                           value={tmpRow.category}
@@ -874,28 +918,26 @@ export default function Main(props: any) {
                           border: '1px solid #000',
                           backgroundColor: '#fff',
                           height: '20px',
-                        }}>{tempCategory}</div>
+                        }}>{selectedCategory}</div>
                       )}
                     </div>
                   </div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
                     <label style={{ fontWeight: "bold", marginRight: "10px" }}>중분류 :</label>
                     <select
-                      value={tempSubCategory}
+                      value={selectedSubCategory}
                       onChange={handleSubCategorySelectChange}
                       style={{width: '100px', padding: '5px', fontSize: '16px'}}
                     >
-                      <option value='프로젝트 관리'>프로젝트 관리</option>
-                      <option value='요구사항 수집 및 분석'>요구사항 수집 및 분석</option>
-                      <option value='시스템 설계'>시스템 설계</option>
-                      <option value='개발'>개발</option>
-                      <option value='QA'>QA</option>
-                      <option value='릴리스 및 유지보수'>릴리스 및 유지보수</option>
-                      <option value='기타'>기타</option>
-                      <option value=''>직접 입력</option>
+                      <option value="">직접 입력</option>
+                      {subCategories.map((subCat) => (
+                        <option key={subCat} value={subCat}>
+                          {subCat}
+                        </option>
+                      ))}
                     </select>
                     <div style={{width: '40%'}}>
-                      {tempSubCategory === "" ? (
+                      {selectedSubCategory === "" ? (
                         <input
                           type="text"
                           value={tmpRow.subCategory}
@@ -918,33 +960,26 @@ export default function Main(props: any) {
                           border: '1px solid #000',
                           backgroundColor: '#fff',
                           height: '20px',
-                        }}>{tempSubCategory}</div>
+                        }}>{selectedSubCategory}</div>
                       )}
                     </div>
                   </div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
                     <label style={{ fontWeight: "bold", marginRight: "10px" }}>소분류 :</label>
                     <select
-                      value={tempSubSubCategory}
+                      value={selectedSubSubCategory}
                       onChange={handleSubSubCategorySelectChange}
                       style={{width: '100px', padding: '5px', fontSize: '16px'}}
                     >
-                      <option value='리스크 관리'>리스크 관리</option>
-                      <option value='자원 관리'>자원 관리</option>
-                      <option value='요구사항 수집'>요구사항 수집</option>
-                      <option value='요구사항 분석'>요구사항 분석</option>
-                      <option value='인터페이스 설계'>인터페이스 설계</option>
-                      <option value='데이터베이스 설계'>데이터베이스 설계</option>
-                      <option value='프론트엔드 개발'>프론트엔드 개발</option>
-                      <option value='백엔드 개발'>백엔드 개발</option>
-                      <option value='단위 테스트'>단위 테스트</option>
-                      <option value='통합 테스트'>통합 테스트</option>
-                      <option value='운영 환경 설정'>운영 환경 설정</option>
-                      <option value='기타'>기타</option>
-                      <option value=''>직접 입력</option>
+                      <option value="">직접 입력</option>
+                      {subSubCategories.map((subSubCat) => (
+                        <option key={subSubCat} value={subSubCat}>
+                          {subSubCat}
+                        </option>
+                      ))}
                     </select>
                     <div style={{width: '40%'}}>
-                      {tempSubSubCategory === "" ? (
+                      {selectedSubSubCategory === "" ? (
                         <input
                           type="text"
                           value={tmpRow.subSubCategory}
@@ -967,7 +1002,7 @@ export default function Main(props: any) {
                           border: '1px solid #000',
                           backgroundColor: '#fff',
                           height: '20px',
-                        }}>{tempSubSubCategory}</div>
+                        }}>{selectedSubSubCategory}</div>
                       )}
                     </div>
                   </div>
@@ -1093,7 +1128,7 @@ export default function Main(props: any) {
             </div>
           )}
           
-          
+        
         </div>
       </div>
     </div>

@@ -22,15 +22,29 @@ type returnType = {
     PAYLOADS: DataItem[]
 }
 
-const TabList = ({pid}: {pid: number}) => {
+const TabList = ({ pid }: { pid: number }) => {
   const [data, setData] = useState<DataItem[]>([]);
   const s_no = getUnivId();
   const [showScrollbar, setShowScrollbar] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<number | null>(null);
+  const router = useRouter();
+
+  // ✅ 1. 페이지 로드 시 `localStorage`에서 선택된 탭 불러오기
+  useEffect(() => {
+    const savedTab = localStorage.getItem("selectedTab");
+    if (savedTab) {
+      setSelectedTab(Number(savedTab));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/load", {univ_id: s_no}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        const response = await axios.post<returnType>(
+          "https://cd-api.chals.kim/api/project/load",
+          { univ_id: s_no },
+          { headers: { Authorization: process.env.SECRET_API_KEY } }
+        );
         setData(response.data.PAYLOADS);
       } catch (error) {
         console.error("데이터 가져오기 오류 : ", error);
@@ -44,13 +58,19 @@ const TabList = ({pid}: {pid: number}) => {
     <div
       style={{
         ...containerStyle,
-        overflowX: showScrollbar ? "auto" : "hidden", // 조건부 overflowX 설정
+        overflowX: showScrollbar ? "auto" : "hidden",
       }}
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
       {data.map((item) => (
-        <HoverTab key={item.pid} item={item} />
+        <HoverTab
+          key={item.pid}
+          item={item}
+          selectedTab={selectedTab}
+          setSelectedTab={setSelectedTab}
+          router={router}
+        />
       ))}
     </div>
   );
@@ -58,39 +78,59 @@ const TabList = ({pid}: {pid: number}) => {
 
 interface HoverTabProps {
   item: DataItem;
+  selectedTab: number | null;
+  setSelectedTab: React.Dispatch<React.SetStateAction<number | null>>;
+  router: ReturnType<typeof useRouter>;
 }
 
-const HoverTab: React.FC<HoverTabProps> = ({ item }) => {
+const HoverTab: React.FC<HoverTabProps> = ({
+  item,
+  selectedTab,
+  setSelectedTab,
+  router,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
   const tabRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+
+  // ✅ 2. `selectedTab` 변경 시 localStorage에 저장
+  useEffect(() => {
+    if (selectedTab !== null) {
+      localStorage.setItem("selectedTab", selectedTab.toString());
+    }
+  }, [selectedTab]);
 
   const handleClick = () => {
+    setSelectedTab(item.pid); // ✅ 클릭하면 선택된 탭 변경
     router.push(`/project-main/${item.pid}/main`);
-  }
+  };
 
   return (
     <div
       ref={tabRef}
-      style={tabStyle}
+      style={{
+        ...tabStyle,
+        ...(selectedTab === item.pid ? activeTabStyle : {}),
+        ...(isHovered ? hoverTabStyle : {}),
+      }}
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* 탭에서는 제목만 표시 */}
       <div>{limitTitle(item.pname, 20)}</div>
 
-      {/* 마우스 오버 시 툴팁 형태로 세부 정보 표시 */}
       {isHovered && tabRef.current && (
         <Tooltip targetRef={tabRef}>
-          <div style={{padding: "3px"}}>
-            <strong>제목: </strong>{item.pname}
+          <div style={{ padding: "3px" }}>
+            <strong>제목: </strong>
+            {item.pname}
           </div>
-          <div style={{padding: "3px"}}>
-            <strong>설명: </strong>{item.pdetails}
+          <div style={{ padding: "3px" }}>
+            <strong>설명: </strong>
+            {item.pdetails}
           </div>
-          <div style={{padding: "3px"}}>
-            <strong>기간: </strong>{item.pperiod}
+          <div style={{ padding: "3px" }}>
+            <strong>기간: </strong>
+            {item.pperiod}
           </div>
         </Tooltip>
       )}
@@ -111,13 +151,14 @@ const Tooltip: React.FC<TooltipProps> = ({ targetRef, children }) => {
       const rect = targetRef.current.getBoundingClientRect();
       setStyle({
         position: "absolute",
-        top: rect.top + 35, // 탭 위쪽에 표시 (필요시 오프셋 조절)
+        top: rect.top + 40,
         left: rect.left,
         backgroundColor: "#fff",
         border: "1px solid #ccc",
         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-        padding: "2px",
+        padding: "6px",
         width: "300px",
+        borderRadius: "6px",
         zIndex: 10000,
       });
     }
@@ -126,36 +167,51 @@ const Tooltip: React.FC<TooltipProps> = ({ targetRef, children }) => {
   return createPortal(<div style={style}>{children}</div>, document.body);
 };
 
+// ✅ 컨테이너 스타일
 const containerStyle: CSSProperties = {
   position: "relative",
   top: "20px",
   bottom: "0",
   width: "1100px",
-  height: "30px",
+  height: "40px",
   overflowY: "hidden",
   display: "flex",
   flexWrap: "nowrap",
-  gap: "5px",
+  gap: "8px",
   alignItems: "center",
   padding: "5px",
-  // border: "1px solid #ccc",
 };
 
+// ✅ 기본 탭 스타일
 const tabStyle: CSSProperties = {
   position: "relative",
-  width: "auto",
-  minWidth: "70px",
-  height: "30px",
-  backgroundColor: "#eee",
-  border: "1px solid #ccc",
-  borderRadius: "4px",
+  minWidth: "100px",
+  height: "36px",
+  backgroundColor: "#f8f9fa",
+  border: "1px solid #d1d5db",
+  borderRadius: "12px 12px 0 0",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
   cursor: "pointer",
   flex: "0 0 auto",
-  paddingLeft: "5px",
-  paddingRight: "5px",
+  padding: "0 12px",
+  transition: "all 0.3s ease-in-out",
+  boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+};
+
+// ✅ 호버 시 스타일
+const hoverTabStyle: CSSProperties = {
+  backgroundColor: "#e2e8f0",
+  transform: "scale(1.05)",
+};
+
+// ✅ 활성화된 탭 스타일
+const activeTabStyle: CSSProperties = {
+  backgroundColor: "#ffffff",
+  borderBottom: "3px solid #2563eb",
+  fontWeight: "bold",
+  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
 };
 
 export default TabList;

@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { getUnivId } from "../util/storage";
-import { ProjectCreateModal } from "./ProjectCreateModal";
-import { EditDraftProjectModal } from "./EditDraftProjectModal";
+
 
 type returnTask = {
   RESULT_CODE: number;
@@ -194,8 +193,7 @@ const MainSide = ({ pid }: { pid: number }) => {
           )}
         </div>
       ))}
-      <EditDraftProjectModal />
-      <ProjectCreateModal />
+      
     </div>
   );
 };

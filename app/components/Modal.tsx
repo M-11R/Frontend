@@ -274,18 +274,21 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
            {/* 🔹 일괄 적용 버튼 추가 */}
          <div style={{ display: "flex", gap: "5px", marginBottom: "10px", marginLeft: 'auto', width: '45%' }}>
              <button
+                type="button"
                onClick={() => setAllPermissions(2)}
                style={bulkButtonStyle}
              >
                읽기
              </button>
              <button
+                type="button"
               onClick={() => setAllPermissions(1)}
                style={bulkButtonStyle}
              >
                 읽기 + 쓰기
              </button>
               <button
+                type="button"
                 onClick={() => setAllPermissions(0)}
                 style={bulkButtonStyle}
               >
@@ -530,11 +533,9 @@ export function AddTask({p_id}: {p_id: number}){
 
     const postData = async() => {
         const data = tmpData;
-        // data.tstart = fixDate(tmpData.tstart);
-        // data.tend = fixDate(tmpData.tend);
         try{
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/task/add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            router.refresh();
+            if(response.data.RESULT_CODE === 200){usePageReload()}
         } catch(err){
             alert('error');
         }

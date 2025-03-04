@@ -306,8 +306,8 @@ export function EditDraftProjectModal() {
     return (
         <div>
             <button onClick={openModal} style={{ 
-                position: 'fixed', 
-                bottom: '75px', 
+                position: 'relative', 
+                bottom: '25px', 
                 left: '20px', 
                 padding: '15px 25px', 
                 backgroundColor: '#007bff', 
@@ -317,7 +317,7 @@ export function EditDraftProjectModal() {
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', 
                 cursor: 'pointer' 
             }}>
-                임시 저장 프로젝트30
+                임시 저장 프로젝트
             </button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 {(() => {

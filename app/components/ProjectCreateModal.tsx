@@ -197,8 +197,8 @@ export function ProjectCreateModal() {
     return (
         <div>
             <button onClick={openModal} style={{ 
-                position: 'fixed', 
-                bottom: '20px', 
+                position: 'relative', 
+                bottom: '25px', 
                 left: '20px', 
                 padding: '15px 25px', 
                 backgroundColor: '#007bff', 

@@ -6,6 +6,8 @@ import mb from '@/app/json/msBox.json';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import TapList from '@/app/components/ProjectTap'
+import { ProjectCreateModal } from "@/app/components/ProjectCreateModal";
+import { EditDraftProjectModal } from "@/app/components/EditDraftProjectModal";
 
 import axios from 'axios';
 
@@ -85,35 +87,55 @@ const jinchek = (pid: number) => {
 };
 
 
-const MainHeader = ({ pid }: { pid: number }) => (
-  <header
-    style={{
-      margin: '0 auto',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-      padding: '10px 0',
-      borderBottom: '2px solid #ddd',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    }}
-  >
-    <Link href='/'>
-      <Image
-        src={ico}
-        alt="Logo"
-        style={{
-          width: '100px',
-          height: '80px',
-          objectFit: 'contain',
-          cursor: 'pointer',
-          marginLeft: '20px',
-        }}
-      />
-    </Link>
-    <TapList pid={pid} />
-    <div style={{ width: '600px' }}>{jinchek(pid)}</div>
-  </header>
-);
+const MainHeader = ({ pid }: { pid: number }) => {
+  return (
+    <header
+      style={{
+        margin: "0 auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "100%",
+        padding: "10px 20px",
+        borderBottom: "2px solid #ddd",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      }}
+    >
+      {/* ✅ 로고 */}
+      <Link href="/">
+        <Image
+          src={ico}
+          alt="Logo"
+          style={{
+            width: "100px",
+            height: "80px",
+            objectFit: "contain",
+            cursor: "pointer",
+          }}
+        />
+      </Link>
+
+      {/* ✅ 버튼을 프로젝트 탭 위에 배치 */}
+      <div style={{
+        display: "flex",
+        gap: "10px",
+        alignItems: "center",
+        marginLeft: "20px", // 로고와 간격 조정
+      }}>
+        <EditDraftProjectModal />
+        <ProjectCreateModal />
+      </div>
+
+      {/* ✅ 프로젝트 탭 리스트 */}
+      <TapList pid={pid} />
+
+      {/* ✅ 진척도 표시 */}
+      <div style={{ flex: 1, textAlign: "center", maxWidth: "900px" }}>
+        {jinchek(pid)}
+      </div>
+    </header>
+  );
+};
+
 
 export default MainHeader;
