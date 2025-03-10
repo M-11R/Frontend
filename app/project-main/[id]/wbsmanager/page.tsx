@@ -6,7 +6,7 @@ import MainSide from "@/app/components/MainSide";
 import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
-import { WfOptionsinterface, wfOptions } from "@/app/util/wbs";
+import { wfOptions, agileOptions } from "@/app/util/wbs";
 import { useRouter } from "next/navigation";
 
 interface WbsRow {
@@ -77,7 +77,7 @@ export default function Main(props: any) {
   const router = useRouter()
   const [model, setModel] = useState<string>("Waterfall"); // 기본값: 폭포수 모델
   const [rows, setRows] = useState<WbsRow[]>([]);
-  const [list, setList] = useState<(string | number)[][]>([])
+  const [nowCat, setNowCat] = useState(wfOptions)
   const [tmpRow, setTmpRow] = useState<WbsRow>({
     id: "1",
     category: "계획",
@@ -93,7 +93,7 @@ export default function Main(props: any) {
     endDate: "",
     completed: false
 });
-  const tmp: WbsRow = {
+  const tmpWF: WbsRow = {
     id: "1",
     category: "계획",
     subCategory: "프로젝트 관리",
@@ -108,18 +108,25 @@ export default function Main(props: any) {
     endDate: "",
     completed: false
   }
-
-  const [tempCategory, setTempCategory] = useState<string>("계획");
-  const [tempSubCategory, setTempSubCategory] = useState<string>("프로젝트 관리");
-  const [tempSubSubCategory, setTempSubSubCategory] = useState<string>("리스크 관리");
+  const tmpAG: WbsRow = {
+    id: "1",
+    category: "백로그",
+    subCategory: "유저 스토리 작성",
+    subSubCategory: "요구사항 정의",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+  }
 
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
   const [selectedSubSubCategory, setSelectedSubSubCategory] = useState<string>("");
-  
-  const [hasSavedData, setHasSavedData] = useState<boolean>(false); // 저장된 데이터 여부 확인
-
-  const [pLoading, setpLoading] = useState(false);
 
   const s_no = getUnivId();
   const readPermission = usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, false)
@@ -142,31 +149,44 @@ export default function Main(props: any) {
 
   // 애자일 모델 초기 데이터
   const agileRows: WbsRow[] = [
-    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "요구사항 정의", subSubSubCategory: "스토리 맵 작성", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2024-01-03", completed: false },
-    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "우선순위 결정", subSubSubCategory: "MoSCoW 기법 적용", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2024-01-06", completed: false },
-    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "스프린트 범위 결정", subSubSubCategory: "기능 분류 및 선정", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2024-01-09", completed: false },
-    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "팀별 업무 배정", subSubSubCategory: "페어 프로그래밍 구성", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2024-01-12", completed: false },
-    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "UI 개발", subSubSubCategory: "컴포넌트 설계 및 구현", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2024-01-20", completed: false },
-    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "API 개발", subSubSubCategory: "RESTful API 설계 및 구현", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2024-01-30", completed: false },
-    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "테스트 코드 작성", subSubSubCategory: "Jest 테스트 적용", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2024-02-05", completed: false },
-    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "기능 및 성능 검증", subSubSubCategory: "CI/CD 파이프라인 활용", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2024-02-10", completed: false },
-    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "개선 사항 도출", subSubSubCategory: "KPT(Keep, Problem, Try) 분석", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2024-02-15", completed: false },
-    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "배포 환경 구성", subSubSubCategory: "AWS 서버 설정", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2024-02-20", completed: false },
-    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2024-02-25", completed: false },
+    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "요구사항 정의", subSubSubCategory: "스토리 맵 작성", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2029-01-03", completed: false },
+    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "우선순위 결정", subSubSubCategory: "MoSCoW 기법 적용", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2029-01-06", completed: false },
+    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "스프린트 범위 결정", subSubSubCategory: "기능 분류 및 선정", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2029-01-09", completed: false },
+    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "팀별 업무 배정", subSubSubCategory: "페어 프로그래밍 구성", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2029-01-12", completed: false },
+    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "UI 개발", subSubSubCategory: "컴포넌트 설계 및 구현", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2029-01-20", completed: false },
+    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "API 개발", subSubSubCategory: "RESTful API 설계 및 구현", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2029-01-30", completed: false },
+    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "테스트 코드 작성", subSubSubCategory: "Jest 테스트 적용", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2029-02-05", completed: false },
+    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "기능 및 성능 검증", subSubSubCategory: "CI/CD 파이프라인 활용", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2029-02-10", completed: false },
+    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "개선 사항 도출", subSubSubCategory: "KPT(Keep, Problem, Try) 분석", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2029-02-15", completed: false },
+    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "배포 환경 구성", subSubSubCategory: "AWS 서버 설정", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2029-02-20", completed: false },
+    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2029-02-25", completed: false },
 ];
 
   const etcRows: WbsRow[] = [
     { id: "1", category: "", subCategory: "", subSubCategory: "", subSubSubCategory: "", taskName: "", product: "", assignee: "", note: "", progress: 0, startDate: "2024-01-01", endDate: "2099-01-03", completed: false },
   ]
 
+  const resetCat = () => {
+    setSelectedCategory("");
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
+  }
+
   // 초기 로드: 로컬 저장소에서 데이터 불러오기
   useEffect(() => {
     if (model === "Waterfall") {
       setRows([...waterfallRows]);
+      setNowCat(wfOptions)
+      resetCat()
+      setTmpRow(tmpWF)
     } else if (model === "Agile") {
       setRows([...agileRows]);
+      setNowCat(agileOptions)
+      resetCat()
+      setTmpRow(tmpAG)
     } else if (model === "etc"){
       setRows([...etcRows])
+      resetCat()
     }
   }, [model]);
   useEffect(() => {
@@ -174,14 +194,14 @@ export default function Main(props: any) {
   }, [])
 
   // 현재 선택된 옵션에 따른 중분류 목록
-  const subCategories = selectedCategory && wfOptions[selectedCategory]
-    ? Object.keys(wfOptions[selectedCategory].subCategories)
+  const subCategories = selectedCategory && nowCat[selectedCategory]
+    ? Object.keys(nowCat[selectedCategory].subCategories)
     : [];
 
   // 현재 선택된 중분류에 따른 소분류 목록
   const subSubCategories =
-    selectedCategory && selectedSubCategory && wfOptions[selectedCategory].subCategories[selectedSubCategory]
-      ? wfOptions[selectedCategory].subCategories[selectedSubCategory]
+    selectedCategory && selectedSubCategory && nowCat[selectedCategory].subCategories[selectedSubCategory]
+      ? nowCat[selectedCategory].subCategories[selectedSubCategory]
       : [];
 
     // 모델 설정 및 데이터 초기화
@@ -287,7 +307,11 @@ export default function Main(props: any) {
     };
 
     setRows((prevRows) => [...prevRows, newRow])
-    setTmpRow(tmp)
+    if(model === "Waterfall"){
+      setTmpRow(tmpWF);
+    }else{
+      setTmpRow(tmpAG);
+    }
   }
 
   const handleCategorySelectChange = (
@@ -514,8 +538,10 @@ export default function Main(props: any) {
           style={{
             height: "calc(100vh - 105px)",
             width: "calc(95% - 150px)",
-            border: "1px solid #000000",
+            // border: "1px solid #000000",
             padding: "20px",
+            paddingTop: '0',
+            paddingBottom: '0',
             overflowX: "auto",
           }}
         >
@@ -874,7 +900,7 @@ export default function Main(props: any) {
               {/* WBS 위자드 */}
               {/* 제목 */}
               <div>
-                <span style={{padding: '5px', fontSize: '24px'}}>WBS 위자드</span>
+                <span style={{padding: '5px', fontSize: '24px'}}>WBS 위자드6</span>
               </div>
               {/* Form */}
               <form onSubmit={(e) => e.preventDefault()} >
@@ -888,7 +914,7 @@ export default function Main(props: any) {
                       style={{width: '100px', padding: '5px', fontSize: '16px'}}
                     >
                       <option value="">직접 입력</option>
-                      {Object.keys(wfOptions).map((cat) => (
+                      {Object.keys(nowCat).map((cat) => (
                         <option key={cat} value={cat}>
                           {cat}
                         </option>
@@ -1010,7 +1036,7 @@ export default function Main(props: any) {
                 {/* 중간: 소소분류, 작업명 산출물, 담당자 */}
                 <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
                   <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 3}}>
-                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>소소분류 :</label>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>액티비티 :</label>
                     <input
                           type="text"
                           value={tmpRow.subSubSubCategory}

@@ -6,6 +6,7 @@ import { getUnivId } from "../util/storage";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { limitTitle } from "../util/string";
+import { EditDraftProjectModal } from "./EditDraftProjectModal";
 
 export interface DataItem {
     pid: number
@@ -63,6 +64,7 @@ const TabList = ({ pid }: { pid: number }) => {
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
+      <EditDraftProjectModal />
       {data.map((item) => (
         <HoverTab
           key={item.pid}
@@ -180,6 +182,7 @@ const containerStyle: CSSProperties = {
   gap: "8px",
   alignItems: "center",
   padding: "5px",
+  paddingBottom: '0'
 };
 
 // ✅ 기본 탭 스타일

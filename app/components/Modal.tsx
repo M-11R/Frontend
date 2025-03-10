@@ -269,7 +269,9 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
                     </div>
 
                     
-                    
+        {permision ? (<div></div>):(
+
+        
          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
            {/* 🔹 일괄 적용 버튼 추가 */}
          <div style={{ display: "flex", gap: "5px", marginBottom: "10px", marginLeft: 'auto', width: '45%' }}>
@@ -343,7 +345,7 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
               </div>
              </div>
          ))}
-     </div>
+     </div>)}
     
 
                     <div style={{width: '100%', display: 'flex'}}>

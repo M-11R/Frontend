@@ -8,17 +8,17 @@ export type Permission = {
   p_no: number;
   s_no: number;
   leader: number;
-  ro: number;
+  ro: number; // read only(미사용)
   user: number;
-  wbs: number;
-  od: number;
-  mm: number;
-  ut: number;
-  rs: number;
-  rp: number;
-  om: number;
-  task: number;
-  llm: number;
+  wbs: number; // wbs
+  od: number; // 개요서
+  mm: number; // 회의록
+  ut: number; // 테스트케이스
+  rs: number; // 요구사항 명세서
+  rp: number; // 보고서
+  om: number; // 기타 산출물
+  task: number; // 업무
+  llm: number; // LLM
 };
 
 export type PermissionRequirements = {

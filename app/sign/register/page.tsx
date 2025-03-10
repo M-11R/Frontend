@@ -15,6 +15,19 @@ type postType = {
   };
 };
 
+type dnoPayLoad = {
+  RESULT_CODE: number,
+  RESULT_MSG: string,
+  PAYLOAD: {
+      Result: dnoType[]
+  }
+}
+
+type dnoType = {
+  dno: number,
+  dname: string
+}
+
 // ✅ 스타일 공통 적용
 const commonStyles: { [key: string]: React.CSSProperties } = {
   container: {
@@ -66,8 +79,9 @@ export default function Signup() {
   const [id, setID] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
-  const [department, setDepartment] = useState(10);
+  const [department, setDepartment] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [deptList, setDeptList] = useState<dnoType[]>([{dno: 0, dname: "Loading..."}]);
 
   const router = useRouter();
   // ✅ 대표적인 이메일 도메인 목록
@@ -96,10 +110,19 @@ export default function Signup() {
     department,
   };
 
+  const loadDept = async() => {
+    try{
+      const response = await axios.post<dnoPayLoad>("https://cd-api.chals.kim/api/acc/load_dept", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      // console.log("result: ",response.data.PAYLOAD.Result)
+      setDeptList(response.data.PAYLOAD.Result);
+    }catch(err){}
+  }
+
   useEffect(() => {
     if (getToken() && router) {
-      router.push("/");
+      // router.push("/");
     }
+    loadDept()
   }, [router]);
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -150,6 +173,7 @@ export default function Signup() {
             { label: mb.user.name.value, value: name, setter: setName, type: "text", placeholder: "" },
             { label: mb.user.hak.value, value: hak, setter: setHak, type: "number", placeholder: "" },
             { label: mb.user.id.value, value: id, setter: setID, type: "text", placeholder: "" },
+            
             { label: mb.user.password.value, value: password, setter: setPassword, type: "password", placeholder: "8자리, 특수문자를 입력해주세요." },
             {
               label: mb.register["re-password"].value,
@@ -197,6 +221,24 @@ export default function Signup() {
             {emailDomain === "직접 입력" && (
               <input type="text" value={customEmailDomain} onChange={(e) => setCustomEmailDomain(e.target.value)} placeholder="도메인 입력" style={commonStyles.input} />
             )}
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: "16px", fontWeight: "bold", color: "#555", marginBottom: "5px" }}>
+              학과
+            </label>
+            <select
+              value={department}
+              onChange={(e) => setDepartment(Number(e.target.value))}
+              style={{ width: 'calc(100% + 24px)', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', backgroundColor: '#ffffff' }}
+            >
+              {Array.isArray(deptList) &&
+                deptList.map((item) => (
+                  <option key={item.dno} value={item.dno}>
+                    {item.dname}
+                  </option>
+                ))
+              }
+            </select>
           </div>
 
           {/* ✅ 버튼 */}

@@ -95,10 +95,13 @@ const MainHeader = ({ pid }: { pid: number }) => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        width: "100%",
-        padding: "10px 20px",
+        width: "97%",
+        padding: "0px 20px",
+        paddingTop: '0px',
         borderBottom: "2px solid #ddd",
         boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        position: 'relative',
+        // height: '90px'
       }}
     >
       {/* ✅ 로고 */}
@@ -116,18 +119,28 @@ const MainHeader = ({ pid }: { pid: number }) => {
       </Link>
 
       {/* ✅ 버튼을 프로젝트 탭 위에 배치 */}
-      <div style={{
+      {/* <div style={{
+        position: "relative",
+        top: "20px",
+        bottom: "0",
+        // width: "1100px",
+        height: "40px",
+        overflowY: "hidden",
         display: "flex",
-        gap: "10px",
+        flexWrap: "nowrap",
+        gap: "8px",
         alignItems: "center",
-        marginLeft: "20px", // 로고와 간격 조정
+        padding: "5px",
       }}>
         <EditDraftProjectModal />
-        <ProjectCreateModal />
-      </div>
+        
+      </div> */}
 
       {/* ✅ 프로젝트 탭 리스트 */}
+      <div style={{bottom: '10px'}}>
       <TapList pid={pid} />
+      </div>
+      
 
       {/* ✅ 진척도 표시 */}
       <div style={{ flex: 1, textAlign: "center", maxWidth: "900px" }}>

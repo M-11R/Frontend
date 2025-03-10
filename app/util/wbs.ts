@@ -49,7 +49,7 @@ export const etcRows: WbsRow[] = [
     { id: "1", category: "", subCategory: "", subSubCategory: "", subSubSubCategory: "", taskName: "", product: "", assignee: "", note: "", progress: 0, startDate: "2024-01-01", endDate: "2099-01-03", completed: false },
 ]
 
-export interface WfOptionsinterface {
+export interface Optionsinterface {
     [category: string]: {
       subCategories: {
         [subCategory: string]: string[];
@@ -57,7 +57,7 @@ export interface WfOptionsinterface {
     };
   }
   
-  export const wfOptions: WfOptionsinterface = {
+  export const wfOptions: Optionsinterface = {
     "계획": {
       subCategories: {
         "프로젝트 관리": ["프로젝트 목표 설정", "범위 정의", "이해관계자 식별"],
@@ -120,5 +120,82 @@ export interface WfOptionsinterface {
         "R&D / 혁신": ["신기술 연구", "파일럿 프로젝트", "프로토타입 제작"],
         "기타": ["기타"],
       },
+    },
+  };
+  
+  export const agileOptions: Optionsinterface = {
+    "백로그": {
+      subCategories: {
+        "유저 스토리 작성": [
+          "요구사항 정의",
+          "스토리 맵 작성"
+        ],
+        "백로그 정리": [
+          "우선순위 결정",
+          "MoSCoW 기법 적용"
+        ],
+        "기타": ["기타"]
+      }
+    },
+    "스프린트 계획": {
+      subCategories: {
+        "목표 설정": [
+          "스프린트 범위 결정",
+          "기능 분류 및 선정"
+        ],
+        "작업 분배": [
+          "팀별 업무 배정",
+          "페어 프로그래밍 구성"
+        ],
+        "기타": ["기타"]
+      }
+    },
+    "개발 작업": {
+      subCategories: {
+        "프론트엔드 개발": [
+          "UI 개발",
+          "컴포넌트 설계 및 구현"
+        ],
+        "백엔드 개발": [
+          "API 개발",
+          "RESTful API 설계 및 구현"
+        ],
+        "기타": ["기타"]
+      }
+    },
+    "QA": {
+      subCategories: {
+        "단위 테스트": [
+          "테스트 코드 작성",
+          "Jest 테스트 적용"
+        ],
+        "통합 테스트": [
+          "기능 및 성능 검증",
+          "CI/CD 파이프라인 활용"
+        ],
+        "기타": ["기타"]
+      }
+    },
+    "스프린트 회고": {
+      subCategories: {
+        "성과 리뷰": [
+          "개선 사항 도출",
+          "KPT(Keep, Problem, Try) 분석"
+        ],
+        "기타": ["기타"]
+      }
+    },
+    "배포 및 릴리스": {
+      subCategories: {
+        "운영 환경 설정": [
+          "배포 환경 구성",
+          "AWS 서버 설정"
+        ],
+        "최종 릴리스": [
+          "릴리스 문서화",
+          "버전 관리 및 태깅"
+        ],
+        "기타": ["기타"]
+      }
     },
   };

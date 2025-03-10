@@ -13,7 +13,7 @@ const LibraryTable = ({pid}: {pid: number}) => {
             maxWidth: "1000px",
             display: "flex",
             flexDirection: "column",
-            height: "100%",
+            // height: "100%",
           }}
         >
           <div

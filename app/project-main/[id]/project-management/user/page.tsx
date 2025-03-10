@@ -17,7 +17,7 @@ export default function userManagement(props: any){
                 <MainSide pid = {props.params.id}/>
 
                 {/*메인 페이지*/}
-                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', border: '1px solid #000000', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
+                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
                     <div style={{margin: '10% auto', height: '100%', width: '70%'}}>
                         <span style={{fontSize: '40px'}}>{mb.usermanage.userlist.value}</span>
                         <UserDataTable p_id={props.params.id}/>

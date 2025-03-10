@@ -48,13 +48,13 @@ export default function Home() {
     <div
       style={{
         backgroundImage: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)", // 부드러운 그라데이션 배경
-        minHeight: "100vh",
+        height: '100vh',
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         fontFamily: "'Roboto', sans-serif",
-        padding: "20px",
+        padding: "0 20px",
         color: "#333",
       }}
     >

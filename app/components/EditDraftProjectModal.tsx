@@ -9,7 +9,7 @@ export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; close
     
     return (
         isOpen && (
-        <div style={{position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+        <div style={{position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', zIndex: 9999}}>
             <div style={{background: '#ffffff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px #000000', maxWidth: '500px', width: '100%'}}>
                 <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button onClick={closeModal} style={{fontSize: '15px'}}>X</button></div></div>
                 {children}
@@ -84,8 +84,35 @@ type draftPayLoad = {
     }
 }
 
+type dnoPayLoad = {
+    RESULT_CODE: number,
+    RESULT_MSG: string,
+    PAYLOAD: {
+        Result: dnoType[]
+    }
+}
+
+type dnoType = {
+    dno: number,
+    dname: string
+}
+
+type profPayload = {
+    RESULT_CODE: number,
+    RESULT_MSG: string,
+    PAYLOAD: {
+        Result: profType[]
+    }
+}
+
+type profType = {
+    f_no: number
+    f_name: string
+}
+
 export function EditDraftProjectModal() {
     const [isLoading, setIsLoading] = useState(false);
+    const [newPj, setNewPj] = useState(true);
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const openModal = () => setIsOpen(true);
@@ -106,6 +133,10 @@ export function EditDraftProjectModal() {
     const [profId, setProfId] = useState<number>(0);
     const [subject, setSubject] = useState(13230);
     const [draftId, setDraftId] = useState(0);
+    const [isNew, setIsNew] = useState(true);
+    const [profList, setProfList] = useState<profType[]>([{f_no: 0, f_name: "Loading..."}])
+
+    const [draftLoading, setDraftLoading] = useState(true);
 
     const [draftList, setDraftList] = useState<getDraft[]>([
         {
@@ -135,7 +166,7 @@ export function EditDraftProjectModal() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (projectName.trim() === "" || projectDescription.trim() === '' || startDate === '' || endDate === '' || profId === 0) {
+        if (projectName.trim() === "" || projectDescription.trim() === '' || startDate === '' || endDate === '') {
             alert("값을 모두 입력해주세요.");
         }else{
             postInit()
@@ -156,22 +187,55 @@ export function EditDraftProjectModal() {
         setProfId(0)
         setPage(0)
         setDraftList([])
+        setNewPj(true)
+    }
+
+    const reset2 = () => { // 새 프로젝트 클릭 시 리셋
+        setProjectName('');
+        setProjectDescription('');
+        setStartDate('');
+        setEndDate('');
+        setMembers(0);
+        setMethod(0);
+        setSubject(13230)
+        setProfId(0)
+        setPage(0)
+        setIsNew(true)
+        // setDraftList([])
+        setNewPj(true)
     }
 
     const loadProf = async() => {
         try{
-            // const response = await axios.post("https://cd-api.chals.kim/api/project/load_prof", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post<profPayload>("https://cd-api.chals.kim/api/acc/load_prof", {subj_no: subject}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            setProfList(response.data.PAYLOAD.Result)
         }catch(err){}
     }
+
+    useEffect(() => {
+        loadProf()
+    }, [subject])
+
+    useEffect(() => {
+        if(profList.length > 0){
+            setProfId(profList[0].f_no)
+        }else{
+            setProfId(0)
+        }
+    }, [profList])
 
     const loadSubject = async() => {
         try{
             const response = await axios.post<subjectPayload>("https://cd-api.chals.kim/api/subject/load_all", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            
             const result = response.data.PAYLOAD.Result;
             setSubjectList(Array.isArray(result) ? result : []);
-            
+            // const response2 = await axios.post<dnoPayLoad>("https://cd-api.chals.kim/api/acc/load_dept", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            // console.log("result: ",response2.data.PAYLOAD.Result)
         }catch(err){}
     }
+
+    
 
     const loadDraft = async() => {
         const postDraft: draft = {
@@ -192,13 +256,14 @@ export function EditDraftProjectModal() {
             const response = await axios.post<draftPayLoad>("https://cd-api.chals.kim/api/project/load_draft", postDraft, {headers:{Authorization: process.env.SECRET_API_KEY}});
             const tmp = response.data.draft_data.draft_id;
             setDraftList(Object.values(tmp));
+            setDraftLoading(false)
         }catch(err){}
     }
 
     const postDraft = async() => {
         const postDraft: draft = {
             leader_univ_id: s_no,
-            new: false,
+            new: isNew,
             draft_id: draftId,
             pname: projectName,
             pdetails: projectDescription,
@@ -213,8 +278,6 @@ export function EditDraftProjectModal() {
             const response = await axios.post("https://cd-api.chals.kim/api/project/save_draft", postDraft, {headers:{Authorization: process.env.SECRET_API_KEY}});
             closeModal()
         }catch(err){
-            console.log(postDraft)
-            console.log(postDraft.draft_id)
         }
     }
 
@@ -295,29 +358,46 @@ export function EditDraftProjectModal() {
         }
         setProjectName(item.pname);
         setProjectDescription(item.pdetails);
-        
+        setIsNew(false)
         setMethod(item.pmm);
         setSubject(item.subject)
         setProfId(item.prof_id)
         setDraftId(index)
+        setNewPj(false)
         setPage(1)
+    }
+
+    const handleNewPJClick = () => {
+        reset2();
+        setPage(1);
+    }
+
+    const handlereturnPJClick = () => {
+        alert("준비중입니다.")
     }
 
     return (
         <div>
             <button onClick={openModal} style={{ 
                 position: 'relative', 
-                bottom: '25px', 
-                left: '20px', 
-                padding: '15px 25px', 
+                // bottom: '25px', 
+                // left: '20px', 
                 backgroundColor: '#007bff', 
                 color: '#fff', 
-                border: 'none', 
-                borderRadius: '8px', 
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)', 
-                cursor: 'pointer' 
+                minWidth: "130px",
+                height: "36px",
+                border: "1px solid #d1d5db",
+                borderRadius: "12px 12px 0 0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                flex: "0 0 auto",
+                padding: "0 12px",
+                transition: "all 0.3s ease-in-out",
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
             }}>
-                임시 저장 프로젝트
+                새로운 프로젝트
             </button>
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 {(() => {
@@ -326,19 +406,36 @@ export function EditDraftProjectModal() {
                             return (
                                 <div style={{width: '100%', height: '100%',marginBottom: '15px', overflowY: 'auto', maxHeight: '500px'}}>
                                     <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>임시 프로젝트 리스트</h2>
-                                    {draftList.map((item: getDraft, index: number) => (
-                                        <div key={item.draft_id} style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
-                                            <button onClick={() => handleDraftClick(item, index)} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
-                                                <span style={{fontSize: '18px'}}>{index+1}: {item.pname}</span>
-                                            </button>
+                                    {(draftLoading) ? (
+                                        <div style={{width: '100%', height: '300px',maxHeight: '300px', overflowY: 'auto'}}>
+                                            
                                         </div>
-                                    ))}
+                                        ) : (
+                                        <div style={{width: '100%', height: '300px',maxHeight: '300px', overflowY: 'auto'}}>
+                                            {draftList.map((item: getDraft, index: number) => (
+                                                <div key={index} style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                                    <button onClick={() => handleDraftClick(item, index)} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                                        <span style={{fontSize: '18px'}}>{index+1}: {item.pname}</span>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>)}
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handleNewPJClick} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>새로운 프로젝트 생성</span>
+                                        </button>
+                                    </div>
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handlereturnPJClick} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>프로젝트 복원</span>
+                                        </button>
+                                    </div>
                                 </div>
                             )
                         case 1:
                             return (
                                 <form onSubmit={handleSubmit} onKeyDown={(e) => {if (e.key === "Enter"){e.preventDefault();}}} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
-                                <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 개설</h2>
+                                {newPj?(<h2>새로운 프로젝트</h2>):(<h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 개설</h2>)}
                                 <div style={{ marginBottom: '15px' }}>
                                     <label htmlFor="projectName" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 이름:</label>
                                     <input
@@ -392,7 +489,7 @@ export function EditDraftProjectModal() {
                                     <form onSubmit={handleSubmit} onKeyDown={(e) => {if (e.key === "Enter"){e.preventDefault();}}} style={{ padding: '30px', borderRadius: '12px', backgroundColor: '#ffffff' }}>
                                         <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 개설</h2>
                                         <div style={{ marginBottom: '15px' }}>
-                                            <label htmlFor="members" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>학과:</label>
+                                            <label htmlFor="members" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>과목:</label>
                                             <select
                                                 value={subject}
                                                 onChange={(e) => setSubject(Number(e.target.value))}
@@ -409,13 +506,19 @@ export function EditDraftProjectModal() {
                                         </div>
                                         <div style={{ marginBottom: '15px' }}>
                                             <label htmlFor="members" style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>교수 번호:</label>
-                                            <input
-                                                type="number"
-                                                id="prof_id"
+                                            <select
                                                 value={profId}
                                                 onChange={(e) => setProfId(Number(e.target.value))}
-                                                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                            />
+                                                style={{ width: 'calc(100% + 24px)', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', backgroundColor: '#ffffff' }}
+                                            >
+                                                {Array.isArray(profList) &&
+                                                    profList.map((item) => (
+                                                        <option key={item.f_no} value={item.f_no}>
+                                                            {item.f_name}
+                                                        </option>
+                                                    ))
+                                                }
+                                            </select>
                                         </div>
                                         
                                         <div style={{width: '100%', display: 'flex'}}>

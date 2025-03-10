@@ -6,6 +6,8 @@ import TodoList from "@/app/components/Todo";
 import LLMChat from "@/app/components/LLMChat";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { getToken, getUserId } from "../util/storage";
+import { useRouter } from "next/navigation";
 
 type wbsRatio = {
   group1no: number;
@@ -17,6 +19,22 @@ export default function Main(props: any) {
   const [ratio, setRatio] = useState<wbsRatio[]>([]);
   const [showPopup, setShowPopup] = useState(true); // ✅ 팝업 상태 추가
   const [projectId, setProjectId] = useState<number | null>(null);
+
+  const check = async() => {
+    const uid = getUserId();
+    const token = getToken();
+    const router = useRouter();
+    try{
+      const response = await axios.post(
+        "https://cd-api.chals.kim/api/acc/checksession",
+        { user_id: uid,
+          token: token },
+        { headers: { Authorization: process.env.SECRET_API_KEY } }
+      );
+
+      if(response.data.RESULT_CODE !== 200){router.push('/')}
+    }catch(err){}
+  }
 
   const loadWBS = async () => {
     if (!projectId) return;
@@ -48,12 +66,12 @@ export default function Main(props: any) {
   }, [projectId]);
 
   return (
-    <div style={{ backgroundColor: "#f9f9f9", height: "100vh", padding: "10px", position: "relative" }}>
+    <div style={{ height: "100vh"}}>
       {/* 메인 헤더 */}
       <MainHeader pid={projectId || 0} />
 
       {/* Body */}
-      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+      <div style={{ backgroundColor: "#f9f9f9", display: "flex", flex: 1, height: 'calc(100% - 100px)'}}>
         {/* 왼쪽 사이드 */}
         <MainSide pid={projectId || 0} />
 
@@ -71,7 +89,7 @@ export default function Main(props: any) {
           }}
         >
           {/* 페이지 위 : 진척도 */}
-          <div style={{ display: "flex", gap: "10px", height: "25%" }}>
+          <div style={{ display: "flex", gap: "10px", height: "30%" }}>
             {/* 진척도 섹션 */}
             <div
               style={{
@@ -125,6 +143,59 @@ export default function Main(props: any) {
               <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>Todo List</div>
               <div style={{ borderBottom: "2px solid #ddd", marginBottom: "5px" }}></div>
               <TodoList p_id={projectId || 0} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "10px", height: '70%'}}>
+            {/* 팀원 */}
+            <div
+              style={{
+                flex: 1, 
+                padding: "10px",
+                backgroundColor: "#ffffff",
+                borderRadius: "10px",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                display: "flex",
+                flexDirection: "column",
+                overflowY: 'auto',
+              }}
+            >
+              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>팀원2</div>
+              <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div> {/**밑줄 */}
+              <div style={{height: '80%', width: '95%'}}> {/**팀 인원 넣는 칸 */}
+                <div style={{display: 'flex', width: '100%', whiteSpace: "pre-wrap"}}> {/**팀장 및 담당교수 */}
+                  <div style={{position: "relative", width: '30%', height: '100px',
+                    // border: '1px solid #000', 
+                    display: 'flex', alignItems: 'flex-end'}}>
+                    
+                    
+                  </div>
+                  <div style={{position: "relative", width: '30%', height: '100px',
+                    // border: '1px solid #000', 
+                    display: 'flex', alignItems: 'flex-end', marginLeft: 'auto'}}>
+                  
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+
+            {/* LLM 섹션 */}
+            <div
+              style={{
+                flex: 3, 
+                padding: "10px",
+                backgroundColor: "#ffffff",
+                borderRadius: "10px",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>PMS Assistant</div>
+              <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div>
+              <div style={{ fontSize: "14px", color: "#777", height: '100%' }}>
+                {/* <LLMChat pid = {props.params.id} /> */}
+              </div>
             </div>
           </div>
 

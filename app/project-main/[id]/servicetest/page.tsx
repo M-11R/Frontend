@@ -8,6 +8,15 @@ import { useRouter } from "next/navigation";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 
+type testType = {
+  doc_t_group1: string
+  doc_t_name: string
+  doc_t_start: string
+  doc_t_end: string
+  doc_t_pass: number
+  doc_t_group1no: number
+}
+
 export default function ServiceTestForm(props: any) {
   const [isMounted, setIsMounted] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
@@ -28,13 +37,19 @@ export default function ServiceTestForm(props: any) {
 
   const handlePreview = () => setIsPreview(true);
   const handleEdit = () => setIsPreview(false);
+  
 
   const handleSave = async () => {
+    const tmpTestcases: testType[] = [{
+      doc_t_group1: '',
+      doc_t_name: testItemName,
+      doc_t_start: testStartDate,
+      doc_t_end: testEndDate,
+      doc_t_pass: Number(testPassStatus),
+      doc_t_group1no: 0
+    }]
     const data = {
-      tcname: testItemName,
-      tcstart: testStartDate,
-      tcend: testEndDate,
-      tcpass: testPassStatus,
+      testcases: tmpTestcases,
       pid: props.params.id,
     };
 
@@ -201,6 +216,7 @@ const pageContainerStyle: CSSProperties = {
 const flexRowStyle: CSSProperties = {
   display: "flex",
   flex: 1,
+  minHeight: 'calc(100vh - 90px)'
 };
 
 const contentContainerStyle: CSSProperties = {

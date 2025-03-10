@@ -82,9 +82,9 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
 
     return (
         <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
-            <div style={{height: '100%', maxHeight: '650px', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
+            <div style={{height: '100%', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
                 {!writePermission ? (<div></div>):(<div style={{margin: '15px 0 auto', marginLeft: 'auto', textAlign: 'center'}}><AddTask p_id={p_id}/></div>)}
-                <h1>{MsBox.task.tTitle.value}3</h1>
+                <h1>{MsBox.task.tTitle.value}</h1>
                 <div style={{width: '100%', height: '100%'}}>
 
                     {/**테이블 헤드 */}

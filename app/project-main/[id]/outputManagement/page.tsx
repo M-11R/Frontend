@@ -16,14 +16,13 @@ export default function OutputManagement({ params, searchParams }: { params: { i
 
                 <div
                     style={{
-                        width: 'calc(100% - 200px)',
-                        height: 'calc(100vh - 105px)',
+                        width: '100%',
                         backgroundColor: '#ffffff',
                         borderRadius: '12px',
                         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                         margin: '20px',
+                        marginBottom: '0px',
                         padding: '20px',
-                        overflowY: 'auto',
                     }}
                 >
                     <h1 style={{ fontSize: '24px', color: '#4CAF50', marginBottom: '20px', borderBottom: '2px solid #4CAF50', paddingBottom: '10px' }}>
@@ -45,12 +44,6 @@ export default function OutputManagement({ params, searchParams }: { params: { i
                     </div>
 
                     <DocumentTable page={page} pid={params.id} />
-
-                    <Pagenation
-                        currentPage={page}
-                        totalPages={10} // 실제 데이터의 총 페이지 수로 변경
-                        basePath={`/project-main/${params.id}/outputManagement`}
-                    />
                 </div>
             </div>
         </div>

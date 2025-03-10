@@ -218,6 +218,7 @@ const pageContainerStyle: CSSProperties = {
 const flexRowStyle: CSSProperties = {
   display: "flex",
   flex: 1,
+  maxHeight: 'calc(100vh - 90px)'
 };
 
 const contentContainerStyle: CSSProperties = {
