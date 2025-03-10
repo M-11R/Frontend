@@ -1,5 +1,7 @@
 'use client';
 
+import { CSSProperties } from "react"; //추가된 내용
+import React, { ChangeEvent } from 'react'; //추가된 내용
 import { useState, useEffect } from 'react';
 import axios from 'axios'
 import mb from '@/app/json/msBox.json'
@@ -201,13 +203,42 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
         1: '읽기 + 쓰기',
         2: '읽기'
     };
-    const handleClick = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
+
+    //추가된 내용
+    const handleClick = (key: string, event: ChangeEvent<HTMLInputElement>) => {
+        const newPermission = parseInt(event.target.value, 10);
         setPermissions((prevPermissions) => ({
-            ...prevPermissions,
-            [key]: (prevPermissions[key] + 1) % 3,
+          ...prevPermissions,
+          [key]: newPermission,
         }));
-    };
+      };
+      
+
+      const setAllPermissions = (value: number) => {
+        setPermissions((prevPermissions) => {
+          const updatedPermissions = Object.keys(prevPermissions).reduce((acc, key) => {
+            acc[key] = value;
+            return acc;
+          }, {} as Record<string, number>);
+          return updatedPermissions;
+        });
+      };
+
+   /* const handleClick = (key: string, event: React.MouseEvent<HTMLButtonElement>) => {
+   //     event.preventDefault();
+   //     setPermissions((prevPermissions) => ({
+   //         ...prevPermissions,
+   //         [key]: (prevPermissions[key] + 1) % 3,
+   //     }));
+    }; */
+
+    const deleteUser = async(sno: number) => {
+        try{
+            if(confirm(`정말로 퇴출하시겠습니까?\n${sno}`)){
+                const response = await axios.post("https://cd-api.chals.kim/api/project/deleteuser", {pid: pid, univ_id: sno}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            }
+        }catch(err){}
+    }
 
     return (
         <div>
@@ -236,41 +267,95 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
                             style={{width: '170px', height: '20px'}}
                         />
                     </div>
-                    {permision ? (<div></div>) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {Object.keys(permissions).map((key) => (
-                            <div
-                                key={key}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    border: '1px solid #ccc',
-                                    padding: '10px',
-                                    borderRadius: '5px',
-                                    backgroundColor: '#f9f9f9',
-                                }}
-                            >
-                                <span>{key}</span>
-                                <button
-                                    onClick={(event) => handleClick(key, event)}
-                                    style={{
-                                        padding: '5px 10px',
-                                        backgroundColor: '#007BFF',
-                                        color: '#fff',
-                                        border: 'none',
-                                        borderRadius: '5px',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    {permissionLabel[permissions[key]]}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                    )}
+
                     
-                    <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
+        {permision ? (<div></div>):(
+
+        
+         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+           {/* 🔹 일괄 적용 버튼 추가 */}
+         <div style={{ display: "flex", gap: "5px", marginBottom: "10px", marginLeft: 'auto', width: '45%' }}>
+             <button
+                type="button"
+               onClick={() => setAllPermissions(2)}
+               style={bulkButtonStyle}
+             >
+               읽기
+             </button>
+             <button
+                type="button"
+              onClick={() => setAllPermissions(1)}
+               style={bulkButtonStyle}
+             >
+                읽기 + 쓰기
+             </button>
+              <button
+                type="button"
+                onClick={() => setAllPermissions(0)}
+                style={bulkButtonStyle}
+              >
+             권한 없음
+           </button>
+         </div>
+
+         {/* 🔹 개별 권한 설정 */}
+         {Object.keys(permissions).map((key) => (
+              <div
+               key={key}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                border: "1px solid #ddd",
+                padding: "12px",
+                borderRadius: "8px",
+                backgroundColor: "#fafafa",
+                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+               }}
+             >
+               <span>{key}</span>
+               <div style={{ display: "flex", alignItems: "center", gap: "15px", width: '43%' }}>
+                 <div style={radioLabelStyle}>
+                   <input
+                     type="radio"
+                     value="2"
+                    checked={permissions[key] === 2}
+                    onChange={(event) => handleClick(key, event)}
+                   />
+                   
+                  </div>
+                  <div style={radioLabelStyle}>
+                    <input
+                      type="radio"
+                     value="1"
+                     checked={permissions[key] === 1}
+                    onChange={(event) => handleClick(key, event)}
+                  />
+                   
+                 </div>
+                 <div style={radioLabelStyle}>
+                    <input
+                     type="radio"
+                     value="0"
+                     checked={permissions[key] === 0}
+                    onChange={(event) => handleClick(key, event)}
+                  />
+                    
+               </div>
+              </div>
+             </div>
+         ))}
+     </div>)}
+    
+
+                    <div style={{width: '100%', display: 'flex'}}>
+                        <div style={{marginLeft: 'auto'}}>
+                            <div style={{width: '100%', height: '25px'}}></div>
+                            <button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button>
+                            {permision ? (<div></div>):(<button onClick={(e) => deleteUser(hak)} style={{fontSize: '15px'}}>퇴출</button>)}
+                            
+                        </div>
+                    </div>
                 </form>
             </Modal>
         </div>
@@ -313,19 +398,20 @@ export function AddUser({p_id}: {p_id: number}) {
 
     const postData = async() => {
         try{
-            const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/adduser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        } catch(err){
-            alert('error');
+            const response = await axios.post("https://cd-api.chals.kim/api/acc/find_sname", {univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            if(confirm(`초대할 대상이 맞습니까?\n${hak}, ${response.data.PAYLOAD.Result.s_name}`)){
+                const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/adduser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                if(readOnly){
+                    const response = await axios.post("https://cd-api.chals.kim/api/pm/add_ro", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                }else{
+                    const response = await axios.post("https://cd-api.chals.kim/api/pm/add_default", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                }
+                usePageReload()
+            }
+        }catch(err){
+            console.log(err)
         }
-        if(readOnly){
-            try{
-                const response = await axios.post("https://cd-api.chals.kim/api/pm/add_ro", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            }catch(err){}
-        }else{
-            try{
-                const response = await axios.post("https://cd-api.chals.kim/api/pm/add_default", {pid: p_id, univ_id: hak}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            }catch(err){}
-        }
+        
     };
 
     const checkPm = async() => {
@@ -434,7 +520,7 @@ export function AddTask({p_id}: {p_id: number}){
             setName("")
             closeModal();
             
-            router.refresh();
+            
         }
     };
 
@@ -449,10 +535,9 @@ export function AddTask({p_id}: {p_id: number}){
 
     const postData = async() => {
         const data = tmpData;
-        // data.tstart = fixDate(tmpData.tstart);
-        // data.tend = fixDate(tmpData.tend);
         try{
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/task/add", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            if(response.data.RESULT_CODE === 200){usePageReload()}
         } catch(err){
             alert('error');
         }
@@ -796,3 +881,31 @@ export function GradeModal({p_id, name, univ_id, grade, comment}: {p_id: number,
         </div>
     )
 }
+
+
+
+
+
+
+
+
+//추가된 내용 유저관리
+const bulkButtonStyle: CSSProperties = {
+    padding: "8px 5px",
+    backgroundColor: "#007BFF",
+    color: "#fff",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    transition: "background-color 0.3s",
+    width: '32%',
+    fontSize: '11px'
+  };
+  
+  const radioLabelStyle: CSSProperties = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: 'center',
+    gap: "6px",
+    width: '32%',
+  };

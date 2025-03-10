@@ -94,11 +94,12 @@ const pageContainerStyle = {
 const flexRowStyle = {
     display: 'flex',
     flex: 1,
+    minHeight: 'calc(100vh - 90px)'
 } as const;
 
 const contentContainerStyle = {
     width: 'calc(100% - 200px)',
-    height: 'calc(100vh - 105px)',
+    maxHeight: 'calc(100vh - 90px)',
     backgroundColor: '#ffffff',
     borderRadius: '12px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',

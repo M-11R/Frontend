@@ -2,20 +2,59 @@
 
 import Link from "next/link";
 import React, { useState, useEffect } from 'react';
+import { LoginModal } from "./components/AccountModal";
+import axios from "axios";
+import { getToken, getUnivId, getUserId, clearStorage } from "./util/storage";
 
 
 export default function Home() {
+  const [session, setSession] = useState(false);
+
+  // const sno = getUnivId();
+  const id = getUserId();
+  const token = getToken();
+
+  useEffect(() => {
+    checkSession();
+  }, [])
+
+  const checkSession = async() => {
+    try{
+      const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: id, token: token}, {headers: { Authorization: process.env.SECRET_API_KEY },});
+      if(response.data.RESULT_CODE === 200){
+        setSession(true)
+      }else{
+        setSession(false)
+      }
+    }catch(err){
+      setSession(false)
+    }
+  }
+
+  const signOut = async() => {
+    try{
+        const response = await axios.post("https://cd-api.chals.kim/api/acc/signout", {token: token}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        if(response.data.RESULT_CODE === 200){
+            clearStorage();
+            setSession(false)
+            alert('로그아웃 되었습니다.');
+        }
+    }catch(err){
+
+    }
+}
+
   return (
     <div
       style={{
         backgroundImage: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)", // 부드러운 그라데이션 배경
-        minHeight: "100vh",
+        height: '100vh',
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         fontFamily: "'Roboto', sans-serif",
-        padding: "20px",
+        padding: "0 20px",
         color: "#333",
       }}
     >
@@ -29,8 +68,10 @@ export default function Home() {
           gap: "15px",
         }}
       >
-        <Link href="/util/SignOut" legacyBehavior>
-          <a
+        {session ? (
+          
+          <button
+            onClick={signOut}
             style={{
               fontSize: "1em",
               color: "#5858FA",
@@ -43,25 +84,15 @@ export default function Home() {
             }}
           >
             로그아웃
-          </a>
-        </Link>
-        <Link href="/sign/signIn" legacyBehavior>
-          <a
-            style={{
-              fontSize: "1em",
-              color: "#FFFFFF",
-              backgroundColor: "#5858FA",
-              textDecoration: "none",
-              fontWeight: "bold",
-              padding: "8px 12px",
-              borderRadius: "6px",
-              transition: "all 0.3s",
-            }}
-          >
-            로그인
-          </a>
-        </Link>
+          </button>
+
+        ):(
+          <LoginModal />
+        )}
+        
+        
       </header>
+      
 
       {/* 메인 콘텐츠 */}
       <main
@@ -82,13 +113,13 @@ export default function Home() {
             fontWeight: "bold",
           }}
         >
-          Capstone Design
+          대학생을 위한 웹 기반 PMS
         </h1>
         <p style={{ fontSize: "1.2em", lineHeight: "1.8", marginBottom: "30px" }}>
           대학생 프로젝트 매니저. 사용자가 원하는 목표를 달성할 수 있도록 돕는
           웹 애플리케이션입니다.
         </p>
-        <Link href="/create-project" legacyBehavior>
+        <Link href="/project-main" legacyBehavior>
           <a
             style={{
               display: "inline-block",
@@ -116,7 +147,7 @@ export default function Home() {
           textAlign: "center",
         }}
       >
-        <p>문의: support@capstonedesign.com | Capstone Design © 2025</p>
+        <p>문의: leemir01011@nsu.ac.kr | Capstone Design © 2025</p>
       </footer>
     </div>
   );

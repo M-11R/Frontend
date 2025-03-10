@@ -5,6 +5,10 @@ import ico from '../img/logo.png';
 import mb from '@/app/json/msBox.json';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import TapList from '@/app/components/ProjectTap'
+import { ProjectCreateModal } from "@/app/components/ProjectCreateModal";
+import { EditDraftProjectModal } from "@/app/components/EditDraftProjectModal";
+
 import axios from 'axios';
 
 type fetchType = {
@@ -21,6 +25,7 @@ const jinchek = (pid: number) => {
   },[]);
 
   const loadData = async() => {
+    if(pid === 200) return;
     const data = {pid : pid}
     try{
       const response = await axios.post<fetchType>("https://cd-api.chals.kim/api/wbs/fetch_all", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
@@ -82,34 +87,68 @@ const jinchek = (pid: number) => {
 };
 
 
-const MainHeader = ({ pid }: { pid: number }) => (
-  <header
-    style={{
-      margin: '0 auto',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-      padding: '10px 0',
-      borderBottom: '2px solid #ddd',
-      boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    }}
-  >
-    <Link href='/'>
-      <Image
-        src={ico}
-        alt="Logo"
-        style={{
-          width: '100px',
-          height: '80px',
-          objectFit: 'contain',
-          cursor: 'pointer',
-          marginLeft: '20px',
-        }}
-      />
-    </Link>
-    <div style={{ width: '600px' }}>{jinchek(pid)}</div>
-  </header>
-);
+const MainHeader = ({ pid }: { pid: number }) => {
+  return (
+    <header
+      style={{
+        margin: "0 auto",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "97%",
+        padding: "0px 20px",
+        paddingTop: '0px',
+        borderBottom: "2px solid #ddd",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+        position: 'relative',
+        // height: '90px'
+      }}
+    >
+      {/* ✅ 로고 */}
+      <Link href="/">
+        <Image
+          src={ico}
+          alt="Logo"
+          style={{
+            width: "100px",
+            height: "80px",
+            objectFit: "contain",
+            cursor: "pointer",
+          }}
+        />
+      </Link>
+
+      {/* ✅ 버튼을 프로젝트 탭 위에 배치 */}
+      {/* <div style={{
+        position: "relative",
+        top: "20px",
+        bottom: "0",
+        // width: "1100px",
+        height: "40px",
+        overflowY: "hidden",
+        display: "flex",
+        flexWrap: "nowrap",
+        gap: "8px",
+        alignItems: "center",
+        padding: "5px",
+      }}>
+        <EditDraftProjectModal />
+        
+      </div> */}
+
+      {/* ✅ 프로젝트 탭 리스트 */}
+      <div style={{bottom: '10px'}}>
+      <TapList pid={pid} />
+      </div>
+      
+
+      {/* ✅ 진척도 표시 */}
+      <div style={{ flex: 1, textAlign: "center", maxWidth: "900px" }}>
+        {jinchek(pid)}
+      </div>
+    </header>
+  );
+};
+
 
 export default MainHeader;

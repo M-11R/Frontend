@@ -24,6 +24,7 @@ type pjinit = {
   univ_id: number;
   wizard: number;
   prof_id: number;
+  subject: number
 };
 type returnPJ = {
   RESULT_CODE: number;
@@ -139,7 +140,8 @@ const ClientPage: React.FC = () => {
       pmm: psize,
       univ_id: getUnivId(),
       wizard: 0,
-      prof_id: profId
+      prof_id: profId,
+      subject: 13230
     };
     postPJ(newProject);
   };

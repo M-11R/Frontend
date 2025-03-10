@@ -9,7 +9,7 @@ const LLMManagement = ({pid}: {pid: number}) => {
     const [api, setApi] = useState('');
     const [isKey, setIsKey] = useState(false);
     const s_no = getUnivId()
-    usePermissionGuard(pid, s_no, {leader: 1, llm: [1, 2]}, true)
+    
 
     useEffect(() => {
         loadData()
@@ -50,7 +50,7 @@ const LLMManagement = ({pid}: {pid: number}) => {
     }
 
     return(
-        <div style={{height: '100%', width: '70%', margin: '10% auto'}}>
+        <div style={{width: '70%', margin: '5% auto', marginBottom: '0'}}>
             <div style={{width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
                 <span style={{fontSize: '40px'}}>LLM API Key 설정</span>
                 <div style={{display: 'flex'}}>

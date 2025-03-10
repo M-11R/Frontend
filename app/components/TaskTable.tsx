@@ -8,6 +8,7 @@ import { AddTask, ConfigTask } from "@/app/components/Modal";
 import { limitTitle } from "../util/string"
 import { getUnivId } from '@/app/util/storage'
 import usePermissionGuard from '@/app/util/usePermissionGuard'
+import { useRouter } from "next/navigation"
 
 type taskType = {
     p_no: number
@@ -30,12 +31,16 @@ type postTaskPayload = {
 }
 
 const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
+    const router = useRouter();
     const [data, setData] = useState<taskType[]>([]);
     const s_no = getUnivId()
-    usePermissionGuard(p_id, s_no, {leader: 1, task: [1, 2]}, true);
+    const readPermission = usePermissionGuard(p_id, s_no, {leader: 1, task: [1, 2]}, false);
+    const writePermission = usePermissionGuard(p_id, s_no, {leader: 1, task: 1}, false);
     useEffect(() => {
         loadTask();
     }, []);
+
+    
 
     {/**페이지네이션에 사용할 변수 */}
     const itemsPerPage = 10; // 한 페이지당 표시할 글 수
@@ -58,6 +63,15 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
         }
     }
 
+    if(readPermission === null){
+        return <div>Loading...</div>
+    }
+    if(!readPermission){
+        router.push(`/project-main/${p_id}/main`)
+        alert("권한이 없습니다.")
+        return null
+    }
+
     const tf = (data: number) => {
         if(data === 0){
             return false;
@@ -68,8 +82,8 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
 
     return (
         <div style={{margin: '5% auto', width: '70%', height: '100%'}}>
-            <div style={{height: '100%', maxHeight: '650px', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
-                <div style={{margin: '15px 0 auto', marginLeft: 'auto', textAlign: 'center'}}><AddTask p_id={p_id}/></div>
+            <div style={{height: '100%', width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column'}}>
+                {!writePermission ? (<div></div>):(<div style={{margin: '15px 0 auto', marginLeft: 'auto', textAlign: 'center'}}><AddTask p_id={p_id}/></div>)}
                 <h1>{MsBox.task.tTitle.value}</h1>
                 <div style={{width: '100%', height: '100%'}}>
 
@@ -91,7 +105,7 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
                             <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_start}</div>
                             <div className={styles.cell} style={{width: '14%', height: '100%'}}>{item.w_end}</div>
                             <div className={styles.cell} style={{width: '10%', height: '100%'}}>{item.w_checked ? '완료' : '진행 중'}</div>
-                            <div className={styles.endCell} style={{width: '14%'}}><ConfigTask data={item} p_id={p_id}/></div>
+                            <div className={styles.endCell} style={{width: '14%'}}>{!writePermission ? (<div>권한 없음</div>):(<ConfigTask data={item} p_id={p_id}/>)}</div>
                         </div>
                     ))}
                 </div>

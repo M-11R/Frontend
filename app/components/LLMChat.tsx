@@ -4,22 +4,29 @@ import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 
 const LLMChat = ({pid}: {pid: number}) => {
-    const [messages, setMessages] = useState<string[]>(['테스트 1']);
+    const [messages, setMessages] = useState<string[]>(['인녕하세요. 프로젝트 진행을 도와드릴 PMS Assistant입니다.']);
     const [input, setInput] = useState<string>('');
     const chatContainerRef = useRef<HTMLDivElement>(null);
+    const [nowLoading, setLoading] = useState(false);
 
     const handleSendMessage = async() => {
+        if(pid === 0) return;
+        if(nowLoading) return;
         if (input.trim() === '') return; // 빈 입력 방지
-        
-        setMessages((prevMessages) => [...prevMessages, input]); // 사용자 메시지 추가
-        setMessages((prevMessages) => [...prevMessages, '현재 점검중입니다.']); // 상대방 메시지 추가
-        // try{
-        //     const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: input}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        //     const tmpMessage = response.data.response.text
-            
-        // }catch(err){}
-        
         setInput(''); // 입력 필드 초기화
+        setLoading(true)
+        setMessages((prevMessages) => [...prevMessages, input]); // 사용자 메시지 추가
+        // setMessages((prevMessages) => [...prevMessages, '현재 점검중입니다.']); // 상대방 메시지 추가
+        try{
+            const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: input}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const tmpMessage = response.data
+            setMessages((prevMessages) => [...prevMessages, tmpMessage]); // 상대방 메시지 추가
+        }catch(err){
+            setLoading(false);
+        }
+        
+        
+        setLoading(false);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -35,8 +42,8 @@ const LLMChat = ({pid}: {pid: number}) => {
     return (
         <div
             style={{
-                width: '1200px',
-                height: '550px',
+                width: '100%',
+                height: '100%',
                 border: '1px solid #ccc',
                 borderRadius: '10px',
                 display: 'flex',
@@ -113,7 +120,7 @@ const LLMChat = ({pid}: {pid: number}) => {
                         cursor: 'pointer',
                     }}
                 >
-                    확인
+                    {(nowLoading ? "로딩 중" : "확인")}
                 </button>
             </div>
         </div>

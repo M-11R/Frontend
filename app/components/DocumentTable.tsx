@@ -133,7 +133,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnEtc>("https://cd-api.chals.kim/api/output/otherdoc_fetch_all", formData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'etc',
+              type: '기타',
               title: item.file_name,
               date: item.file_date.toString(),
               file_no: item.file_no
@@ -146,7 +146,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnOvr>("https://cd-api.chals.kim/api/output/ovr_doc_fetch", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'overview',
+              type: '개요서',
               title: item.doc_s_name,
               date: item.doc_s_date.toString(),
               file_no: item.doc_s_no
@@ -159,7 +159,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnMm>("https://cd-api.chals.kim/api/output/mm_fetch", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'minutes',
+              type: '회의록',
               title: item.doc_m_title,
               date: item.doc_m_date.toString(),
               file_no: item.doc_m_no
@@ -172,7 +172,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnReq>("https://cd-api.chals.kim/api/output/reqspec_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'request',
+              type: '요구사항 명세서',
               title: '요구사항 명세서',
               date: item.doc_r_date.toString(),
               file_no: item.doc_r_no
@@ -185,7 +185,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'testcase',
+              type: '테스트 케이스',
               title: item.doc_t_name,
               date: item.doc_t_start.toString(),
               file_no: item.doc_t_no
@@ -198,7 +198,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       const response = await axios.post<returnReport>("https://cd-api.chals.kim/api/output/report_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
-              type: 'report',
+              type: '보고서',
               title: item.doc_rep_name,
               date: item.doc_rep_date.toString(),
               file_no: item.doc_rep_no
@@ -224,7 +224,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
         maxWidth: "1000px",
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        height: "auto",
       }}
     >
       <h1

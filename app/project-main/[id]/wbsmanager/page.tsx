@@ -6,6 +6,8 @@ import MainSide from "@/app/components/MainSide";
 import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
+import { wfOptions, agileOptions } from "@/app/util/wbs";
+import { useRouter } from "next/navigation";
 
 interface WbsRow {
   id: string;
@@ -21,6 +23,11 @@ interface WbsRow {
   startDate: string;
   endDate: string;
   completed: boolean; // 완료 여부 필드 추가
+}
+interface tmpWbsRow {
+  category: string;
+  subCategory: string;
+  subSubCategory: string;
 }
 
 interface postWbs {
@@ -67,16 +74,63 @@ type pidPost = {
   pid: number
 }
 export default function Main(props: any) {
+  const router = useRouter()
   const [model, setModel] = useState<string>("Waterfall"); // 기본값: 폭포수 모델
   const [rows, setRows] = useState<WbsRow[]>([]);
-  const [list, setList] = useState<(string | number)[][]>([])
-  
-  
-  const [hasSavedData, setHasSavedData] = useState<boolean>(false); // 저장된 데이터 여부 확인
+  const [nowCat, setNowCat] = useState(wfOptions)
+  const [tmpRow, setTmpRow] = useState<WbsRow>({
+    id: "1",
+    category: "계획",
+    subCategory: "프로젝트 관리",
+    subSubCategory: "리스크 관리",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+});
+  const tmpWF: WbsRow = {
+    id: "1",
+    category: "계획",
+    subCategory: "프로젝트 관리",
+    subSubCategory: "리스크 관리",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+  }
+  const tmpAG: WbsRow = {
+    id: "1",
+    category: "백로그",
+    subCategory: "유저 스토리 작성",
+    subSubCategory: "요구사항 정의",
+    subSubSubCategory: "",
+    taskName: "",
+    product: "",
+    assignee: "",
+    note: "",
+    progress: 0,
+    startDate: "",
+    endDate: "",
+    completed: false
+  }
+
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
+  const [selectedSubSubCategory, setSelectedSubSubCategory] = useState<string>("");
 
   const s_no = getUnivId();
-  usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, true)
-  const hasPermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
+  const readPermission = usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, false)
+  const writePermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
 
   // 폭포수 모델 초기 데이터
   const waterfallRows: WbsRow[] = [
@@ -95,30 +149,60 @@ export default function Main(props: any) {
 
   // 애자일 모델 초기 데이터
   const agileRows: WbsRow[] = [
-    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "요구사항 정의", subSubSubCategory: "스토리 맵 작성", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2024-01-03", completed: false },
-    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "우선순위 결정", subSubSubCategory: "MoSCoW 기법 적용", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2024-01-06", completed: false },
-    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "스프린트 범위 결정", subSubSubCategory: "기능 분류 및 선정", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2024-01-09", completed: false },
-    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "팀별 업무 배정", subSubSubCategory: "페어 프로그래밍 구성", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2024-01-12", completed: false },
-    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "UI 개발", subSubSubCategory: "컴포넌트 설계 및 구현", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2024-01-20", completed: false },
-    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "API 개발", subSubSubCategory: "RESTful API 설계 및 구현", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2024-01-30", completed: false },
-    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "테스트 코드 작성", subSubSubCategory: "Jest 테스트 적용", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2024-02-05", completed: false },
-    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "기능 및 성능 검증", subSubSubCategory: "CI/CD 파이프라인 활용", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2024-02-10", completed: false },
-    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "개선 사항 도출", subSubSubCategory: "KPT(Keep, Problem, Try) 분석", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2024-02-15", completed: false },
-    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "배포 환경 구성", subSubSubCategory: "AWS 서버 설정", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2024-02-20", completed: false },
-    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2024-02-25", completed: false },
+    { id: "1", category: "백로그", subCategory: "유저 스토리 작성", subSubCategory: "요구사항 정의", subSubSubCategory: "스토리 맵 작성", taskName: "유저 스토리 정의", product: "유저 스토리 목록", assignee: "홍길동", note: "", progress: 10, startDate: "2024-01-01", endDate: "2029-01-03", completed: false },
+    { id: "2", category: "백로그", subCategory: "백로그 정리", subSubCategory: "우선순위 결정", subSubSubCategory: "MoSCoW 기법 적용", taskName: "우선순위 설정", product: "정리된 백로그", assignee: "김영희", note: "", progress: 15, startDate: "2024-01-04", endDate: "2029-01-06", completed: false },
+    { id: "3", category: "스프린트 계획", subCategory: "목표 설정", subSubCategory: "스프린트 범위 결정", subSubSubCategory: "기능 분류 및 선정", taskName: "스프린트 목표 설정", product: "목표 리스트", assignee: "이영희", note: "", progress: 20, startDate: "2024-01-07", endDate: "2029-01-09", completed: false },
+    { id: "4", category: "스프린트 계획", subCategory: "작업 분배", subSubCategory: "팀별 업무 배정", subSubSubCategory: "페어 프로그래밍 구성", taskName: "팀별 작업 배분", product: "작업 계획서", assignee: "홍길동", note: "", progress: 30, startDate: "2024-01-10", endDate: "2029-01-12", completed: false },
+    { id: "5", category: "개발 작업", subCategory: "프론트엔드 개발", subSubCategory: "UI 개발", subSubSubCategory: "컴포넌트 설계 및 구현", taskName: "UI 구현", product: "UI 컴포넌트", assignee: "김철수", note: "", progress: 40, startDate: "2024-01-13", endDate: "2029-01-20", completed: false },
+    { id: "6", category: "개발 작업", subCategory: "백엔드 개발", subSubCategory: "API 개발", subSubSubCategory: "RESTful API 설계 및 구현", taskName: "API 개발", product: "API 모듈", assignee: "이영희", note: "", progress: 50, startDate: "2024-01-21", endDate: "2029-01-30", completed: false },
+    { id: "7", category: "QA", subCategory: "단위 테스트", subSubCategory: "테스트 코드 작성", subSubSubCategory: "Jest 테스트 적용", taskName: "테스트 작성 및 실행", product: "테스트 결과 보고서", assignee: "홍길동", note: "", progress: 60, startDate: "2024-01-31", endDate: "2029-02-05", completed: false },
+    { id: "8", category: "QA", subCategory: "통합 테스트", subSubCategory: "기능 및 성능 검증", subSubSubCategory: "CI/CD 파이프라인 활용", taskName: "전체 기능 테스트", product: "테스트 결과 보고서", assignee: "김영희", note: "", progress: 70, startDate: "2024-02-06", endDate: "2029-02-10", completed: false },
+    { id: "9", category: "스프린트 회고", subCategory: "성과 리뷰", subSubCategory: "개선 사항 도출", subSubSubCategory: "KPT(Keep, Problem, Try) 분석", taskName: "스프린트 성과 분석", product: "회고 보고서", assignee: "이영희", note: "", progress: 80, startDate: "2024-02-11", endDate: "2029-02-15", completed: false },
+    { id: "10", category: "배포 및 릴리스", subCategory: "운영 환경 설정", subSubCategory: "배포 환경 구성", subSubSubCategory: "AWS 서버 설정", taskName: "운영 환경 구성", product: "운영 기록", assignee: "홍길동", note: "", progress: 90, startDate: "2024-02-16", endDate: "2029-02-20", completed: false },
+    { id: "11", category: "배포 및 릴리스", subCategory: "최종 릴리스", subSubCategory: "릴리스 문서화", subSubSubCategory: "버전 관리 및 태깅", taskName: "제품 배포 완료", product: "릴리스 기록", assignee: "김철수", note: "", progress: 100, startDate: "2024-02-21", endDate: "2029-02-25", completed: false },
 ];
+
+  const etcRows: WbsRow[] = [
+    { id: "1", category: "", subCategory: "", subSubCategory: "", subSubSubCategory: "", taskName: "", product: "", assignee: "", note: "", progress: 0, startDate: "2024-01-01", endDate: "2099-01-03", completed: false },
+  ]
+
+  const resetCat = () => {
+    setSelectedCategory("");
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
+  }
 
   // 초기 로드: 로컬 저장소에서 데이터 불러오기
   useEffect(() => {
     if (model === "Waterfall") {
       setRows([...waterfallRows]);
+      setNowCat(wfOptions)
+      resetCat()
+      setTmpRow(tmpWF)
     } else if (model === "Agile") {
       setRows([...agileRows]);
+      setNowCat(agileOptions)
+      resetCat()
+      setTmpRow(tmpAG)
+    } else if (model === "etc"){
+      setRows([...etcRows])
+      resetCat()
     }
   }, [model]);
   useEffect(() => {
     loadData();
   }, [])
+
+  // 현재 선택된 옵션에 따른 중분류 목록
+  const subCategories = selectedCategory && nowCat[selectedCategory]
+    ? Object.keys(nowCat[selectedCategory].subCategories)
+    : [];
+
+  // 현재 선택된 중분류에 따른 소분류 목록
+  const subSubCategories =
+    selectedCategory && selectedSubCategory && nowCat[selectedCategory].subCategories[selectedSubCategory]
+      ? nowCat[selectedCategory].subCategories[selectedSubCategory]
+      : [];
 
     // 모델 설정 및 데이터 초기화
     const handleModelChange = (selectedModel: string) => {
@@ -126,13 +210,15 @@ export default function Main(props: any) {
       localStorage.removeItem("wbsData"); // 모델 변경 시 기존 저장된 데이터 삭제
     };
 
+    
+
   // 저장 기능
   const saveData = async() => {
-    if (hasPermission === null) {
+    if (writePermission === null) {
       alert("권한 확인 중입니다. 잠시만 기다려주세요.");
       return;
     }
-    if (hasPermission) {
+    if (writePermission) {
       const data = {
         wbs_data: transWbs(rows),
         pid : parseInt(props.params.id)
@@ -176,8 +262,10 @@ export default function Main(props: any) {
     if (window.confirm("초기화하시겠습니까?")) {
       if (model === "Waterfall") {
         setRows(waterfallRows);
-      } else {
+      } else if (model === "Agile"){
         setRows(agileRows);
+      } else {
+        setRows(etcRows)
       }
     }
   };
@@ -199,6 +287,108 @@ export default function Main(props: any) {
       completed: false,
     };
     setRows((prevRows) => [...prevRows, newRow]);
+  };
+
+  const handleAddTmpRow = () => {
+    const newRow: WbsRow = {
+      id: Date.now().toString(),
+      category: tmpRow.category,
+      subCategory: tmpRow.subCategory,
+      subSubCategory: tmpRow.subSubCategory,
+      subSubSubCategory: tmpRow.subSubSubCategory,
+      taskName: tmpRow.taskName,
+      product: tmpRow.product,
+      assignee: tmpRow.assignee,
+      note: "",
+      progress: 0,
+      startDate: tmpRow.startDate,
+      endDate: tmpRow.endDate,
+      completed: false,
+    };
+
+    setRows((prevRows) => [...prevRows, newRow])
+    if(model === "Waterfall"){
+      setTmpRow(tmpWF);
+    }else{
+      setTmpRow(tmpAG);
+    }
+  }
+
+  const handleCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedCategory(value);
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
+    if (value !== "") {
+      // 임시 변수가 "직접 입력"이 아니라면 원래 변수도 업데이트
+      setTmpRow((prev) => ({ ...prev, category: value, subCategory: "", subSubCategory: ""  }));
+    }
+  };
+
+  // Category input onChange 핸들러
+  const handleCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedCategory(value);
+    setSelectedSubCategory("");
+    setSelectedSubSubCategory("");
+    // input으로 직접 입력한 값은 원래 변수에 바로 업데이트
+    setTmpRow((prev) => ({ ...prev, category: value, subCategory: "", subSubCategory: "" }));
+  };
+
+  // SubCategory select onChange 핸들러
+  const handleSubCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedSubCategory(value);
+    setSelectedSubSubCategory("");
+    if (value !== "") {
+      setTmpRow((prev) => ({ ...prev, subCategory: value, subSubCategory: "" }));
+    }
+  };
+
+  // SubCategory input onChange 핸들러
+  const handleSubCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedSubCategory(value);
+    setSelectedSubSubCategory("");
+    setTmpRow((prev) => ({ ...prev, subCategory: value, subSubCategory: ""  }));
+  };
+
+  // SubSubCategory select onChange 핸들러
+  const handleSubSubCategorySelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedSubSubCategory(value);
+    if (value !== "") {
+      setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
+    }
+  };
+
+  // SubSubCategory input onChange 핸들러
+  const handleSubSubCategoryInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setSelectedSubSubCategory(value);
+    setTmpRow((prev) => ({ ...prev, subSubCategory: value }));
+  };
+
+  const handleEtcChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof WbsRow
+  ) => {
+    const value = e.target.value;
+    
+    setTmpRow((prev) => ({ ...prev, [field]: value }));
+
   };
 
   // 기존 데이터 업데이트
@@ -328,6 +518,16 @@ export default function Main(props: any) {
     const dueDate = new Date(tend).setHours(0, 0, 0, 0);
     return dueDate < today;
 }
+  if(readPermission === null){
+    return (
+      <div>Loading...</div>
+    )
+  }
+  if(!readPermission){
+    router.push(`/project-main/${props.params.id}/main`);
+    return null
+  }  
+
 
   return (
     <div>
@@ -338,12 +538,19 @@ export default function Main(props: any) {
           style={{
             height: "calc(100vh - 105px)",
             width: "calc(95% - 150px)",
-            border: "1px solid #000000",
+            // border: "1px solid #000000",
             padding: "20px",
+            paddingTop: '0',
+            paddingBottom: '0',
             overflowX: "auto",
           }}
         >
-          <h2>{model === "Waterfall" ? "폭포수 모델" : "애자일 모델"} WBS</h2>
+          
+          
+          
+
+          
+          <h2>{model === "Waterfall" ? "폭포수 모델" : (model === "Agile" ? "애자일 모델" : "기타 모델")} WBS</h2>
 
           {/* 모델 선택 및 데이터 관리 */}
           <div style={{ marginBottom: "20px" }}>
@@ -351,7 +558,7 @@ export default function Main(props: any) {
               onClick={() => setModel("Waterfall")}
               style={{
                 padding: "10px 20px",
-                backgroundColor: model === "Agile" ? "#808080" : "#4CAF50", 
+                backgroundColor: model === "Waterfall" ? "#4CAF50" : "#808080", 
                 color: "#fff",
                 border: "none",
                 borderRadius: "8px",
@@ -376,6 +583,22 @@ export default function Main(props: any) {
               애자일 모델
             </button>
             <button
+              onClick={() => setModel("etc")}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: model === "etc" ? "#4CAF50" : "#808080", 
+                color: "#fff",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                marginRight: "10px",
+              }}
+            >
+              기타 모델
+            </button>
+
+            <div style={{float: 'right'}}>
+            <button
               onClick={saveData}
               style={{
                 padding: "10px 20px",
@@ -388,20 +611,6 @@ export default function Main(props: any) {
               }}
             >
               저장하기
-            </button>
-            <button
-              onClick={loadData}
-              style={{
-                padding: "10px 20px",
-                backgroundColor: "#FFA500",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                cursor: "pointer",
-                marginRight: "10px",
-              }}
-            >
-              불러오기
             </button>
             <button
               onClick={clearData}
@@ -417,6 +626,7 @@ export default function Main(props: any) {
             >
               초기화
             </button>
+            </div>
           </div>
           {/* 스크롤 관리 */}
           <div style={{overflow: 'auto', whiteSpace: 'nowrap'}}> 
@@ -433,7 +643,7 @@ export default function Main(props: any) {
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>대분류</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>중분류</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>소분류</th>
-                <th style={{ padding: "10px", border: "1px solid #ddd" }}>소소분류</th>
+                <th style={{ padding: "10px", border: "1px solid #ddd" }}>액티비티</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>작업명</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>산출물</th>
                 <th style={{ padding: "10px", border: "1px solid #ddd" }}>담당자</th>
@@ -670,7 +880,8 @@ export default function Main(props: any) {
             </tbody>
           </table>
           </div>
-          <button
+          {model === "etc" ? (
+            <button
             onClick={addRow}
             style={{
               marginTop: "20px",
@@ -680,9 +891,270 @@ export default function Main(props: any) {
               border: "none",
               cursor: "pointer",
             }}
-          >
-            행 추가
-          </button>
+            >
+              행 추가
+            </button>
+            
+          ) : (
+            <div style={{width: '95%', backgroundColor: '#F1EEEE', borderRadius: '15px', padding: '10px', marginTop: '15px'}}>
+              {/* WBS 위자드 */}
+              {/* 제목 */}
+              <div>
+                <span style={{padding: '5px', fontSize: '24px'}}>WBS 위자드6</span>
+              </div>
+              {/* Form */}
+              <form onSubmit={(e) => e.preventDefault()} >
+                {/* 윗쪽: 대분류, 중분류, 소분류 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>대분류 :</label>
+                    <select
+                      value={selectedCategory}
+                      onChange={handleCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value="">직접 입력</option>
+                      {Object.keys(nowCat).map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {selectedCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.category}
+                          onChange={handleCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{selectedCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>중분류 :</label>
+                    <select
+                      value={selectedSubCategory}
+                      onChange={handleSubCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value="">직접 입력</option>
+                      {subCategories.map((subCat) => (
+                        <option key={subCat} value={subCat}>
+                          {subCat}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {selectedSubCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.subCategory}
+                          onChange={handleSubCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{selectedSubCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>소분류 :</label>
+                    <select
+                      value={selectedSubSubCategory}
+                      onChange={handleSubSubCategorySelectChange}
+                      style={{width: '100px', padding: '5px', fontSize: '16px'}}
+                    >
+                      <option value="">직접 입력</option>
+                      {subSubCategories.map((subSubCat) => (
+                        <option key={subSubCat} value={subSubCat}>
+                          {subSubCat}
+                        </option>
+                      ))}
+                    </select>
+                    <div style={{width: '40%'}}>
+                      {selectedSubSubCategory === "" ? (
+                        <input
+                          type="text"
+                          value={tmpRow.subSubCategory}
+                          onChange={handleSubSubCategoryInputChange}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "100%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                        
+                      ) : (
+                        <div style={{
+                          padding: "5px",
+                          fontSize: "16px",
+                          width: "100%",
+                          border: '1px solid #000',
+                          backgroundColor: '#fff',
+                          height: '20px',
+                        }}>{selectedSubSubCategory}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                {/* 중간: 소소분류, 작업명 산출물, 담당자 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 3}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>액티비티 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.subSubSubCategory}
+                          onChange={(e) => handleEtcChange(e, "subSubSubCategory")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "60%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 3}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>작업명 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.taskName}
+                          onChange={(e) => handleEtcChange(e, "taskName")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "60%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 2}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>산출물 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.product}
+                          onChange={(e) => handleEtcChange(e, "product")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "40%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 2}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>담당자 :</label>
+                    <input
+                          type="text"
+                          value={tmpRow.assignee}
+                          onChange={(e) => handleEtcChange(e, "assignee")}
+                          style={{
+                            padding: "5px",
+                            fontSize: "16px",
+                            width: "40%",
+                            border: '1px solid #000',
+                            backgroundColor: '#fff',
+                            height: '20px',
+                          }}
+                        />
+                  </div>
+                  <div style={{flex: 1}}></div>
+                </div>
+                {/* 중간: 소소분류, 작업명 산출물, 담당자 */}
+                <div style={{display: 'flex', alignItems: "center", padding: '15px'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>시작일 :</label>
+                    <input
+                      type="date"
+                      value={tmpRow.startDate}
+                      onChange={(e) => handleEtcChange(e, "startDate")}
+                      style={{
+                        padding: "5px",
+                        fontSize: "16px",
+                        width: "60%",
+                        border: '1px solid #000',
+                        backgroundColor: '#fff',
+                        height: '20px',
+                      }}
+                    />
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '5px', flex: 1}}>
+                    <label style={{ fontWeight: "bold", marginRight: "10px" }}>마감일 :</label>
+                    <input
+                      type="date"
+                      value={tmpRow.endDate}
+                      onChange={(e) => handleEtcChange(e, "endDate")}
+                      style={{
+                        padding: "5px",
+                        fontSize: "16px",
+                        width: "60%",
+                        border: '1px solid #000',
+                        backgroundColor: '#fff',
+                        height: '20px',
+                      }}
+                    />
+                  </div>
+                  <div style={{flex: 1}}></div>
+                </div>
+                <button
+                  onClick={handleAddTmpRow}
+                  style={{
+                    marginTop: "20px",
+                    padding: "10px 20px",
+                    backgroundColor: "#4CAF50",
+                    color: "#fff",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  행 추가
+                </button>
+              </form>
+            </div>
+          )}
+          
+        
         </div>
       </div>
     </div>
