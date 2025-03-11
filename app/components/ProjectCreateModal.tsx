@@ -169,6 +169,7 @@ export function ProjectCreateModal() {
             const response = await axios.post("https://cd-api.chals.kim/api/project/init", postInit, {headers:{Authorization: process.env.SECRET_API_KEY}});
             // console.log(postInit)
             if (response.data.RESULT_CODE === 200) {
+                const response2 = await axios.post("https://cd-api.chals.kim/api/pm/add_leader", {pid: response.data.PAYLOADS.PUID, univ_id: s_no}, {headers:{Authorization: process.env.SECRET_API_KEY}});
                 router.push(`/project-main/${response.data.PAYLOADS.PUID}`);
             };
         }catch(err){}
