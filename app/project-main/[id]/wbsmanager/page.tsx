@@ -863,12 +863,12 @@ export default function Main(props: any) {
                       onClick={() => deleteRow(row.id)}
                       style={{
                         padding: "10px 20px",
-                       backgroundColor: "#FF4D4D",
-                       color: "#fff",
-                       border: "none",
-                       borderRadius: "8px",
-                       cursor: "pointer",
-                       marginRight: "10px",
+                        backgroundColor: "#FF4D4D",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        marginRight: "10px",
                       }}
                       
                     >

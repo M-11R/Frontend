@@ -25,9 +25,11 @@ export default function Home() {
         setSession(true)
       }else{
         setSession(false)
+        clearStorage()
       }
     }catch(err){
       setSession(false)
+      clearStorage()
     }
   }
 

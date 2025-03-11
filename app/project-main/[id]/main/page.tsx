@@ -2,14 +2,15 @@
 
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
-import json from "@/app/json/test.json";
 import TodoList from "@/app/components/Todo";
 import LLMChat from "@/app/components/LLMChat";
 import axios from "axios";
-import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import teamIcon from "@/app/img/team.jpg"
+import usePermissionGuard from "@/app/util/usePermissionGuard";
+import { getUnivId } from "@/app/util/storage";
+import LLMManagement from "@/app/components/LLMManagement";
 
 type wbs = {
   Sid: string;
@@ -44,6 +45,9 @@ export default function Main(props: any) {
   const [profId, setProfId] = useState("Loading...");
   const [pm, setPM] = useState<userType[]>([{name: "Loading...", permission: 1}]);
   const [team, setTeam] = useState<userType[]>([{name: "Loading...", permission: 0}]);
+
+  const s_no = getUnivId()
+  const leaderPermission = usePermissionGuard(props.params.id, s_no, { leader: 1 }, false);
 
   const loadWBS = async() => {
     const pid: number = props.params.id;
@@ -202,6 +206,7 @@ export default function Main(props: any) {
                       alt="Image 2"
                       fill
                       style={{ objectFit: "contain" }}
+                      sizes="100vw"
                     />
                     <div style={{position: "absolute", bottom: '0', left: '0', textShadow: "1px 1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff, -1px -1px 0 #fff"}}>
                       {`팀장\n${pm[0].name}`}
@@ -216,6 +221,7 @@ export default function Main(props: any) {
                       alt="Image 2"
                       fill
                       style={{ objectFit: "contain" }}
+                      sizes="100vw"
                     />
                     <div style={{position: "absolute", bottom: '0', left: '0', textShadow: "1px 1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff, -1px -1px 0 #fff"}}>
                       {`담당교수\n${profId}`}
@@ -249,6 +255,7 @@ export default function Main(props: any) {
                           alt="Image 2"
                           fill
                           style={{ objectFit: "contain" }}
+                          sizes="100vw"
                         />
                         <div style={{position: "absolute", bottom: '0', left: '0', textShadow: "1px 1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff, -1px -1px 0 #fff"}}>
                           {`팀원\n${item.name}`}
@@ -272,7 +279,13 @@ export default function Main(props: any) {
                 flexDirection: "column",
               }}
             >
-              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>PMS Assistant</div>
+              <div style={{ marginBottom: "10px", display: 'flex', position: 'relative'}}>
+                <span style={{fontSize: "16px", fontWeight: "bold" }}>PMS Assistant</span>
+                {(leaderPermission === null || !leaderPermission) ? (<div></div>) : (
+                  <div style={{position: 'absolute', right: '0', bottom: '0'}}><LLMManagement pid={props.params.id}/></div>
+                )}
+                
+              </div>
               <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div>
               <div style={{ fontSize: "14px", color: "#777", height: '100%' }}>
                 <LLMChat pid = {props.params.id} />

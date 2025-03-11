@@ -62,18 +62,18 @@ export default function Main(props: any) {
   };
 
   useEffect(() => {
-    loadWBS();
+    // loadWBS();
   }, [projectId]);
 
   return (
     <div style={{ height: "100vh"}}>
       {/* 메인 헤더 */}
-      <MainHeader pid={projectId || 0} />
+      <MainHeader pid={0} />
 
       {/* Body */}
       <div style={{ backgroundColor: "#f9f9f9", display: "flex", flex: 1, height: 'calc(100% - 100px)'}}>
         {/* 왼쪽 사이드 */}
-        <MainSide pid={projectId || 0} />
+        <MainSide pid={0} />
 
         {/* 메인 페이지 */}
         <div
@@ -140,9 +140,9 @@ export default function Main(props: any) {
                 flexDirection: "column",
               }}
             >
-              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>Todo List</div>
+              <div style={{ marginBottom: "10px", fontSize: "16px", fontWeight: "bold" }}>Todo List 2</div>
               <div style={{ borderBottom: "2px solid #ddd", marginBottom: "5px" }}></div>
-              <TodoList p_id={projectId || 0} />
+              {/* <TodoList p_id={projectId || 0} /> */}
             </div>
           </div>
           <div style={{ display: "flex", gap: "10px", height: '70%'}}>

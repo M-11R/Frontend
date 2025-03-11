@@ -175,14 +175,14 @@ const containerStyle: CSSProperties = {
   top: "20px",
   bottom: "0",
   width: "1100px",
-  height: "40px",
+  height: "50px",
   overflowY: "hidden",
   display: "flex",
   flexWrap: "nowrap",
-  gap: "8px",
+  gap: "10px",
   alignItems: "center",
   padding: "5px",
-  paddingBottom: '0'
+  paddingBottom: '10px'
 };
 
 // ✅ 기본 탭 스타일
@@ -212,9 +212,11 @@ const hoverTabStyle: CSSProperties = {
 // ✅ 활성화된 탭 스타일
 const activeTabStyle: CSSProperties = {
   backgroundColor: "#ffffff",
-  borderBottom: "3px solid #2563eb",
+  borderBottom: "4px solid #2563eb", 
   fontWeight: "bold",
-  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
+  color: "#2563eb", 
+  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.15)",
 };
+
 
 export default TabList;
