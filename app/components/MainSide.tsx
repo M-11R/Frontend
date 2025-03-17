@@ -95,6 +95,8 @@ const MainSide = ({ pid }: { pid: number }) => {
         borderRadius: "12px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
+        position: 'relative',
+        // zIndex: 1
       }}
     >
       {/* ✅ To-Do List 추가 */}

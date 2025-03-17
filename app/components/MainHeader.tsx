@@ -73,7 +73,7 @@ const jinchek = (pid: number) => {
           textAlign: "center",
         }}
       >
-        ver.6 {mb.header.jinchuk.value} {persent}%
+        {mb.header.jinchuk.value} {persent}%
       </div>
       <div
         style={{
@@ -127,7 +127,6 @@ const MainHeader = ({ pid }: { pid: number }) => {
   useEffect(() => {
     if(pid !== 0){
       checkAccount();
-      
     }
   }, [pid])
 

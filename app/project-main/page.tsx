@@ -212,6 +212,7 @@ export default function Main(props: any) {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                zIndex: '9999'
               }}
             >
               <div
