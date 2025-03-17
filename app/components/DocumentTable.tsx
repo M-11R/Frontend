@@ -8,6 +8,7 @@ import { limitTitle } from "@/app/util/string";
 
 type listType = {
   type: string;
+  displayType: string;
   title: string;
   date: string;
   file_no: number;
@@ -106,15 +107,43 @@ type reportType = {
   doc_rep_conclusion: string;
 };
 
+function formatDate(input: string): string {
+  const d = new Date(input);
+  // 날짜 유효성 검사
+  if (isNaN(d.getTime())) return input; // 유효하지 않은 날짜면 그대로 반환
+  const year = d.getFullYear();
+  const month = ("0" + (d.getMonth() + 1)).slice(-2);
+  const day = ("0" + d.getDate()).slice(-2);
+  return `${year}-${month}-${day}`;
+}
+
+const availableTypes = ["기타", "개요서", "회의록", "요구사항 명세서", "테스트 케이스", "보고서"]
+
 const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
   const [data, setData] = useState<listType[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+
   useEffect(() => {
     loadData();
   }, []);
 
+  // 필터링: 체크된 타입과 검색어로 data 필터링
+  const filteredData = data.filter((item) => {
+    const typeOk =
+      selectedTypes.length === 0 || selectedTypes.includes(item.type);
+    const searchOk =
+      searchQuery.trim() === "" ||
+      item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return typeOk && searchOk;
+  });
+
   const itemsPerPage = 10; // 한 페이지당 표시할 글 수
-  const currentData = data.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  const totalItems = data.length;
+  const currentData = filteredData.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage
+  );
+  const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const loadData = async () => {
@@ -134,8 +163,9 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '기타',
+              displayType: 'etc',
               title: item.file_name,
-              date: item.file_date.toString(),
+              date: formatDate(item.file_date.toString()),
               file_no: item.file_no
           }
           tmpData.push(formattedData);
@@ -147,6 +177,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '개요서',
+              displayType: 'overview',
               title: item.doc_s_name,
               date: item.doc_s_date.toString(),
               file_no: item.doc_s_no
@@ -160,6 +191,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '회의록',
+              displayType: 'minutes',
               title: item.doc_m_title,
               date: item.doc_m_date.toString(),
               file_no: item.doc_m_no
@@ -173,6 +205,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '요구사항 명세서',
+              displayType: 'request',
               title: '요구사항 명세서',
               date: item.doc_r_date.toString(),
               file_no: item.doc_r_no
@@ -186,6 +219,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '테스트 케이스',
+              displayType: 'testcase',
               title: item.doc_t_name,
               date: item.doc_t_start.toString(),
               file_no: item.doc_t_no
@@ -199,6 +233,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '보고서',
+              displayType: 'report',
               title: item.doc_rep_name,
               date: item.doc_rep_date.toString(),
               file_no: item.doc_rep_no
@@ -206,14 +241,15 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
           tmpData.push(formattedData);
           reportData.push(item)
       })
+      const sortedData = tmpData.sort((a, b) => {
+        const dateA = new Date(a.date).getTime();
+        const dateB = new Date(b.date).getTime();
+        return dateB - dateA;
+      })
+      setData(sortedData);
   }catch(err){}
 
-  const sortedData = tmpData.sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return dateB - dateA;
-  })
-  setData(sortedData);
+  
   };
 
   return (
@@ -238,6 +274,32 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       >
         산출물 관리
       </h1>
+      {/* 검색 및 필터 UI */}
+      <div style={{ marginBottom: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="검색어 입력"
+          style={{ padding: "8px", fontSize: "14px", flex: 1 }}
+        />
+        {availableTypes.map((type) => (
+          <label key={type} style={{ fontSize: "14px" }}>
+            <input
+              type="checkbox"
+              checked={selectedTypes.includes(type)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedTypes((prev) => [...prev, type]);
+                } else {
+                  setSelectedTypes((prev) => prev.filter((t) => t !== type));
+                }
+              }}
+            />
+            {type}
+          </label>
+        ))}
+      </div>
 
       <div
         style={{
@@ -291,53 +353,69 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
         </div>
 
         {/* 테이블 데이터 */}
-        {currentData.map((item) => (
-          <div
-            key={item.file_no}
-            style={{
-              display: "flex",
-              height: "50px",
-              alignItems: "center",
-              borderBottom: "1px solid #ddd",
-            }}
-          >
+        {(() => {
+          const filteredData = data.filter((item) => {
+            const typeOk =
+              selectedTypes.length === 0 || selectedTypes.includes(item.type);
+            const searchOk =
+              searchQuery.trim() === "" ||
+              item.title.toLowerCase().includes(searchQuery.toLowerCase());
+            return typeOk && searchOk;
+          });
+          const itemsPerPage = 10;
+          const currentData = filteredData.slice(
+            (page - 1) * itemsPerPage,
+            page * itemsPerPage
+          );
+          return currentData.map((item) => (
             <div
+              key={item.file_no}
               style={{
-                flex: 1,
-                textAlign: "center",
-                borderRight: "1px solid #ddd",
-                padding: "10px",
-                color: "#555",
+                display: "flex",
+                height: "50px",
+                alignItems: "center",
+                borderBottom: "1px solid #ddd",
               }}
             >
-              {item.type}
+              <div
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  borderRight: "1px solid #ddd",
+                  padding: "10px",
+                  color: "#555",
+                }}
+              >
+                {item.type}
+              </div>
+              <div
+                style={{
+                  flex: 2,
+                  textAlign: "center",
+                  borderRight: "1px solid #ddd",
+                  padding: "10px",
+                  color: "#4CAF50",
+                }}
+              >
+                <Link href={`/project-main/${pid}/output/${item.displayType}/${item.file_no}`}>
+                  {limitTitle(item.title, 40)}
+                </Link>
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  padding: "10px",
+                  color: "#555",
+                }}
+              >
+                {item.date}
+              </div>
             </div>
-            <div
-              style={{
-                flex: 2,
-                textAlign: "center",
-                borderRight: "1px solid #ddd",
-                padding: "10px",
-                color: "#4CAF50",
-              }}
-            >
-              <Link href={`/project-main/${pid}/output/${item.type}/${item.file_no}`}>
-                {limitTitle(item.title, 30)}
-              </Link>
-            </div>
-            <div
-              style={{
-                flex: 1,
-                textAlign: "center",
-                padding: "10px",
-                color: "#555",
-              }}
-            >
-              {item.date}
-            </div>
-          </div>
-        ))}
+          ));
+        })()}
       </div>
+
 
       {/* 페이지네이션 */}
       <div style={{ marginTop: "20px" }}>

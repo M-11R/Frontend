@@ -79,7 +79,7 @@ export default function Signup() {
   const [id, setID] = useState("");
   const [password, setPassword] = useState("");
   const [repassword, setRePassword] = useState("");
-  const [department, setDepartment] = useState(0);
+  const [department, setDepartment] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
   const [deptList, setDeptList] = useState<dnoType[]>([{dno: 0, dname: "Loading..."}]);
 

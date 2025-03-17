@@ -95,6 +95,8 @@ const MainSide = ({ pid }: { pid: number }) => {
         borderRadius: "12px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
         overflowY: "auto",
+        position: 'relative',
+        // zIndex: 1
       }}
     >
       {/* ✅ To-Do List 추가 */}
@@ -107,7 +109,7 @@ const MainSide = ({ pid }: { pid: number }) => {
           boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "10px" }}>📌 To-Do List2</h3>
+        <h3 style={{ fontSize: "18px", color: "#333", marginBottom: "10px" }}>📌 To-Do List</h3>
         {tasks.length === 0 ? (
           <p style={{ fontSize: "14px", color: "#777" }}>할 일이 없습니다.</p>
         ) : (

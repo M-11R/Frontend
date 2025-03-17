@@ -19,14 +19,14 @@ type returnType = {
 };
 
 export default function Create(props: any) {
-    const [tmpfile, setFile] = useState<File | null>(null);
+    const [tmpfile, setFile] = useState<File[]>([]);
     const router = useRouter();
     const s_no = getUnivId();
     usePermissionGuard(props.params.id, s_no, {leader: 1, om: 1}, true)
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+        if (e.target.files) {
+            setFile(Array.from(e.target.files));
         }
     };
 
@@ -38,7 +38,9 @@ export default function Create(props: any) {
         const tmppid: number = props.params.id;
         const tmpunivid = getUnivId();
         const formData = new FormData();
-        formData.append('file', tmpfile);
+        tmpfile.forEach((file) => {
+            formData.append('files', file);
+          });
         formData.append('pid', tmppid.toString());
         formData.append('univ_id', tmpunivid.toString());
 
@@ -68,10 +70,10 @@ export default function Create(props: any) {
                     <h1 style={titleStyle}>📄 파일 업로드</h1>
 
                     <div style={formContainerStyle}>
-                        <p style={{ fontSize: '16px', color: '#6b7280' }}>
-                            프로젝트와 관련된 파일을 업로드하세요.
+                        <p style={{ fontSize: '16px', color: '#6b7280', whiteSpace: 'pre-wrap' }}>
+                            {`프로젝트와 관련된 파일을 업로드하세요.\n한번에 여러개의 파일을 업로드할 수 있습니다.\n*주의* 파일을 묶어야 한다면 압축해서 올려주세요!`}
                         </p>
-                        <input type="file" onChange={handleFileChange} style={fileInputStyle} />
+                        <input type="file" multiple onChange={handleFileChange} style={fileInputStyle} />
                         <button onClick={handleUpload} style={uploadButtonStyle}>
                             📤 업로드
                         </button>

@@ -8,13 +8,28 @@ import { useEffect, useState } from 'react';
 import TapList from '@/app/components/ProjectTap'
 import { ProjectCreateModal } from "@/app/components/ProjectCreateModal";
 import { EditDraftProjectModal } from "@/app/components/EditDraftProjectModal";
+import { useRouter } from 'next/navigation';
 
 import axios from 'axios';
+import { getToken, getUnivId, getUserId } from '../util/storage';
 
 type fetchType = {
   "RESULT_CODE": number, 
   "RESULT_MSG": string, 
   "PAYLOADS": (string | number)[][]
+}
+
+type userListPayLoad = {
+  "RESULT_CODE": number
+  "RESULT_MSG": string
+  "PAYLOADS": userList[]
+}
+
+type userList = {
+  "univ_id":  number
+  "role":	string
+  "name":	string
+  "permission": number
 }
 
 const jinchek = (pid: number) => {
@@ -88,6 +103,33 @@ const jinchek = (pid: number) => {
 
 
 const MainHeader = ({ pid }: { pid: number }) => {
+  const userId = getUserId();
+  const userToken = getToken()
+  const univId = getUnivId()
+  const router = useRouter()
+
+  const checkAccount = async() => {
+    try{
+      const checkSession = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: userId, token: userToken}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      const getUserList = await axios.post<userListPayLoad>("https://cd-api.chals.kim/api/project/checkuser", {pid: pid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      if(getUserList.data.RESULT_CODE === 200){
+        const isInclude: boolean = getUserList.data.PAYLOADS.some((user) => user.univ_id === univId)
+        if(!isInclude){
+          router.push('/');
+        }
+      }
+    }catch(err){
+      alert("정상적이지 않는 접근입니다.")
+      router.push('/');
+    }
+  }
+
+  useEffect(() => {
+    if(pid !== 0){
+      checkAccount();
+    }
+  }, [pid])
+
   return (
     <header
       style={{

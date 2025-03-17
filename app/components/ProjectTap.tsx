@@ -106,6 +106,16 @@ const HoverTab: React.FC<HoverTabProps> = ({
     router.push(`/project-main/${item.pid}/main`);
   };
 
+  function convertDateRange(input: string): string {
+    const parts = input.split("-");
+    if (parts.length === 6) {
+      const date1 = `${parts[0]}-${parts[1]}-${parts[2]}`;
+      const date2 = `${parts[3]}-${parts[4]}-${parts[5]}`;
+      return `${date1} ~ ${date2}`;
+    }
+    return input; // 형식이 맞지 않으면 원본 반환
+  }
+
   return (
     <div
       ref={tabRef}
@@ -131,8 +141,16 @@ const HoverTab: React.FC<HoverTabProps> = ({
             {item.pdetails}
           </div>
           <div style={{ padding: "3px" }}>
+            <strong>인원: </strong>
+            {`${item.psize}명`}
+          </div>
+          <div style={{ padding: "3px" }}>
             <strong>기간: </strong>
-            {item.pperiod}
+            {convertDateRange(item.pperiod)}
+          </div>
+          <div style={{ padding: "3px" }}>
+            <strong>개발 방법론: </strong>
+            {(Number(item.pmm) === 0) ? "폭포수 모델" : ((Number(item.pmm) === 1) ? "애자일 모델" : "기타 모델")}
           </div>
         </Tooltip>
       )}
@@ -175,14 +193,15 @@ const containerStyle: CSSProperties = {
   top: "20px",
   bottom: "0",
   width: "1100px",
-  height: "40px",
+  height: "60px",
   overflowY: "hidden",
   display: "flex",
   flexWrap: "nowrap",
-  gap: "8px",
+  gap: "10px",
   alignItems: "center",
   padding: "5px",
-  paddingBottom: '0'
+  paddingBottom: '10px',
+  boxSizing: "border-box"
 };
 
 // ✅ 기본 탭 스타일
@@ -192,6 +211,7 @@ const tabStyle: CSSProperties = {
   height: "36px",
   backgroundColor: "#f8f9fa",
   border: "1px solid #d1d5db",
+  borderBottom: "none",
   borderRadius: "12px 12px 0 0",
   display: "flex",
   alignItems: "center",
@@ -206,15 +226,17 @@ const tabStyle: CSSProperties = {
 // ✅ 호버 시 스타일
 const hoverTabStyle: CSSProperties = {
   backgroundColor: "#e2e8f0",
-  transform: "scale(1.05)",
+  transform: "scale(1.03)",
 };
 
 // ✅ 활성화된 탭 스타일
 const activeTabStyle: CSSProperties = {
   backgroundColor: "#ffffff",
-  borderBottom: "3px solid #2563eb",
+  borderBottom: "4px solid #2563eb", 
   fontWeight: "bold",
-  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
+  color: "#2563eb", 
+  boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.15)",
 };
+
 
 export default TabList;

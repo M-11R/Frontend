@@ -154,7 +154,7 @@ export default function FindPassword() {
   return (
     <div style={commonStyles.container}>
       <div style={commonStyles.card}>
-        <h2 style={commonStyles.title}>🔑 비밀번호 찾기4</h2>
+        <h2 style={commonStyles.title}>🔑 비밀번호 찾기</h2>
 
         {!isVerified ? (
           <form onSubmit={handleFindPassword}>

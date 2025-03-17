@@ -1158,7 +1158,17 @@ export const OutputReport = ({oid, pid}: {oid: number, pid: number}) => {
         <tr><td colSpan={4} style={tdStyle}>{data?.doc_rep_result}</td></tr>
         <tr><th colSpan={4} style={thStyle}>결론</th></tr>
         <tr><td colSpan={4} style={tdStyle}>{data?.doc_rep_conclusion}</td></tr>
+        <tr style={{borderBottom: '0'}}>
+                     <td colSpan={2} style={{borderBottom: '0'}}>
+                         <div style={{margin: 'auto', float: 'right'}}>
+                             <div style={{float: 'right', padding: '5px'}}><DynOutDelbtn data={{type: MsBox.outType.report.value, oid: data?.doc_rep_no ?? -1}} pid={pid}/></div>
+                             <div style={{float: 'right', padding: '5px'}}><button>수정3</button></div>
+                             <div style={{float: 'right', padding: '5px'}}><DocumentDownloadBtn d_type={DType.dType.report} d_no={data?.doc_rep_no || 0} d_name={data?.doc_rep_name || ''}/></div>
+                         </div>
+                     </td>
+                 </tr>
       </tbody>
+      
     </table>
   </div>
         // <table className={styles.outTable}>
