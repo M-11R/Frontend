@@ -8,12 +8,28 @@ import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 
+type postType = {
+  feature_name: string
+    description: string
+    priority: number
+    non_functional_requirement_name: string
+    non_functional_description: string
+    non_functional_priority: number
+    system_item: string
+    system_description: string
+    pid: number
+    doc_r_no: number
+}
+
 export default function RequirementsForm(props: any) {
   const [creationDate, setCreationDate] = useState("");
   const [systemRequirements, setSystemRequirements] = useState("");
+  const [systemDes, setSystemDes] = useState("");
   const [functionalRequirements, setFunctionalRequirements] = useState("");
+  const [functionalDes, setFunctionalDes] = useState("");
   const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState<number>(1);
   const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState("");
+  const [nonFunctionalDes, setNonFunctionalDes] = useState("");
   const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState<number>(1);
 
   const router = useRouter();
@@ -22,13 +38,23 @@ export default function RequirementsForm(props: any) {
   usePermissionGuard(props.params.id, s_no, { leader: 1, rs: 1 }, true);
 
   const handleSave = async () => {
-    const data = {
-      system_item: systemRequirements,
+    const data: postType = {
       feature_name: functionalRequirements,
+      description: functionalDes,
       priority: functionalRequirementsPriority,
       non_functional_requirement_name: nonFunctionalRequirements,
+      non_functional_description: nonFunctionalDes,
       non_functional_priority: nonFunctionalRequirementsPriority,
+      system_item: systemRequirements,
+      system_description: systemDes,
       pid: props.params.id,
+      doc_r_no: 0
+      // system_item: systemRequirements,
+      // feature_name: functionalRequirements,
+      // priority: functionalRequirementsPriority,
+      // non_functional_requirement_name: nonFunctionalRequirements,
+      // non_functional_priority: nonFunctionalRequirementsPriority,
+      // pid: props.params.id,
     };
 
     try {
@@ -47,7 +73,7 @@ export default function RequirementsForm(props: any) {
       <div style={layoutContainerStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentContainerStyle}>
-          <h2 style={sectionHeaderStyle}>📝 요구사항 작성</h2>
+          <h2 style={sectionHeaderStyle}>📝 요구사항 작성 ver.2</h2>
 
           <table style={tableStyle}>
             <tbody>
@@ -55,8 +81,10 @@ export default function RequirementsForm(props: any) {
               <tr><td style={thStyle}>작성일</td><td colSpan={3} style={tdStyle}><Field type="date" value={creationDate} setter={setCreationDate} /></td></tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 시스템 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={systemRequirements} setter={setSystemRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={systemDes} setter={setSystemDes} /></td></tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 기능 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={functionalRequirements} setter={setFunctionalRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={functionalDes} setter={setFunctionalDes} /></td></tr>
               <tr><td style={thStyle}>우선순위</td>
                 <td colSpan={3} style={tdStyle}>
                   <select value={functionalRequirementsPriority} onChange={(e) => setFunctionalRequirementsPriority(Number(e.target.value))} style={selectStyle}>
@@ -68,6 +96,7 @@ export default function RequirementsForm(props: any) {
               </tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 비기능 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={nonFunctionalRequirements} setter={setNonFunctionalRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={nonFunctionalDes} setter={setNonFunctionalDes} /></td></tr>
               <tr><td style={thStyle}>우선순위</td>
                 <td colSpan={3} style={tdStyle}>
                   <select value={nonFunctionalRequirementsPriority} onChange={(e) => setNonFunctionalRequirementsPriority(Number(e.target.value))} style={selectStyle}>

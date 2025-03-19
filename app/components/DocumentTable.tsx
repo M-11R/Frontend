@@ -82,6 +82,7 @@ type returnTest = {
 };
 type testType = {
   doc_t_no: number;
+  doc_t_group1: string;
   doc_t_name: string;
   doc_t_start: Date;
   doc_t_end: Date;
@@ -215,7 +216,7 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
       })
   }catch(err){}
   try{ // 테스트 케이스
-      const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_fetch_all", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_load", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
       response.data.PAYLOADS.forEach((item) => {
           const formattedData: listType = {
               type: '테스트 케이스',

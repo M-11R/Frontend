@@ -230,8 +230,6 @@ export function EditDraftProjectModal() {
             
             const result = response.data.PAYLOAD.Result;
             setSubjectList(Array.isArray(result) ? result : []);
-            // const response2 = await axios.post<dnoPayLoad>("https://cd-api.chals.kim/api/acc/load_dept", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            // console.log("result: ",response2.data.PAYLOAD.Result)
         }catch(err){}
     }
 

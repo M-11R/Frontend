@@ -8,6 +8,7 @@ import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 import { wfOptions, agileOptions } from "@/app/util/wbs";
 import { useRouter } from "next/navigation";
+import useSessionGuard from "@/app/util/checkAccount";
 
 interface WbsRow {
   id: string;
@@ -148,6 +149,7 @@ export default function Main(props: any) {
   const s_no = getUnivId();
   const readPermission = usePermissionGuard(props.params.id, s_no, {leader: 1, wbs: [1, 2]}, false)
   const writePermission = usePermissionGuard(props.params.id, s_no, { leader: 1, wbs: 1 }, false);
+  const session = useSessionGuard();
 
   // 폭포수 모델 초기 데이터
   const waterfallRows: WbsRow[] = [
@@ -583,12 +585,8 @@ export default function Main(props: any) {
       resetCat()
     }
   }
-  if(readPermission === null){
-    return (
-      <div>Loading...</div>
-    )
-  }
-  if(!readPermission){
+  if(readPermission === null || session === null) return <div>Loading...</div>
+  if(!readPermission && session === 1){
     router.push(`/project-main/${props.params.id}/main`);
     return null
   }

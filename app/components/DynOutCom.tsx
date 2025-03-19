@@ -9,6 +9,7 @@ import DType from '@/app/json/typeBox.json'
 import usePermissionGuard from '../util/usePermissionGuard'
 import { useRouter } from 'next/navigation'
 import { getUnivId } from '../util/storage'
+import useSessionGuard from '../util/checkAccount'
 
 type delData = {
     oid: number
@@ -127,6 +128,7 @@ export const OutputEtc = ({oid, pid}: {oid: number, pid: number}) => {
     },[])
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, om: [1, 2]}, false)
+    const session = useSessionGuard();
 
     const downloadFile = async() => {
         try{
@@ -147,8 +149,8 @@ export const OutputEtc = ({oid, pid}: {oid: number, pid: number}) => {
         downloadFile();
     }
 
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null
@@ -228,8 +230,9 @@ export const OutputOvr = ({oid, pid}: {oid: number, pid: number}) => {
     const s_no = getUnivId();
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, od: [1, 2]}, false);
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    const session = useSessionGuard();
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null
@@ -493,8 +496,9 @@ export const OutputMm = ({oid, pid}: {oid: number, pid: number}) => {
     },[])
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, mm: [1, 2]}, false);
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    const session = useSessionGuard();
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null
@@ -632,8 +636,9 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
     const s_no = getUnivId();
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, ut: [1, 2]}, false);
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    const session = useSessionGuard();
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null
@@ -769,8 +774,9 @@ export const OutputReq = ({oid, pid}: {oid: number, pid: number}) => {
     const s_no = getUnivId();
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, rs: [1, 2]}, false);
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    const session = useSessionGuard();
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null
@@ -1022,8 +1028,9 @@ export const OutputReport = ({oid, pid}: {oid: number, pid: number}) => {
     const s_no = getUnivId();
 
     const readPermission = usePermissionGuard(pid, s_no, {leader: 1, rp: [1, 2]}, false);
-    if(readPermission === null) return <div>Loading...</div>
-    if(!readPermission){
+    const session = useSessionGuard();
+    if(readPermission === null || session === null) return <div>Loading...</div>
+    if(!readPermission && session === 1){
         router.push(`/project-main/${pid}/main`);
         alert("권한이 없습니다.")
         return null

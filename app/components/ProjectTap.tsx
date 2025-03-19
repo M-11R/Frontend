@@ -22,12 +22,52 @@ type returnType = {
     RESULT_MSG: string
     PAYLOADS: DataItem[]
 }
+type returnProfType = {
+    RESULT_CODE: number
+    RESULT_MSG: string
+    PAYLOAD: { Result: ProfData[]}
+}
+interface ProfData {
+  p_no: number;
+  p_name: string;
+  p_content: string;
+  p_method: string;
+  p_memcount: number;
+  p_start: string;
+  p_end: string;
+  p_wizard: number;
+  f_no: number;
+  f_name: string;
+  subj_no: number;
+  subj_name: string;
+}
+
+const transformProfData = (prof: ProfData): DataItem => {
+  return {
+    pid: prof.p_no,
+    pname: prof.p_name,
+    pdetails: prof.p_content,
+    psize: prof.p_memcount,
+    pperiod: `${prof.p_start}-${prof.p_end}`,
+    pmm: prof.p_method,
+    wizard: prof.p_wizard,
+  };
+};
 
 const TabList = ({ pid }: { pid: number }) => {
-  const [data, setData] = useState<DataItem[]>([]);
+  const [data, setData] = useState<DataItem[]>([{
+    pid: 0,
+    pname: '',
+    pdetails: '',
+    psize: 0,
+    pperiod: '',
+    pmm: '',
+    wizard: 0
+  }]);
   const s_no = getUnivId();
   const [showScrollbar, setShowScrollbar] = useState(false);
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
+  const [showCreatePJBtn, setShowCreatePJBtn] = useState(true);
   const router = useRouter();
 
   // ✅ 1. 페이지 로드 시 `localStorage`에서 선택된 탭 불러오기
@@ -48,12 +88,23 @@ const TabList = ({ pid }: { pid: number }) => {
         );
         setData(response.data.PAYLOADS);
       } catch (error) {
-        console.error("데이터 가져오기 오류 : ", error);
+        try{
+          const response = await axios.post<returnProfType>(
+            "https://cd-api.chals.kim/api/prof/load_project",
+            { f_no: s_no },
+            { headers: { Authorization: process.env.SECRET_API_KEY } }
+          );
+          const profDataArray = response.data.PAYLOAD.Result;
+          const transformedData = profDataArray.map(transformProfData);
+          setData(transformedData);
+          setShowCreatePJBtn(false)
+        }catch(err){console.log(err)}
       }
     };
 
     fetchData();
   }, []);
+
 
   return (
     <div
@@ -64,7 +115,7 @@ const TabList = ({ pid }: { pid: number }) => {
       onMouseEnter={() => setShowScrollbar(true)}
       onMouseLeave={() => setShowScrollbar(false)}
     >
-      <EditDraftProjectModal />
+      {showCreatePJBtn ? <EditDraftProjectModal /> : <div></div>}
       {data.map((item) => (
         <HoverTab
           key={item.pid}

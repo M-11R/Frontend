@@ -39,12 +39,41 @@ export interface PJItem {
     pperiod: string
     pmm: string
     wizard: number
+    profno: number
+    profname: string
+    subno: number
 }
 
 type returnPJ = {
     RESULT_CODE: number
     RESULT_MSG: string
     PAYLOADS: PJItem[]
+}
+
+type subjectPayload = {
+    RESULT_CODE: number,
+    RESULT_MSG: string,
+    PAYLOAD: {
+        Result: subjectType[]
+    }
+}
+
+type subjectType = {
+    subj_no: number
+    subj_name: string
+}
+
+type profPayload = {
+    RESULT_CODE: number,
+    RESULT_MSG: string,
+    PAYLOAD: {
+        Result: profType[]
+    }
+}
+
+type profType = {
+    f_no: number
+    f_name: string
 }
 
 export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; closeModal: () => void; children?: React.ReactNode }) {
@@ -81,6 +110,8 @@ export default function ProjectManage(props: any){
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
     const [log, setLog] = useState('');
+    const [subjectList, setSubjectList] = useState<subjectType[]>([{subj_name: "Loading...", subj_no: 0}])
+    const [profList, setProfList] = useState<profType[]>([{f_no: 0, f_name: "Loading..."}])
     const router = useRouter();
     const [logList, setLogList] = useState<cppList[]>([{
         p_no: props.params.id,
@@ -96,7 +127,10 @@ export default function ProjectManage(props: any){
         psize: 0,
         pperiod: "",
         pmm: "",
-        wizard: 0
+        wizard: 0,
+        profname: '',
+        profno: 0,
+        subno: 0,
     })
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -151,7 +185,10 @@ export default function ProjectManage(props: any){
         psize: 0,
         pperiod: "",
         pmm: "",
-        wizard: 0
+        wizard: 0,
+        profno: 0,
+        profname: "",
+        subno: 0,
       }
 
     const loadProject = async() => {
@@ -159,6 +196,22 @@ export default function ProjectManage(props: any){
             const responseType = await axios.post<returnPJ>("https://cd-api.chals.kim/api/project/load", { univ_id: s_no }, {headers:{Authorization: process.env.SECRET_API_KEY}});
             const tmpPJ = responseType.data.PAYLOADS.find(item => item.pid === Number(props.params.id)) || defaultProject
             setPJ(tmpPJ)
+            // loadProf()
+        }catch(err){}
+    }
+
+    const loadSubject = async() => {
+        try{
+            const response = await axios.post<subjectPayload>("https://cd-api.chals.kim/api/subject/load_all", {}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const result = response.data.PAYLOAD.Result;
+            setSubjectList(Array.isArray(result) ? result : []);
+        }catch(err){}
+    }
+
+    const loadProf = async() => {
+        try{
+            const response = await axios.post<profPayload>("https://cd-api.chals.kim/api/acc/load_prof", {subj_no: pj.subno}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            setProfList(response.data.PAYLOAD.Result)
         }catch(err){}
     }
 
@@ -167,11 +220,18 @@ export default function ProjectManage(props: any){
     useEffect(() => {
         if(page === 0){
             loadProject()
+            loadSubject()
         }
         if(page === 1){
             loadLogList()
         }
     }, [page])
+
+    useEffect(() => {
+        if(pj.subno !== 0){
+            loadProf()
+        }
+    }, [pj.subno])
 
     const handleEditPJ = (e: React.FormEvent) => {
         e.preventDefault();
@@ -180,9 +240,26 @@ export default function ProjectManage(props: any){
         postPJ()
     };
 
+    const fixDate = (date: string) => {
+        const rawValue = date;
+        const formatted = rawValue.replace(/-/g, "").slice(2);
+        return formatted;
+    };
+
     const postPJ = async() => {
+        const postPJData = {
+            pid: pj.pid,
+            pname: pj.pname,
+            pdetails: pj.pdetails,
+            psize: pj.psize,
+            pperiod: `${fixDate(startDate)}-${fixDate(endDate)}`,
+            pmm: pj.pmm,
+            wizard: pj.wizard,
+            prof_id: pj.profno,
+            subject: pj.subno,
+        }
         try{
-            const response = await axios.post("https://cd-api.chals.kim/api/project/edit", pj, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            const response = await axios.post("https://cd-api.chals.kim/api/project/edit", postPJData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             alert("수정 완료!")
         }catch(err){
             alert("오류!\n다시 확인해주세요.")
@@ -277,7 +354,7 @@ export default function ProjectManage(props: any){
                                 return (
                                     <div style={{height: '100%', overflowY: 'auto'}}>
                                         <div style={{width: '70%', display: 'flex', flexDirection: 'column', margin: '0 auto', marginTop: '30px'}}>
-                                            <span style={{fontSize: '40px'}}>프로젝트 수정</span>
+                                            <span style={{fontSize: '40px'}}>프로젝트 수정 ver.3</span>
                                             <form onSubmit={handleEditPJ} style={{marginTop: '10px'}}>
                                                 <div style={{ marginBottom: '15px' }}>
                                                     <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 이름:</label>
@@ -309,12 +386,15 @@ export default function ProjectManage(props: any){
                                                     </div>
                                                     <div style={{ marginBottom: '15px', width: '45%' }}>
                                                         <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>개발 방법론:</label>
-                                                        <input
-                                                            type="number"
-                                                            value={pj.psize}
-                                                            onChange={(e) => setPJ({ ...pj, psize: Number(e.target.value)})}
-                                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
-                                                        />
+                                                        <select
+                                                            value={pj.pmm}
+                                                            onChange={(e) => setPJ({...pj, pmm: e.target.value})}
+                                                            style={{ width: 'calc(100% + 24px)', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', backgroundColor: '#ffffff' }}
+                                                        >
+                                                            <option value={'0'}>폭포수 모델</option>
+                                                            <option value={'1'}>에자일 모델</option>
+                                                            <option value={'2'}>기타</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div style={{display: 'flex'}}>
@@ -335,6 +415,40 @@ export default function ProjectManage(props: any){
                                                             onChange={(e) => setEndDate(e.target.value)}
                                                             style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
                                                         />
+                                                    </div>
+                                                </div>
+                                                <div style={{display: 'flex'}}>
+                                                    <div style={{ marginBottom: '15px', width: '45%', marginRight: '10%' }}>
+                                                        <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>강의:</label>
+                                                        <select
+                                                            value={pj.subno}
+                                                            onChange={(e) => setPJ({...pj, subno: Number(e.target.value)})}
+                                                            style={{ width: 'calc(100% + 24px)', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', backgroundColor: '#ffffff' }}
+                                                        >
+                                                            {Array.isArray(subjectList) &&
+                                                                subjectList.map((tmp) => (
+                                                                    <option key={tmp.subj_no} value={tmp.subj_no}>
+                                                                        {tmp.subj_name}
+                                                                    </option>
+                                                                ))
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div style={{ marginBottom: '15px', width: '45%', }}>
+                                                        <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>담당 교수:</label>
+                                                        <select
+                                                            value={pj.profno}
+                                                            onChange={(e) => setPJ({...pj, profno: Number(e.target.value)})}
+                                                            style={{ width: 'calc(100% + 24px)', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', backgroundColor: '#ffffff' }}
+                                                        >
+                                                            {Array.isArray(profList) &&
+                                                                profList.map((item) => (
+                                                                    <option key={item.f_no} value={item.f_no}>
+                                                                        {item.f_name}
+                                                                    </option>
+                                                                ))
+                                                            }
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <button type='submit' style={{width: '50px', padding: '10px', margin: '5px', marginRight: '0',border: 'none', cursor: 'pointer', color: '#ffffff', backgroundColor: '#4CAF50'}}>

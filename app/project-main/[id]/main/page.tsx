@@ -277,6 +277,7 @@ export default function Main(props: any) {
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                 display: "flex",
                 flexDirection: "column",
+                height: 'calc(100% - 20px)'
               }}
             >
               <div style={{ marginBottom: "10px", display: 'flex', position: 'relative'}}>
@@ -287,7 +288,7 @@ export default function Main(props: any) {
                 
               </div>
               <div style={{ borderBottom: "2px solid #ddd", marginBottom: "10px" }}></div>
-              <div style={{ fontSize: "14px", color: "#777", height: '100%' }}>
+              <div style={{ fontSize: "14px", color: "#777", height: 'calc(100% - 40px)' }}>
                 <LLMChat pid = {props.params.id} />
               </div>
             </div>

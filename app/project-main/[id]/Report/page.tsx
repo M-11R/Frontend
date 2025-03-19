@@ -57,19 +57,33 @@ export default function ReportForm(props: any) {
       <div style={layoutStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentStyle}>
-          <h2 style={titleStyle}>📑 보고서 작성2</h2>
+          <h2 style={titleStyle}>📑 보고서 작성 ver6</h2>
 
           <table style={tableStyle}>
             <tbody>
               <tr><td colSpan={4} style={sectionHeaderStyle}>📌 기본 정보</td></tr>
               <tr>
-                <td style={thStyle}>보고서 제목</td>
-                <td colSpan={3} style={tdStyle}><Field value={reportTitle} setter={setReportTitle} /></td>
-              </tr>
-              <tr>
-                <td style={thStyle}>프로젝트 명</td>
-                <td colSpan={3} style={tdStyle}><Field value={projectName} setter={setProjectName} /></td>
-              </tr>
+          <td style={thStyle}>보고서 제목</td>
+          <td colSpan={3} style={tdStyle}>
+            <input 
+              type="text"
+              value={reportTitle}
+             onChange={(e) => setReportTitle(e.target.value)}
+             style={reportTitleStyle}
+           />
+          </td>
+        </tr>
+        <tr>
+         <td style={thStyle}>프로젝트 명</td>
+         <td colSpan={3} style={tdStyle}>
+           <input 
+              type="text"
+             value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              style={projectNameStyle}
+           />
+          </td>
+        </tr>
               <tr>
                 <td style={thStyle}>작성일</td>
                 <td style={tdStyle}><Field type="date" value={submissionDate} setter={setSubmissionDate} /></td>
@@ -107,6 +121,23 @@ const sectionHeaderStyle: CSSProperties = { backgroundColor: "#ddd", padding: "1
 const thStyle: CSSProperties = { backgroundColor: "#ddd", padding: "14px", border: "1px solid black", fontWeight: "bold", textAlign: "center" };
 const tdStyle: CSSProperties = { padding: "18px", border: "1px solid black", textAlign: "left" };
 const buttonContainerStyle: CSSProperties = { display: "flex", justifyContent: "center", marginTop: "20px" };
+
+
+const reportTitleStyle: CSSProperties = {
+  width: "98.5%",  // 전체 너비 사용
+  padding: "12px",
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+  fontSize: "16px",
+};
+
+const projectNameStyle: CSSProperties = {
+  width: "98.5%",  // 전체 너비 사용
+  padding: "12px",
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+  fontSize: "16px",
+};
 
 
 

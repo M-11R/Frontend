@@ -1,12 +1,25 @@
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
+
+type userList = {
+  univ_id: number,
+  role: string,
+  name: string,
+  permission: string
+}
+
+type returnType = {
+  "RESULT_CODE": number,
+  "RESULT_MSG": string,
+  "PAYLOADS": userList[]
+}
 
 export default function ProjectOverview(props: any) {
   const [title, setTitle] = useState("");
@@ -22,6 +35,23 @@ export default function ProjectOverview(props: any) {
 
   const router = useRouter();
   const s_no = getUnivId();
+
+  const [user, setUser] = useState<userList[]>([{
+    univ_id: 0,
+    role: '',
+    name: '',
+    permission: ''
+  }]);
+
+  useEffect(() => {
+    const getTeamData = async() => {
+      try{
+        const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkuser", {pid: props.params.id}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        setUser(response.data.PAYLOADS);
+      }catch(err){}
+    }
+    getTeamData()
+  }, [])
 
   usePermissionGuard(props.params.id, s_no, { leader: 1, od: 1 }, true);
 
@@ -82,7 +112,7 @@ export default function ProjectOverview(props: any) {
               {/* 프로젝트 기본 정보 */}
               <tr>
                 <td style={thStyle}>제 목</td>
-                <td colSpan={3} style={tdStyle}><Field value={title} setter={setTitle} /></td>
+                <td colSpan={3} style={tdStyle}><TitleField value={title} setter={setTitle} /></td>
               </tr>
               <tr>
                 <td style={thStyle}>프로젝트 시작일</td>
@@ -91,9 +121,10 @@ export default function ProjectOverview(props: any) {
                 <td style={tdStyle}><Field type="date" value={endDate} setter={setEndDate} /></td>
               </tr>
               <tr>
-                <td style={thStyle}>작성일</td>
-                <td colSpan={3} style={tdStyle}><Field type="date" value={createdDate} setter={setCreatedDate} /></td>
-              </tr>
+              <td style={thStyle}>작성일</td>
+                 <td colSpan={3} style={tdStyle}><DateField value={createdDate} setter={setCreatedDate} /></td>
+                </tr>
+
 
               {/* 팀 구성 및 역할 분담 */}
               <tr><td colSpan={4} style={thStyle}>팀 구성 및 역할 분담</td></tr>
@@ -128,7 +159,7 @@ export default function ProjectOverview(props: any) {
 
               {/* ✅ 기술 스택 */}
               <tr><td colSpan={4} style={thStyle}>기술 스택</td></tr>
-              <tr><td colSpan={4} style={tdStyle}><Field value={techStack} setter={setTechStack} /></td></tr>
+              <tr><td colSpan={4} style={tdStyle}><TextAreaField value={techStack} setter={setTechStack} /></td></tr>
 
               {/* ✅ 기대 성과 */}
               <tr><td colSpan={4} style={thStyle}>기대 성과</td></tr>
@@ -163,9 +194,35 @@ const addButtonStyle: CSSProperties = { backgroundColor: "#4CAF50", color: "#fff
 const teamMemberRowStyle: CSSProperties = { display: "flex", alignItems: "center", gap: "15px", width: "100%", marginBottom: "8px" };
 
 
+// 수정정 제목,작성일
+const TitleField = ({ value, setter }: { value: string; setter: (value: string) => void }) => (
+  <input type="text" value={value} onChange={(e) => setter(e.target.value)}
+    style={{
+      width: "97.5%", 
+      padding: "12px",
+      border: "1px solid #ccc",
+      borderRadius: "5px",
+      fontSize: "12px" 
+    }}
+  />
+);
+
+const DateField = ({ value, setter }: { value: string; setter: (value: string) => void }) => (
+  <input type="date" value={value} onChange={(e) => setter(e.target.value)}
+    style={{
+      width: "98%", // 
+      padding: "10px",
+      border: "1px solid #ccc",
+      borderRadius: "5px"
+    }}
+  />
+);
+
+
+
 /* ✅ 공통 입력 필드 */
 const Field = ({ value, setter, placeholder, type = "text" }: { value: string; setter: (value: string) => void; placeholder?: string; type?: string }) => (
-  <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} style={{ width: "96%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
+  <input type={type} value={value} onChange={(e) => setter(e.target.value)} placeholder={placeholder} style={{ width: "94%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px" }} />
 );
 
 /* ✅ 텍스트 영역 */
