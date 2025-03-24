@@ -9,6 +9,7 @@ import { limitTitle } from "../util/string"
 import { getUnivId } from '@/app/util/storage'
 import usePermissionGuard from '@/app/util/usePermissionGuard'
 import { useRouter } from "next/navigation"
+import useSessionGuard from "../util/checkAccount"
 
 type taskType = {
     p_no: number
@@ -36,6 +37,7 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
     const s_no = getUnivId()
     const readPermission = usePermissionGuard(p_id, s_no, {leader: 1, task: [1, 2]}, false);
     const writePermission = usePermissionGuard(p_id, s_no, {leader: 1, task: 1}, false);
+    const session = useSessionGuard();
     useEffect(() => {
         loadTask();
     }, []);
@@ -63,10 +65,10 @@ const TaskTable = ({page, p_id}: {page: number, p_id: number}) => {
         }
     }
 
-    if(readPermission === null){
+    if(readPermission === null || session === null){
         return <div>Loading...</div>
     }
-    if(!readPermission){
+    if(!readPermission && session === 1){
         router.push(`/project-main/${p_id}/main`)
         alert("권한이 없습니다.")
         return null

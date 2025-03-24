@@ -142,12 +142,21 @@ export function LoginModal() {
           setUnivId(response.data.PAYLOADS.Univ_ID);
           setUserId(data.id);
           router.push("/project-main");
-        } else {
-          alert(response.data.RESULT_MSG);
         }
       } catch (err) {
-        console.error("로그인 실패:", err);
-        alert("❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.");
+        try{
+          const response = await axios.post<postType>(
+            "https://cd-api.chals.kim/api/prof/signin",
+            data,
+            { headers: { Authorization: process.env.SECRET_API_KEY } }
+          );
+          if (response.data.RESULT_CODE === 200) {
+            setToken(response.data.PAYLOADS.Token);
+            setUnivId(response.data.PAYLOADS.Univ_ID);
+            setUserId(data.id);
+            router.push("/project-main");
+          }
+        }catch(err){alert("❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.");}
       } finally {
         setIsLoading(false);
       }

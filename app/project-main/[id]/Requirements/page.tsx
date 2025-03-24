@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useRef, useState } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import { useRouter } from "next/navigation";
@@ -8,12 +8,29 @@ import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 
+type postType = {
+  feature_name: string
+    description: string
+    priority: number
+    non_functional_requirement_name: string
+    non_functional_description: string
+    non_functional_priority: number
+    system_item: string
+    system_description: string
+    pid: number
+    doc_r_no: number
+    add_date: string
+}
+
 export default function RequirementsForm(props: any) {
   const [creationDate, setCreationDate] = useState("");
   const [systemRequirements, setSystemRequirements] = useState("");
+  const [systemDes, setSystemDes] = useState("");
   const [functionalRequirements, setFunctionalRequirements] = useState("");
+  const [functionalDes, setFunctionalDes] = useState("");
   const [functionalRequirementsPriority, setFunctionalRequirementsPriority] = useState<number>(1);
   const [nonFunctionalRequirements, setNonFunctionalRequirements] = useState("");
+  const [nonFunctionalDes, setNonFunctionalDes] = useState("");
   const [nonFunctionalRequirementsPriority, setNonFunctionalRequirementsPriority] = useState<number>(1);
 
   const router = useRouter();
@@ -22,22 +39,75 @@ export default function RequirementsForm(props: any) {
   usePermissionGuard(props.params.id, s_no, { leader: 1, rs: 1 }, true);
 
   const handleSave = async () => {
-    const data = {
-      system_item: systemRequirements,
+    const data: postType = {
       feature_name: functionalRequirements,
+      description: functionalDes,
       priority: functionalRequirementsPriority,
       non_functional_requirement_name: nonFunctionalRequirements,
+      non_functional_description: nonFunctionalDes,
       non_functional_priority: nonFunctionalRequirementsPriority,
+      system_item: systemRequirements,
+      system_description: systemDes,
       pid: props.params.id,
+      doc_r_no: 0,
+      add_date: creationDate
     };
 
     try {
-      await axios.post("https://cd-api.chals.kim/api/output/reqspec_add", data, {
+      const response = await axios.post("https://cd-api.chals.kim/api/output/reqspec_add", data, {
         headers: { Authorization: process.env.SECRET_API_KEY },
       });
-      router.push(`/project-main/${props.params.id}/outputManagement`);
+      // router.push(`/project-main/${props.params.id}/outputManagement`);
+      const tmpDoc = response.data.PAYLOADS.doc_s_no
+      handleUploadFile(tmpDoc)
     } catch (err) {
       alert("저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  const [tmpfile, setFile] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleResetFile = () => {
+    setFile([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+        setFile(Array.from(e.target.files));
+    }
+  };
+
+  const handleUploadFile = async (doc_id: number) => {
+    if (!tmpfile) {
+        return;
+    }
+    const tmppid: number = props.params.id;
+    const tmpunivid = getUnivId();
+    const formData = new FormData();
+    tmpfile.forEach((file) => {
+        formData.append('files', file);
+    });
+    formData.append('p_no', tmppid.toString());
+    formData.append('doc_no', doc_id.toString())
+    formData.append('doc_type', '3')
+    formData.append('univ_id', tmpunivid.toString());
+
+    try {
+        const response = await axios.post(
+            'https://cd-api.chals.kim/api/output/attach_add',
+            formData,
+            { headers: { Authorization: process.env.SECRET_API_KEY } }
+        );
+
+        if (response.data.RESULT_CODE === 200) {
+            router.push(`/project-main/${props.params.id}/outputManagement`);
+        }
+    } catch (err) {
+        alert('❌ 파일 업로드 실패');
     }
   };
 
@@ -47,7 +117,7 @@ export default function RequirementsForm(props: any) {
       <div style={layoutContainerStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentContainerStyle}>
-          <h2 style={sectionHeaderStyle}>📝 요구사항 작성</h2>
+          <h2 style={sectionHeaderStyle}>📝 요구사항 작성 ver.2</h2>
 
           <table style={tableStyle}>
             <tbody>
@@ -55,8 +125,10 @@ export default function RequirementsForm(props: any) {
               <tr><td style={thStyle}>작성일</td><td colSpan={3} style={tdStyle}><Field type="date" value={creationDate} setter={setCreationDate} /></td></tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 시스템 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={systemRequirements} setter={setSystemRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={systemDes} setter={setSystemDes} /></td></tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 기능 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={functionalRequirements} setter={setFunctionalRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={functionalDes} setter={setFunctionalDes} /></td></tr>
               <tr><td style={thStyle}>우선순위</td>
                 <td colSpan={3} style={tdStyle}>
                   <select value={functionalRequirementsPriority} onChange={(e) => setFunctionalRequirementsPriority(Number(e.target.value))} style={selectStyle}>
@@ -68,6 +140,7 @@ export default function RequirementsForm(props: any) {
               </tr>
               <tr><td colSpan={4} style={sectionThStyle}>📌 비기능 요구사항</td></tr>
               <tr><td style={thStyle}>요구사항</td><td colSpan={3} style={tdStyle}><TextAreaField value={nonFunctionalRequirements} setter={setNonFunctionalRequirements} /></td></tr>
+              <tr><td style={thStyle}>설명</td><td colSpan={3} style={tdStyle}><TextAreaField value={nonFunctionalDes} setter={setNonFunctionalDes} /></td></tr>
               <tr><td style={thStyle}>우선순위</td>
                 <td colSpan={3} style={tdStyle}>
                   <select value={nonFunctionalRequirementsPriority} onChange={(e) => setNonFunctionalRequirementsPriority(Number(e.target.value))} style={selectStyle}>
@@ -79,7 +152,23 @@ export default function RequirementsForm(props: any) {
               </tr>
             </tbody>
           </table>
-
+          <div>
+                    <div style={formContainerStyle}>
+                      <div style={{display: 'flex', width: '100%'}}>
+                        <span style={{ fontSize: '16px', color: '#6b7280', whiteSpace: 'pre-wrap', alignSelf: 'flex-start' }}>
+                            {`프로젝트와 관련된 파일을 업로드하세요.\n한번에 여러개의 파일을 업로드할 수 있습니다..`}
+                        </span>
+                        <div style={{marginLeft: 'auto', width: '40%'}}>
+                        <input type="file" multiple onChange={handleFileChange} style={fileInputStyle} ref={fileInputRef} />
+                        </div>
+                        
+                      </div>
+                        
+                        <button onClick={handleResetFile} style={uploadButtonStyle}>
+                            📤 제거
+                        </button>
+                    </div>
+                </div>
           <div style={buttonContainerStyle}>
             <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
           </div>
@@ -113,3 +202,36 @@ const TextAreaField = ({ value, setter }: { value: string; setter: (value: strin
 const ActionButton = ({ label, onClick, color }: { label: string; onClick: () => void; color: string }) => (
   <button onClick={onClick} style={{ backgroundColor: color, color: "#fff", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer" }}>{label}</button>
 );
+
+const formContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '15px',
+  width: '98%',
+  // maxWidth: '800px',
+  padding: '20px',
+  backgroundColor: '#f3f4f6',
+  borderRadius: '10px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+} as const;
+
+const fileInputStyle = {
+  width: 'calc(100% - 22px)',
+  padding: '10px',
+  fontSize: '16px',
+  border: '1px solid #ddd',
+  borderRadius: '5px',
+  backgroundColor: '#fff',
+} as const;
+
+const uploadButtonStyle = {
+  padding: '12px 20px',
+  backgroundColor: '#4CAF50',
+  color: '#fff',
+  fontSize: '16px',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  width: '100%',
+} as const;

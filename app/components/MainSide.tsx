@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { getUnivId } from "../util/storage";
+import { getToken, getUnivId, getUserId } from "../util/storage";
 
 
 type returnTask = {
@@ -27,15 +27,22 @@ const MainSide = ({ pid }: { pid: number }) => {
   const [tasks, setTasks] = useState<taskType[]>([]); // ✅ To-Do List 데이터 상태 추가
   const router = useRouter();
   const tmpUnivId = getUnivId()
+  let addGrade = false
 
-  const mainMenu = ["메인", "프로젝트 관리", "산출물 작성", "산출물 관리", "업무 관리"];
+  const [mainMenu, setMainMenu] = useState<string[]>([
+    "메인",
+    "프로젝트 관리",
+    "산출물 작성",
+    "산출물 관리",
+    "업무 관리"
+  ]);
   const subMenu = [
     ["메인 페이지"],
     ["WBS 관리", "사용자 관리", "프로젝트 설정"],
-    ["개요서", "회의록", "테스트", "요구사항", "보고서", "기타"],
+    ["개요서", "회의록", "테스트 케이스", "요구사항", "보고서", "기타"],
     ["산출물 관리", "자료실"],
     ["업무 관리"],
-    // ["평가", "확인"],
+    ["프로젝트 평가"],
   ];
   const routMenu = [
     [`/project-main/${pid}/main`],
@@ -43,12 +50,29 @@ const MainSide = ({ pid }: { pid: number }) => {
     [`/project-main/${pid}/overview`, `/project-main/${pid}/minutes`, `/project-main/${pid}/servicetest`, `/project-main/${pid}/Requirements`, `/project-main/${pid}/Report`, `/project-main/${pid}/output/create`],
     [`/project-main/${pid}/outputManagement`, `/project-main/${pid}/library`],
     [`/project-main/${pid}/task`],
-    [`/project-main/${pid}/grade`, `/project-main/${pid}/check`],
+    [`/project-main/${pid}/grade`],
   ];
 
   useEffect(() => {
     loadTasks();
+    const checkProf = async() => {
+      const id = getUserId()
+      const token = getToken()
+      try{
+        const responseProf = await axios.post("https://cd-api.chals.kim/api/prof/checksession", {user_id: id, token: token}, { headers: { Authorization: process.env.SECRET_API_KEY } });
+        if(!addGrade){
+          addGrade = true
+          setMainMenu((prev) => [...prev, "평가"]);
+        }
+        
+      }catch(err){}
+    }
+    checkProf()
   }, [pid]);
+
+  useEffect(() => {
+    console.log(mainMenu)
+  }, [mainMenu])
 
   // ✅ To-Do List 데이터 불러오기
   const loadTasks = async () => {
@@ -144,57 +168,58 @@ const MainSide = ({ pid }: { pid: number }) => {
           >
             {menu}
           </button>
-          {visibleIndex === index && (
-            <div style={{ marginTop: "5px" }}>
-              {subMenu[index].map((submenu, subIndex) => (
-                pid === 0 ? (
-                  <button
-                  key={subIndex}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "8px 12px",
-                    margin: "2px 0",
-                    border: "none",
-                    backgroundColor: "#f9f9f9",
-                    color: "#333",
-                    textAlign: "left",
-                    borderRadius: "5px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
-                >
-                  {submenu}
-                </button>
-              ) :(
-                <button
-                  key={subIndex}
-                  onClick={() => gotoMenu(index, subIndex)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "8px 12px",
-                    margin: "2px 0",
-                    border: "none",
-                    backgroundColor: "#f9f9f9",
-                    color: "#333",
-                    textAlign: "left",
-                    borderRadius: "5px",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
-                >
-                  {submenu}
-                </button>
-              )))}
-            </div>
-          )}
+          {visibleIndex === index && subMenu[index] && (
+  <div style={{ marginTop: "5px" }}>
+    {subMenu[index].map((submenu, subIndex) => (
+      pid === 0 ? (
+        <button
+          key={subIndex}
+          style={{
+            display: "block",
+            width: "100%",
+            padding: "8px 12px",
+            margin: "2px 0",
+            border: "none",
+            backgroundColor: "#f9f9f9",
+            color: "#333",
+            textAlign: "left",
+            borderRadius: "5px",
+            fontSize: "14px",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
+        >
+          {submenu}
+        </button>
+      ) : (
+        <button
+          key={subIndex}
+          onClick={() => gotoMenu(index, subIndex)}
+          style={{
+            display: "block",
+            width: "100%",
+            padding: "8px 12px",
+            margin: "2px 0",
+            border: "none",
+            backgroundColor: "#f9f9f9",
+            color: "#333",
+            textAlign: "left",
+            borderRadius: "5px",
+            fontSize: "14px",
+            cursor: "pointer",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#E5F0FF")}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
+        >
+          {submenu}
+        </button>
+      )
+    ))}
+  </div>
+)}
         </div>
       ))}
       

@@ -16,8 +16,6 @@ export const CheckSession = async({data}: {data: checkType}) => {
         const response = await axios.post<returnType>("https://cd-api.chals.kim/api/acc/checksession", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
         return response.data.RESULT_CODE
     }catch(err){
-        console.log(err);
-        return 0
     };
 }
 

@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { LoginModal } from "./components/AccountModal";
 import axios from "axios";
 import { getToken, getUnivId, getUserId, clearStorage } from "./util/storage";
+import useSessionGuard from "./util/checkAccount";
 
 
 export default function Home() {
@@ -13,25 +14,32 @@ export default function Home() {
   // const sno = getUnivId();
   const id = getUserId();
   const token = getToken();
-
+  const check = useSessionGuard()
   useEffect(() => {
-    checkSession();
-  }, [])
-
-  const checkSession = async() => {
-    try{
-      const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: id, token: token}, {headers: { Authorization: process.env.SECRET_API_KEY },});
-      if(response.data.RESULT_CODE === 200){
+    if(check !== null){
+      if(check !== 0){
         setSession(true)
       }else{
         setSession(false)
         clearStorage()
       }
-    }catch(err){
-      setSession(false)
-      clearStorage()
     }
-  }
+  }, [check])
+
+  // const checkSession = async() => {
+  //   try{
+  //     const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: id, token: token}, {headers: { Authorization: process.env.SECRET_API_KEY },});
+  //     if(response.data.RESULT_CODE === 200){
+  //       setSession(true)
+  //     }else{
+  //       setSession(false)
+  //       clearStorage()
+  //     }
+  //   }catch(err){
+  //     setSession(false)
+  //     clearStorage()
+  //   }
+  // }
 
   const signOut = async() => {
     try{
@@ -42,7 +50,14 @@ export default function Home() {
             alert('로그아웃 되었습니다.');
         }
     }catch(err){
-
+      try{
+        const response = await axios.post("https://cd-api.chals.kim/api/prof/signout", {token: token}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+        if(response.data.RESULT_CODE === 200){
+            clearStorage();
+            setSession(false)
+            alert('로그아웃 되었습니다.');
+        }
+      }catch(err){}
     }
 }
 

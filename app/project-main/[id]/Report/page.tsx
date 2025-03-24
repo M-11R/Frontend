@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect, useRef } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import axios from "axios";
@@ -42,12 +42,60 @@ export default function ReportForm(props: any) {
     };
 
     try {
-      await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {
+      const response = await axios.post("https://cd-api.chals.kim/api/output/report_add", data, {
         headers: { Authorization: process.env.SECRET_API_KEY },
       });
-      router.push(`/project-main/${props.params.id}/outputManagement`);
+      // router.push(`/project-main/${props.params.id}/outputManagement`);
+      const tmpDoc = response.data.PAYLOADS.doc_s_no
+      handleUploadFile(tmpDoc)
     } catch (err) {
       alert("저장 중 오류가 발생했습니다.");
+    }
+  };
+
+  const [tmpfile, setFile] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const handleResetFile = () => {
+    setFile([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+        setFile(Array.from(e.target.files));
+    }
+  };
+
+  const handleUploadFile = async (doc_id: number) => {
+    if (!tmpfile) {
+        return;
+    }
+    const tmppid: number = props.params.id;
+    const tmpunivid = getUnivId();
+    const formData = new FormData();
+    tmpfile.forEach((file) => {
+        formData.append('files', file);
+    });
+    formData.append('p_no', tmppid.toString());
+    formData.append('doc_no', doc_id.toString())
+    formData.append('doc_type', '2')
+    formData.append('univ_id', tmpunivid.toString());
+
+    try {
+        const response = await axios.post(
+            'https://cd-api.chals.kim/api/output/attach_add',
+            formData,
+            { headers: { Authorization: process.env.SECRET_API_KEY } }
+        );
+
+        if (response.data.RESULT_CODE === 200) {
+            router.push(`/project-main/${props.params.id}/outputManagement`);
+        }
+    } catch (err) {
+        alert('❌ 파일 업로드 실패');
     }
   };
 
@@ -57,19 +105,33 @@ export default function ReportForm(props: any) {
       <div style={layoutStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentStyle}>
-          <h2 style={titleStyle}>📑 보고서 작성2</h2>
+          <h2 style={titleStyle}>📑 보고서 작성 ver6</h2>
 
           <table style={tableStyle}>
             <tbody>
               <tr><td colSpan={4} style={sectionHeaderStyle}>📌 기본 정보</td></tr>
               <tr>
-                <td style={thStyle}>보고서 제목</td>
-                <td colSpan={3} style={tdStyle}><Field value={reportTitle} setter={setReportTitle} /></td>
-              </tr>
-              <tr>
-                <td style={thStyle}>프로젝트 명</td>
-                <td colSpan={3} style={tdStyle}><Field value={projectName} setter={setProjectName} /></td>
-              </tr>
+          <td style={thStyle}>보고서 제목</td>
+          <td colSpan={3} style={tdStyle}>
+            <input 
+              type="text"
+              value={reportTitle}
+             onChange={(e) => setReportTitle(e.target.value)}
+             style={reportTitleStyle}
+           />
+          </td>
+        </tr>
+        <tr>
+         <td style={thStyle}>프로젝트 명</td>
+         <td colSpan={3} style={tdStyle}>
+           <input 
+              type="text"
+             value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              style={projectNameStyle}
+           />
+          </td>
+        </tr>
               <tr>
                 <td style={thStyle}>작성일</td>
                 <td style={tdStyle}><Field type="date" value={submissionDate} setter={setSubmissionDate} /></td>
@@ -87,7 +149,23 @@ export default function ReportForm(props: any) {
               <tr><td colSpan={4} style={tdStyle}><TextAreaField label="결론" value={conclusion} setter={setConclusion} /></td></tr>
             </tbody>
           </table>
-
+          <div>
+                    <div style={formContainerStyle}>
+                      <div style={{display: 'flex', width: '100%'}}>
+                        <span style={{ fontSize: '16px', color: '#6b7280', whiteSpace: 'pre-wrap', alignSelf: 'flex-start' }}>
+                            {`프로젝트와 관련된 파일을 업로드하세요.\n한번에 여러개의 파일을 업로드할 수 있습니다..`}
+                        </span>
+                        <div style={{marginLeft: 'auto', width: '40%'}}>
+                        <input type="file" multiple onChange={handleFileChange} style={fileInputStyle} ref={fileInputRef} />
+                        </div>
+                        
+                      </div>
+                        
+                        <button onClick={handleResetFile} style={uploadButtonStyle}>
+                            📤 제거
+                        </button>
+                    </div>
+                </div>
           <div style={buttonContainerStyle}>
             <ActionButton label="저장" onClick={handleSave} color="#2196F3" />
           </div>
@@ -109,6 +187,23 @@ const tdStyle: CSSProperties = { padding: "18px", border: "1px solid black", tex
 const buttonContainerStyle: CSSProperties = { display: "flex", justifyContent: "center", marginTop: "20px" };
 
 
+const reportTitleStyle: CSSProperties = {
+  width: "98.5%",  // 전체 너비 사용
+  padding: "12px",
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+  fontSize: "16px",
+};
+
+const projectNameStyle: CSSProperties = {
+  width: "98.5%",  // 전체 너비 사용
+  padding: "12px",
+  border: "1px solid #ccc",
+  borderRadius: "5px",
+  fontSize: "16px",
+};
+
+
 
 /* ✅ 컴포넌트 정의 */
 const Field = ({ value, setter, type = "text" }: { value: string; setter: (value: string) => void; type?: string }) => (
@@ -125,3 +220,36 @@ const TextAreaField = ({ label, value, setter }: { label: string; value: string;
 const ActionButton = ({ label, onClick, color }: { label: string; onClick: () => void; color: string }) => (
   <button onClick={onClick} style={{ backgroundColor: color, color: "#fff", padding: "10px 20px", border: "none", borderRadius: "5px", cursor: "pointer" }}>{label}</button>
 );
+
+const formContainerStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: '15px',
+  width: '98%',
+  // maxWidth: '800px',
+  padding: '20px',
+  backgroundColor: '#f3f4f6',
+  borderRadius: '10px',
+  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+} as const;
+
+const fileInputStyle = {
+  width: 'calc(100% - 22px)',
+  padding: '10px',
+  fontSize: '16px',
+  border: '1px solid #ddd',
+  borderRadius: '5px',
+  backgroundColor: '#fff',
+} as const;
+
+const uploadButtonStyle = {
+  padding: '12px 20px',
+  backgroundColor: '#4CAF50',
+  color: '#fff',
+  fontSize: '16px',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  width: '100%',
+} as const;

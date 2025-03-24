@@ -5,7 +5,7 @@ import React, { ChangeEvent } from 'react'; //추가된 내용
 import { useState, useEffect } from 'react';
 import axios from 'axios'
 import mb from '@/app/json/msBox.json'
-import { getUnivId } from '@/app/util/storage';
+import { getToken, getUnivId, getUserId } from '@/app/util/storage';
 import { useRouter } from 'next/navigation';
 import { usePageReload } from '@/app/util/reloadPage';
 
@@ -130,13 +130,25 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
             pid: pid,
             univ_id: getUnivId()
         }
+        const id = getUserId()
+        const token = getToken()
         try{
             const response = await axios.post<returnType>("https://cd-api.chals.kim/api/project/checkpm", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            
             if(response.data.RESULT_CODE !== 200){
                 closeModal();
                 alert("권한이 없습니다.");
             }
+            
         }catch(err){
+            try{
+                const responseProf = await axios.post("https://cd-api.chals.kim/api/prof/checksession", {user_id: id, token: token}, { headers: { Authorization: process.env.SECRET_API_KEY } });
+                if(responseProf.data.RESULT_CODE === 200){
+                    closeModal();
+                    alert("권한이 없습니다.");
+                }
+            }catch(err){
+            }
             closeModal();
             alert("권한이 없습니다.");
         }
@@ -909,3 +921,10 @@ const bulkButtonStyle: CSSProperties = {
     gap: "6px",
     width: '32%',
   };
+
+
+
+
+
+
+  

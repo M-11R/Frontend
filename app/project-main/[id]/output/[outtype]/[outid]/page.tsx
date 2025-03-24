@@ -38,8 +38,8 @@ export default function Output(props: any){
                 <MainSide pid = {props.params.id}/>
 
                 {/*메인 페이지*/}
-                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', display: 'flex', margin: '0', alignContent: 'center'}}>
-                    <div style={{margin: '100px auto', width: '55%'}}>
+                <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', display: 'flex', margin: '0', alignContent: 'center', overflowY: 'auto'}}>
+                    <div style={{margin: '10px auto', width: '85%'}}>
                         <DynamicOutput type={props.params.outtype} oid={props.params.outid} pid={props.params.id}/>
                     </div>
                 </div>

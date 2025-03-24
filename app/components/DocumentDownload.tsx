@@ -53,8 +53,35 @@ const DocumentDownloadBtn = ({d_type, d_no, d_name}: {d_type: number, d_no: numb
     }
 
     return (
-        <button onClick={() => documentDownload()}>다운로드</button>
+        <button onClick={() => documentDownload()} style={downloadButtonStyle}>다운로드</button>
     )
 }
 
 export default DocumentDownloadBtn;
+
+const downloadButtonStyle = {
+    backgroundColor: "#4CAF50",
+    color: "#fff",
+    padding: "8px 12px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+};
+
+const confirmdownloadButtonStyle = {
+    backgroundColor: "red",
+    color: "#fff",
+    padding: "8px 12px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+};
+
+const cancelButtonStyle = {
+    backgroundColor: "#ccc",
+    color: "#000",
+    padding: "8px 12px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+};

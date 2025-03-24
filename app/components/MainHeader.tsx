@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 
 import axios from 'axios';
 import { getToken, getUnivId, getUserId } from '../util/storage';
+import useSessionGuard from '../util/checkAccount';
 
 type fetchType = {
   "RESULT_CODE": number, 
@@ -107,28 +108,37 @@ const MainHeader = ({ pid }: { pid: number }) => {
   const userToken = getToken()
   const univId = getUnivId()
   const router = useRouter()
+  const session = useSessionGuard()
 
-  const checkAccount = async() => {
-    try{
-      const checkSession = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: userId, token: userToken}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-      const getUserList = await axios.post<userListPayLoad>("https://cd-api.chals.kim/api/project/checkuser", {pid: pid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-      if(getUserList.data.RESULT_CODE === 200){
-        const isInclude: boolean = getUserList.data.PAYLOADS.some((user) => user.univ_id === univId)
-        if(!isInclude){
+  
+
+  useEffect(() => {
+    if(pid !== 0 && session !== null){
+      const checkAccount = async() => {
+        try{
+          if(session === 1){
+            const getUserList = await axios.post<userListPayLoad>("https://cd-api.chals.kim/api/project/checkuser", {pid: pid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            if(getUserList.data.RESULT_CODE === 200){
+              const isInclude: boolean = getUserList.data.PAYLOADS.some((user) => user.univ_id === univId)
+              if(!isInclude){
+                router.push('/');
+              }
+            }
+          }else if(session === 2){
+            const response = await axios.post("https://cd-api.chals.kim/api/project/load_prof", {pid: pid}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+          }else{
+            alert("정상적이지 않는 접근입니다.")
+            router.push('/');
+          }
+          
+        }catch(err){
+          alert("정상적이지 않는 접근입니다.")
           router.push('/');
         }
       }
-    }catch(err){
-      alert("정상적이지 않는 접근입니다.")
-      router.push('/');
-    }
-  }
-
-  useEffect(() => {
-    if(pid !== 0){
       checkAccount();
     }
-  }, [pid])
+  }, [pid, session])
 
   return (
     <header
@@ -152,7 +162,7 @@ const MainHeader = ({ pid }: { pid: number }) => {
           src={ico}
           alt="Logo"
           style={{
-            width: "100px",
+            width: "210px",
             height: "80px",
             objectFit: "contain",
             cursor: "pointer",

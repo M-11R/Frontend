@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import { getUnivId } from "../util/storage"
 
 const PJDelBtn = ({pid}: {pid: number}) => {
     const [text, setText] = useState('');
     const router = useRouter();
     const deleteText = "삭제하겠습니다."
+    const s_no = getUnivId()
 
     const handleDelete = async() => {
-        const data = {pid: pid}
+        const data = {pid: pid, univ_id: s_no}
         if(text !== deleteText){
             alert("삭제 텍스트가 일치하지 않습니다.")
             return
