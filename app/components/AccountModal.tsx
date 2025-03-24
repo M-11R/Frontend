@@ -183,7 +183,7 @@ export function LoginModal() {
             <Modal isOpen={isOpen} closeModal={closeModal}>
             <div>
                 <div>
-                <h2 style={commonStyles.title}>🔑 로그인 ver.2</h2>
+                <h2 style={commonStyles.title}>🔑 로그인</h2>
                 <form onSubmit={handleLogin}>
                     <input
                     type="text"

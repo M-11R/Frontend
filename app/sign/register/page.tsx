@@ -174,7 +174,7 @@ export default function Signup() {
             { label: mb.user.hak.value, value: hak, setter: setHak, type: "number", placeholder: "" },
             { label: mb.user.id.value, value: id, setter: setID, type: "text", placeholder: "" },
             
-            { label: mb.user.password.value, value: password, setter: setPassword, type: "password", placeholder: "8자리, 특수문자를 입력해주세요." },
+            { label: mb.user.password.value, value: password, setter: setPassword, type: "password", placeholder: "8자리 이상 입력해주세요." },
             {
               label: mb.register["re-password"].value,
               value: repassword,

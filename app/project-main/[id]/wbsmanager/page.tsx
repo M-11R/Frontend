@@ -91,6 +91,7 @@ type returnType = {
 }
 
 export default function Main(props: any) {
+  const [hoveredButton, setHoveredButton] = useState<number | null>(null);
   const router = useRouter()
   const [model, setModel] = useState<string>("Waterfall"); // 기본값: 폭포수 모델
   const [rows, setRows] = useState<WbsRow[]>([]);
@@ -620,8 +621,8 @@ export default function Main(props: any) {
           <h2>{model === "Waterfall" ? "폭포수 모델" : (model === "Agile" ? "애자일 모델" : "기타 모델")} WBS</h2>
 
           {/* 모델 선택 및 데이터 관리 */}
-          <div style={{ marginBottom: "20px" }}>
-            <button
+          <div style={{ marginBottom: "20px", height: '30px' }}>
+            {/* <button
               onClick={() => setModel("Waterfall")}
               style={{
                 padding: "10px 20px",
@@ -662,7 +663,7 @@ export default function Main(props: any) {
               }}
             >
               기타 모델
-            </button>
+            </button> */}
 
             <div style={{float: 'right'}}>
               <div style={{position: 'relative', display: 'inline-block'}}>
@@ -1233,34 +1234,40 @@ export default function Main(props: any) {
                     />
                   </td> */}
                   <td style={{ textAlign: "center" }}>
-                    <button
-                      onClick={() => moveRowUp(index)}
-                      style={{
-                        padding: "10px 20px",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        backgroundColor: "#FF4D4D",
-                        color: "#fff",
-                      }}
-                      
-                    >
-                      ▲
-                    </button>
-                    <button
-                      onClick={() => moveRowDown(index)}
-                      style={{
-                        padding: "10px 20px",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        backgroundColor: "#FF4D4D",
-                        color: "#fff",
-                      }}
-                      
-                    >
-                      ▼
-                    </button>
+                  <button
+  onClick={() => moveRowUp(index)}
+  onMouseEnter={() => setHoveredButton(index * 2)}
+  onMouseLeave={() => setHoveredButton(null)}
+  style={{
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    backgroundColor: hoveredButton === index * 2 ? "#3399ff" : "#808080",
+    color: "#fff",
+    transition: "background-color 0.2s",
+  }}
+>
+  ▲
+</button>
+
+<button
+  onClick={() => moveRowDown(index)}
+  onMouseEnter={() => setHoveredButton(index * 2 + 1)}
+  onMouseLeave={() => setHoveredButton(null)}
+  style={{
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    backgroundColor: hoveredButton === index * 2 + 1 ? "#3399ff" : "#808080",
+    color: "#fff",
+    transition: "background-color 0.2s",
+  }}
+>
+  ▼
+</button>
+
                   </td>
                   <td style={{ textAlign: "center" }}>
                     <button

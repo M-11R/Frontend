@@ -248,8 +248,9 @@ const containerStyle: CSSProperties = {
   overflowY: "hidden",
   display: "flex",
   flexWrap: "nowrap",
-  gap: "10px",
+  gap: "5px",
   alignItems: "center",
+  paddingLeft: "5px",
   padding: "5px",
   paddingBottom: '10px',
   boxSizing: "border-box"

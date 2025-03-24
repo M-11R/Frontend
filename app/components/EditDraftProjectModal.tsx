@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, CSSProperties } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { getUnivId } from '../util/storage';
@@ -110,6 +110,19 @@ type profType = {
     f_name: string
 }
 
+type cppList = {
+    ver: number;
+    date: string;
+    s_no: number;
+    msg: string;
+  };
+  
+  // 기존 cppList 배열 대신, 이제 그룹별로 받습니다.
+  type GroupedLog = {
+    pname: string | null;
+    history: cppList[];
+  };
+
 export function EditDraftProjectModal() {
     const [isLoading, setIsLoading] = useState(false);
     const [newPj, setNewPj] = useState(true);
@@ -137,6 +150,22 @@ export function EditDraftProjectModal() {
     const [profList, setProfList] = useState<profType[]>([{f_no: 0, f_name: "Loading..."}])
 
     const [draftLoading, setDraftLoading] = useState(true);
+    const [recoveryLoading, setRecoveryLoading] = useState(true);
+
+    const [logList, setLogList] = useState<cppList[]>([{
+            ver: -1,
+            date: "",
+            s_no: -1,
+            msg: ""
+        }]);
+
+    const [selectRecovery, setSelectRecovery] = useState<cppList>({
+        ver: -1,
+        date: "",
+        s_no: -1,
+        msg: ""
+    })
+    const [selectPid, setSelectPid] = useState(0)
 
     const [draftList, setDraftList] = useState<getDraft[]>([
         {
@@ -157,12 +186,56 @@ export function EditDraftProjectModal() {
 
     const [page, setPage] = useState(0);
 
+    const [groupedLogs, setGroupedLogs] = useState<Record<number, GroupedLog>>({});
+    const [selectedPNo, setSelectedPNo] = useState<number | null>(null);
+
+    const loadRecovery = async () => {
+        try {
+          // 예시: pid는 0 (혹은 필요에 따라 값 변경)
+          const response = await axios.post(
+            "https://cd-api.chals.kim/api/ccp/load_history_id",
+            { pid: 0, univ_id: s_no, msg: "", ver: 0 },
+            { headers: { Authorization: process.env.SECRET_API_KEY } }
+          );
+
+          setGroupedLogs(response.data.PAYLOAD);
+          setRecoveryLoading(false);
+        } catch (err) {
+          console.error(err);
+          setRecoveryLoading(false);
+        }
+      };
+
+    // useEffect(() => {
+    //     const groups = logList.reduce((acc: Record<number, cppList[]>, log) => {
+    //         if (!acc[log.p_no]) {
+    //         acc[log.p_no] = [];
+    //         }
+    //         acc[log.p_no].push(log);
+    //         return acc;
+    //     }, {});
+    //     setGroupedLogs(groups);
+    // }, [logList]);
+
+    const handleGroupClick = (p_no: number) => {
+        setSelectedPNo(selectedPNo === p_no ? null : p_no);
+      };
+
     useEffect(() => {
         if(isOpen){
             loadSubject();
             loadDraft();
+            loadRecovery();
         }
     }, [isOpen])
+
+    // const loadRecovery = async() => {
+    //     try{
+    //         const response = await axios.post("https://cd-api.chals.kim/api/ccp/load_history_id", {pid: 0, univ_id: s_no, msg: "", ver: 0}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+    //         setLogList(response.data.PAYLOAD)
+    //         setRecoveryLoding(false);
+    //     }catch(err){}
+    // }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -336,6 +409,10 @@ export function EditDraftProjectModal() {
         }
     }
 
+    const handleRecoveryClick = () => {
+        setPage(-1)
+    }
+
     const handleDraftClick = (item: getDraft, index: number) => {
         if(item.pperiod === "-"){
             setStartDate('');
@@ -373,6 +450,37 @@ export function EditDraftProjectModal() {
     const handlereturnPJClick = () => {
         alert("준비중입니다.")
     }
+
+    const handleFirstPage = () => {
+        setPage(0)
+    }
+
+    const handleCppClick = (item: cppList) => {
+        setSelectRecovery(item)
+        setPage(-2)
+    }
+
+    const handleImport = async() => {
+            if(isLoading) return
+            setIsLoading(true)
+            const data = {
+                pid: selectPid,
+                univ_id: selectRecovery.s_no,
+                msg: selectRecovery.msg,
+                ver: selectRecovery.ver,
+                is_removed: 1
+            }
+            try{
+                    const response = await axios.post("https://cd-api.chals.kim/api/ccp/import", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
+                    closeModal()
+                    alert("가져오기 완료!")
+                    router.push(`/project-main/${selectPid}/main`)
+            }catch(err){
+    
+            }finally{
+                setIsLoading(false)
+            }
+        }
 
     return (
         <div>
@@ -424,7 +532,7 @@ export function EditDraftProjectModal() {
                                         </button>
                                     </div>
                                     <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
-                                        <button onClick={handlereturnPJClick} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                        <button onClick={handleRecoveryClick} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
                                             <span style={{fontSize: '18px'}}>프로젝트 복원</span>
                                         </button>
                                     </div>
@@ -553,6 +661,114 @@ export function EditDraftProjectModal() {
                                     </form>
                                 </div>
                             )
+                        case -1:
+                            return(
+                                <div style={{width: '100%', height: '100%',marginBottom: '15px', overflowY: 'auto', maxHeight: '500px'}}>
+                                    <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>삭제된 프로젝트 리스트</h2>
+                                    {(recoveryLoading) ? (
+                                        <div style={{width: '100%', height: '300px',maxHeight: '300px', overflowY: 'auto'}}>
+                                            
+                                        </div>
+                                        ) : (
+                                        <div style={{width: '100%', height: '300px',maxHeight: '300px', overflowY: 'auto'}}>
+                                            {recoveryLoading ? (
+                                                <div>Loading...</div>
+                                            ) : (
+                                                Object.keys(groupedLogs).map((p_noStr) => {
+                                                const p_no = parseInt(p_noStr);
+                                                const group = groupedLogs[p_no];
+                                                return (
+                                                    <div key={p_no} style={{ marginBottom: "10px", width: "80%", margin: "auto" }}>
+                                                    {/* 그룹 버튼 */}
+                                                    <button
+                                                        onClick={() => handleGroupClick(p_no)}
+                                                        style={{
+                                                        width: "100%",
+                                                        padding: "10px",
+                                                        border: "1px solid #000",
+                                                        borderRadius: "8px",
+                                                        backgroundColor: "#fff",
+                                                        cursor: "pointer",
+                                                        textAlign: "left",
+                                                        }}
+                                                    >
+                                                        {`${group.pname}: (${group.history.length} 개 로그)`}
+                                                    </button>
+                                                    {/* 선택된 그룹이면 해당 그룹의 로그 나열 */}
+                                                    {selectedPNo === p_no && (
+                                                        <div style={{ marginTop: "5px", margin: "10px" }}>
+                                                        {group.history.map((item, index) => (
+                                                            <div key={index} style={{ marginBottom: "5px" }}>
+                                                            <button
+                                                                onClick={() => handleCppClick(item)}
+                                                                style={{
+                                                                width: "100%",
+                                                                padding: "8px",
+                                                                border: "1px solid #000",
+                                                                borderRadius: "8px",
+                                                                backgroundColor: "#fff",
+                                                                cursor: "pointer",
+                                                                }}
+                                                            >
+                                                                <span>{`ver.${item.ver} | ${item.msg}`}</span>
+                                                                <br />
+                                                                <span>{item.date.replace("T", " ")}</span>
+                                                            </button>
+                                                            </div>
+                                                        ))}
+                                                        </div>
+                                                    )}
+                                                    </div>
+                                                );
+                                                })
+                                            )}
+                                        </div>)}
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handlePageUp} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>첫 페이지 이동</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )
+                        case -2:
+                            return (
+                                <div style={{width: '100%', height: '100%',marginBottom: '15px', overflowY: 'auto', maxHeight: '500px'}}>
+                                    <h2 style={{ textAlign: 'center', marginBottom: '20px', fontWeight: 'bold', color: '#333' }}>프로젝트 정보</h2>
+                                    <div style={{ display: "flex", flexDirection: "column", width: '80%', margin: '20px auto' }}>
+                                                            <div style={modalFieldStyle}>
+                                                                <strong>버전: </strong>
+                                                                {selectRecovery.ver}
+                                                            </div>
+                                                            <div style={modalFieldStyle}>
+                                                                <strong>수정자: </strong>
+                                                                {selectRecovery.s_no}
+                                                            </div>
+                                                            <div style={modalFieldStyle}>
+                                                                <strong>수정 날짜: </strong>
+                                                                {selectRecovery.date.replace("T", " ")}
+                                                            </div>
+                                                            <div style={modalFieldStyle}>
+                                                                <strong>수정 사항: </strong>
+                                                                {selectRecovery.msg}
+                                                            </div>
+                                                        </div>
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handleImport} disabled={isLoading} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>복원하기</span>
+                                        </button>
+                                    </div>
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handlePageUp} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>이전 페이지</span>
+                                        </button>
+                                    </div>
+                                    <div style={{width: 'calc(80%)', padding: '5px', margin: 'auto'}}>
+                                        <button onClick={handleFirstPage} style={{border: '1px solid #000', borderRadius: '8px', padding: '5px', width: '100%', backgroundColor: '#fff'}}>
+                                            <span style={{fontSize: '18px'}}>첫 페이지 이동</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            )
                         default:
                             return (
                                 <div>
@@ -566,3 +782,8 @@ export function EditDraftProjectModal() {
         </div>
     )
 }
+
+const modalFieldStyle: CSSProperties = {
+    marginBottom: "10px",
+    fontSize: "16px",
+  };

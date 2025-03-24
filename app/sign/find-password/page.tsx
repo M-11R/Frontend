@@ -149,7 +149,7 @@ export default function FindPassword() {
     }
   };
 
-  const handleNavigateToLogin = () => router.push("/sign/signIn");
+  const handleNavigateToLogin = () => router.push("/");
 
   return (
     <div style={commonStyles.container}>
@@ -244,7 +244,7 @@ export default function FindPassword() {
               backgroundColor: "#6c757d",
             }}
           >
-            🔙 로그인 페이지로 이동
+            🔙 첫 페이지로 이동
           </button>
         </div>
       </div>

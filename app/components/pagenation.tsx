@@ -11,7 +11,7 @@ type PaginationProps = {
 
 const Pagenation = ({ currentPage, totalPages, basePath }: PaginationProps) => {
     return (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px", flexWrap: "wrap", }}>
             <Link href={`${basePath}?page=${currentPage - 1}`}>
                 <button disabled={currentPage === 1}>이전</button>
             </Link>

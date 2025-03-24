@@ -215,7 +215,7 @@ export default function ProjectManage(props: any){
         }catch(err){}
     }
 
-    const pageList = ['수정 및 삭제', 'import / export']
+    const pageList = ['수정 및 삭제', '불러오기 / 저장하기']
 
     useEffect(() => {
         if(page === 0){
@@ -272,13 +272,14 @@ export default function ProjectManage(props: any){
             pid: selectedLog?.p_no,
             univ_id: selectedLog?.s_no,
             msg: selectedLog?.msg,
-            ver: selectedLog?.ver
+            ver: selectedLog?.ver,
+            is_removed: 0
         }
         try{
             if(selectedLog){
                 const response = await axios.post("https://cd-api.chals.kim/api/ccp/import", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
                 setImportModalOpen(false)
-                alert("Import 완료!")
+                alert("불러오기 완료!")
                 router.push(`/project-main/${props.params.id}/main`)
             }else{
                 
@@ -354,7 +355,7 @@ export default function ProjectManage(props: any){
                                 return (
                                     <div style={{height: '100%', overflowY: 'auto'}}>
                                         <div style={{width: '70%', display: 'flex', flexDirection: 'column', margin: '0 auto', marginTop: '30px'}}>
-                                            <span style={{fontSize: '40px'}}>프로젝트 수정 ver.3</span>
+                                            <span style={{fontSize: '40px'}}>프로젝트 수정</span>
                                             <form onSubmit={handleEditPJ} style={{marginTop: '10px'}}>
                                                 <div style={{ marginBottom: '15px' }}>
                                                     <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 이름:</label>
@@ -463,13 +464,13 @@ export default function ProjectManage(props: any){
                                 return (
                                     <div style={{width: '70%', minHeight: '700px',margin: '0 auto', display: 'flex', flexDirection: 'column', marginBottom: '0', overflowY: 'auto', marginTop: '30px'}}>
                                         {/**export 버튼 */}
-                                        <div style={{position: 'relative', width: '100%', minHeight: '40px',border: '0px solid #000', borderRadius: '3px', backgroundColor: 'lightgray', }}>
+                                        <div style={{position: 'relative', width: '100%', minHeight: '33px',border: '0px solid #000', borderRadius: '5px', backgroundColor: 'lightgray', }}>
                                             <button onClick={() => setExportModalOpen(true)} style={{position: 'absolute', right: '0', backgroundColor: 'lightgreen', padding: '5px 10px', borderRadius: '8px'}}>
-                                                export 16
+                                                프로젝트 저장하기
                                             </button>
                                             <Modal isOpen={isExportModalOpen} closeModal={() => setExportModalOpen(false)}>
                                                 <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
-                                                    <span style={{fontSize: '22px', paddingBottom: '10px'}}>프로젝트 Export</span>
+                                                    <span style={{fontSize: '22px', paddingBottom: '10px'}}>프로젝트 저장하기</span>
                                                     <div style={{display: 'flex'}}>
                                                         <input
                                                             style={{width: '85%', border: '1px solid #000', padding: '5px'}}
@@ -491,31 +492,35 @@ export default function ProjectManage(props: any){
                                         </div>
                                         {/**import 리스트 및 버튼 */}
                                         <div style={{width: '92%', display: 'flex', flexDirection: 'column', paddingLeft: '8%', paddingTop: '20px'}}>
-                                            {logList
-                                                .filter((log) => log.ver !== -1)
-                                                .map((log, index) => (
-                                                    <div key={index} style={{marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start',}}>
-                                                        <button 
-                                                        onClick={() => {
-                                                            setSelectedLog(log)
-                                                            setImportModalOpen(true)
-                                                        }}
-                                                        style={{
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            alignItems: 'flex-start',
-                                                            alignSelf: 'flex-start',
-                                                            backgroundColor: 'transparent',
-                                                            border: 'none',
-                                                            padding: 0,
-                                                            cursor: 'pointer', // 선택 시 커서 변경
-                                                        }}>
-                                                            <span style={{fontWeight: 'bold', display: 'inline-block', textAlign: 'left' }}>{`ver.${log.ver} | ${log.msg}`}</span>
-                                                            <span style={{display: 'inline-block', textAlign: 'left' }}>{log.date}</span>
-                                                        </button>
-                                                    </div>
+                                        <div style={logContainerStyle}>
+
+
+
+    {logList
+        .filter((log) => log.ver !== -1)
+        .map((log, index) => (
+            <div 
+                key={index} 
+                style={logCardStyle} 
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"} // ✅ 마우스 오버 효과
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#fff"} 
+                onClick={() => {
+                    setSelectedLog(log);
+                    setImportModalOpen(true);
+                }}
+            >
+                <div style={logHeaderStyle}>
+                    <span style={versionTextStyle}>{`ver.${log.ver} | ${log.msg}`}</span>
+                    <span style={dateTextStyle}>{log.date.replace("T", " ")}</span>
+                </div>
+            </div>
+        ))
+    }
+</div>
+
                                                     
-                                                ))}
+                                                
+
                                                 {isImportModalOpen && selectedLog && (
                                                     <Modal isOpen={isImportModalOpen} closeModal={() => { setImportModalOpen(false); setSelectedLog(null); }}>
                                                     <div style={{ padding: "10px 30px" }}>
@@ -543,7 +548,7 @@ export default function ProjectManage(props: any){
                                                                 disabled={isLoading}
                                                                 style={{backgroundColor: isLoading ? '#ccc' : 'lightgreen', padding: '5px 10px', borderRadius: '8px', cursor: isLoading ? 'not-allowed' : 'pointer'}}
                                                                 >
-                                                                    import
+                                                                    불러오기
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -577,3 +582,43 @@ export default function ProjectManage(props: any){
     marginBottom: "10px",
     fontSize: "16px",
   };
+
+  const logContainerStyle = {
+    width: "92%",
+    paddingLeft: "1%",
+    paddingTop: "20px",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "10px",
+};
+
+const logCardStyle = {
+    padding: "12px 16px",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    backgroundColor: "#fff",
+    cursor: "pointer",
+    transition: "background 0.3s, transform 0.2s",
+    display: "flex",
+    flexDirection: "column" as const,
+    alignItems: "flex-start",
+    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+};
+
+const logHeaderStyle = {
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+    alignItems: "center",
+};
+
+const versionTextStyle = {
+    fontWeight: "bold",
+    fontSize: "16px",
+    color: "#333",
+};
+
+const dateTextStyle = {
+    fontSize: "14px",
+    color: "#777",
+};

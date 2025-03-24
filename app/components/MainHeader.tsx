@@ -162,7 +162,7 @@ const MainHeader = ({ pid }: { pid: number }) => {
           src={ico}
           alt="Logo"
           style={{
-            width: "100px",
+            width: "210px",
             height: "80px",
             objectFit: "contain",
             cursor: "pointer",
