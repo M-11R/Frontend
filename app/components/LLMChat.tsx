@@ -539,7 +539,7 @@ const ChatbotButton = ({ label, onClick }: { label: string; onClick: () => void 
         onMouseLeave={() => setHovered(false)}
         style={{
           border: 'none',
-          backgroundColor: hovered ? '#3182F6' : '#f0f0f0', // ✅ hover 시 파란색
+          backgroundColor: hovered ? '#3182F6' : '#FFFFFF', // ✅ hover 시 파란색
           color: hovered ? '#fff' : '#333',
           borderRadius: '8px',
           padding: '8px 15px',
