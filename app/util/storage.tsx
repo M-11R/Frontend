@@ -2,7 +2,8 @@
 const STORAGE_KEY = {
     TOKEN: "token",
     USER_ID: "userId",
-    UNIVID: "univId"
+    UNIVID: "univId",
+    NAME: 'name'
 };
 
 export const setToken = (token: string) => {
@@ -44,8 +45,22 @@ export const removeUnivId = () => {
     if(typeof window !== 'undefined'){localStorage.removeItem(STORAGE_KEY.UNIVID);}
 };
 
+export const setName = (name: string) => {
+    if(typeof window !== 'undefined'){localStorage.setItem(STORAGE_KEY.NAME, name);}
+};
+
+export const getName = (): string => {
+    if(typeof window !== 'undefined'){return localStorage.getItem(STORAGE_KEY.NAME) ?? '';}
+    return '';
+};
+
+export const removeName = () => {
+    if(typeof window !== 'undefined'){localStorage.removeItem(STORAGE_KEY.NAME);}
+};
+
 export const clearStorage = () => {
     removeUnivId();
     removeUserId();
     removeToken();
+    removeName();
 }

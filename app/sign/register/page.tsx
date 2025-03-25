@@ -10,8 +10,11 @@ type postType = {
   RESULT_CODE: number;
   RESULT_MSG: string;
   PAYLOADS: {
-    Token: string;
-    Univ_ID: number;
+    Result: {
+      s_token: string;
+      s_no: number;
+      s_name: string
+    }
   };
 };
 
@@ -148,7 +151,7 @@ export default function Signup() {
       );
 
       if (response.data.RESULT_CODE === 200) {
-        setToken(response.data.PAYLOADS.Token);
+        setToken(response.data.PAYLOADS.Result.s_token);
         setUserId(id);
         setUnivId(Number(hak));
         router.push("/project-main");
