@@ -70,7 +70,7 @@ export default function ReportForm(props: any) {
   };
 
   const handleUploadFile = async (doc_id: number) => {
-    if (!tmpfile) {
+    if (tmpfile.length === 0) {
         return;
     }
     const tmppid: number = props.params.id;

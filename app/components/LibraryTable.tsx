@@ -3,79 +3,87 @@
 import library from "@/app/json/library.json";
 import Link from "next/link";
 
-const LibraryTable = ({pid}: {pid: number}) => {
-    const libraryList = library.list
-    return (
+const LibraryTable = ({ pid }: { pid: number }) => {
+  const libraryList = library.list;
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "880px",
+        margin: "30px auto",
+        backgroundColor: "#ffffff",
+        borderRadius: "12px",
+        overflow: "hidden",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.05)",
+        border: "1px solid #e5e7eb"
+      }}
+    >
+      {/* 테이블 헤더 */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "80px 1fr",
+          backgroundColor: "#f1f5f9",
+          color: "#334155",
+          fontWeight: 600,
+          padding: "14px 20px",
+          fontSize: "16px",
+          borderBottom: "1px solid #e5e7eb"
+        }}
+      >
+        <div style={{ textAlign: "center" }}>번</div>
+        <div>제목</div>
+      </div>
+
+      {/* 테이블 행 */}
+      {libraryList.map((item, index) => (
         <div
+          key={item.key}
           style={{
-            margin: "5% auto",
-            width: "70%",
-            maxWidth: "1000px",
-            display: "flex",
-            flexDirection: "column",
-            // height: "100%",
+            display: "grid",
+            gridTemplateColumns: "80px 1fr",
+            padding: "14px 20px",
+            fontSize: "15px",
+            backgroundColor: index % 2 === 0 ? "#fff" : "#f9fafb",
+            borderBottom: "1px solid #f1f5f9",
+            transition: "background 0.2s",
+            cursor: "pointer",
           }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#f0fdf4")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor =
+              index % 2 === 0 ? "#fff" : "#f9fafb")
+          }
         >
           <div
             style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              overflow: "hidden",
-              backgroundColor: "#f9f9f9",
+              textAlign: "center",
+              color: "#94a3b8",
+              fontWeight: 500,
             }}
           >
-            {/* 테이블 헤더 */}
-              <div
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  borderRight: "1px solid #ddd",
-                  padding: "10px",
-                }}
-              >
-                제목
-              </div>
-            </div>
-    
-            {/* 테이블 데이터 */}
-            {libraryList.map((item) => (
-              <div
-                key={item.key}
-                style={{
-                  display: "flex",
-                  height: "50px",
-                  alignItems: "center",
-                  borderBottom: "1px solid #ddd",
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    textAlign: "center",
-                    borderRight: "1px solid #ddd",
-                    padding: "10px",
-                    color: "#555",
-                  }}
-                >
-                  {item.key + 1}
-                </div>
-                <div
-                  style={{
-                    flex: 4,
-                    textAlign: "center",
-                    borderRight: "1px solid #ddd",
-                    padding: "10px",
-                    color: "#4CAF50",
-                  }}
-                >
-                  <Link href={`/project-main/${pid}/library/${item.type}`}>
-                    {item.name}
-                  </Link>
-                </div>
-              </div>
-            ))}
+            {index + 1}
           </div>
-    )
-}
+          <div>
+            <Link
+              href={`/project-main/${pid}/library/${item.type}`}
+              style={{
+                color: "#22c55e",
+                textDecoration: "none",
+                fontWeight: 500,
+                wordBreak: "break-all",
+              }}
+            >
+              {item.name}
+            </Link>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export default LibraryTable;

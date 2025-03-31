@@ -84,7 +84,26 @@ export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; close
         isOpen && (
         <div style={{position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column', zIndex: 9999}}>
             <div style={{background: '#ffffff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px #000000', maxWidth: '500px', width: '100%'}}>
-                <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button onClick={closeModal} style={{fontSize: '15px'}}>{mb.modal.exitbtn.value}</button></div></div>
+
+  <div style={{width: '96%', display: 'flex', justifyContent: 'flex-end'}}>
+  <button
+    onClick={closeModal}
+    style={{
+      backgroundColor: '#e53935',
+      color: '#fff',
+      border: 'none',
+      borderRadius: '6px',
+      padding: '6px 14px',
+      cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: 'bold',
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+    }}
+  >
+    ❌ 닫기
+  </button>
+</div>
+
                 {children}
             </div>
         </div>
@@ -203,9 +222,11 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
         }
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/project/edituser", data, {headers:{Authorization: process.env.SECRET_API_KEY}});
-            const responsePermission = await axios.post("https://cd-api.chals.kim/api/pm/edit_manual", dataP, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            if(!permision){
+              const responsePermission = await axios.post("https://cd-api.chals.kim/api/pm/edit_manual", dataP, {headers:{Authorization: process.env.SECRET_API_KEY}});
+            }
         } catch(err){
-            alert('error');
+            alert('오류가 발생했습니다.');
         }
     };
 
@@ -254,121 +275,156 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
 
     return (
         <div>
-            <button onClick={openModal} style={{fontSize: '15px'}}>{mb.modal.fixinfobtn.value}</button>
+            <button
+  onClick={openModal}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    backgroundColor: "#3B82F6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 16px",
+    fontSize: "15px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+    transition: "background-color 0.3s ease",
+  }}
+  onMouseEnter={(e) =>
+    (e.currentTarget.style.backgroundColor = "#2563EB")
+  }
+  onMouseLeave={(e) =>
+    (e.currentTarget.style.backgroundColor = "#3B82F6")
+  }
+>
+  <span style={{ fontSize: "18px" }}>⚙️</span>
+  <span>{mb.modal.fixinfobtn.value}</span>
+</button>
+
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 <div style={{fontSize: '32px', paddingBottom: '20px'}}>{mb.modal.fixinfotitle.value}</div>
-                <form onSubmit={handleConfigUser} style={{fontSize: '18px'}}>
-                    {/* <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>팀장 {mb.user.per.value}</span>
-                        <input 
-                            type="text" 
-                            value={permision} 
-                            readOnly
-                            onChange={(e) => setPer(e.target.value)}
-                            placeholder={`${input.permission}`}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div> */}
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>{mb.user.role.value}</span>
-                        <input 
-                            type="text" 
-                            value={role} 
-                            onChange={(e) => setRole(e.target.value)}
-                            placeholder={`${input.role}`}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
+                <form onSubmit={handleConfigUser} style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-                    
-        {permision ? (<div></div>):(
-
-        
-         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-           {/* 🔹 일괄 적용 버튼 추가 */}
-         <div style={{ display: "flex", gap: "5px", marginBottom: "10px", marginLeft: 'auto', width: '45%' }}>
-             <button
-                type="button"
-               onClick={() => setAllPermissions(2)}
-               style={bulkButtonStyle}
-             >
-               읽기
-             </button>
-             <button
-                type="button"
-              onClick={() => setAllPermissions(1)}
-               style={bulkButtonStyle}
-             >
-                읽기 + 쓰기
-             </button>
-              <button
-                type="button"
-                onClick={() => setAllPermissions(0)}
-                style={bulkButtonStyle}
-              >
-             권한 없음
-           </button>
-         </div>
-
-         {/* 🔹 개별 권한 설정 */}
-         {Object.keys(permissions).map((key) => (
-              <div
-               key={key}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                border: "1px solid #ddd",
-                padding: "12px",
-                borderRadius: "8px",
-                backgroundColor: "#fafafa",
-                boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-               }}
-             >
-               <span>{key}</span>
-               <div style={{ display: "flex", alignItems: "center", gap: "15px", width: '43%' }}>
-                 <div style={radioLabelStyle}>
-                   <input
-                     type="radio"
-                     value="2"
-                    checked={permissions[key] === 2}
-                    onChange={(event) => handleClick(key, event)}
-                   />
-                   
-                  </div>
-                  <div style={radioLabelStyle}>
-                    <input
-                      type="radio"
-                     value="1"
-                     checked={permissions[key] === 1}
-                    onChange={(event) => handleClick(key, event)}
-                  />
-                   
-                 </div>
-                 <div style={radioLabelStyle}>
-                    <input
-                     type="radio"
-                     value="0"
-                     checked={permissions[key] === 0}
-                    onChange={(event) => handleClick(key, event)}
-                  />
-                    
-               </div>
-              </div>
-             </div>
-         ))}
-     </div>)}
+  {/* 역할 입력 */}
+  <div>
+    <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>역할</label>
+    <input 
+      type="text"
+      value={role}
+      onChange={(e) => setRole(e.target.value)}
+      placeholder="예: 프론트엔드 담당"
+      style={{
+        width: '95%',
+        padding: '12px',
+        borderRadius: '8px',
+        border: '1px solid #ccc',
+        fontSize: '16px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+      }}
+      
+    />
     
+<div style={{ marginTop: '16px', marginBottom: '8px' }}>
+  <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>📌 권한 일괄 적용</span>
+  <p style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
+    아래 버튼을 눌러 모든 항목에 같은 권한을 적용할 수 있어요.
+  </p>
+</div>
 
-                    <div style={{width: '100%', display: 'flex'}}>
-                        <div style={{marginLeft: 'auto'}}>
-                            <div style={{width: '100%', height: '25px'}}></div>
-                            <button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button>
-                            {permision ? (<div></div>):(<button onClick={(e) => deleteUser(hak)} style={{fontSize: '15px'}}>퇴출</button>)}
-                            
-                        </div>
-                    </div>
-                </form>
+
+  </div>
+  {permision ? (<div></div>):(
+
+  
+<div style={{display: "flex", flexDirection: 'column'}}>
+  {/* 일괄 권한 적용 */}
+  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '6px' }}>
+  <button type="button" onClick={() => setAllPermissions(2)} style={bulkButtonStyle}>
+    📘 읽기
+  </button>
+  <button type="button" onClick={() => setAllPermissions(1)} style={bulkButtonStyle}>
+    ✍️ 읽기 + 쓰기
+  </button>
+  <button type="button" onClick={() => setAllPermissions(0)} style={bulkButtonStyle}>
+    🚫 권한 없음
+  </button>
+</div>
+
+
+  {/* 항목별 권한 설정 */}
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {Object.keys(permissions).map((key) => (
+      <div key={key} style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '14px 18px',
+        borderRadius: '10px',
+        border: '1px solid #eee',
+        backgroundColor: '#fafafa',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      }}>
+        <span style={{ fontWeight: '500' }}>{key}</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {[2, 1, 0].map((val) => (
+            <label key={val} style={radioLabelStyle}>
+              <input 
+                type="radio"
+                value={val}
+                checked={permissions[key] === val}
+                onChange={(event) => handleClick(key, event)}
+              />
+            </label>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+  </div>)}
+  {/* 하단 버튼 영역 */}
+  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '30px' }}>
+    <button
+      type="submit"
+      style={{
+        backgroundColor: '#10B981',
+        color: '#fff',
+        padding: '10px 24px',
+        borderRadius: '8px',
+        border: 'none',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+        transition: 'background-color 0.3s'
+      }}
+    >
+      ✅ 완료
+    </button>
+    {permision ? (<div></div>) : (
+    <button
+      type="button"
+      onClick={(e) => deleteUser(hak)}
+      style={{
+        backgroundColor: '#EF4444',
+        color: '#fff',
+        padding: '10px 24px',
+        borderRadius: '8px',
+        border: 'none',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+        transition: 'background-color 0.3s'
+      }}
+    >
+      🗑️ 퇴출
+    </button>)}
+  </div>
+
+</form>
+
             </Modal>
         </div>
     );
@@ -447,39 +503,114 @@ export function AddUser({p_id}: {p_id: number}) {
     }
     return (
         <div>
-            <button onClick={openModal} style={{fontSize: '15px'}}>{mb.modal.adduserbtn.value}</button>
+            <button
+  onClick={openModal}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    backgroundColor: "#10B981",
+    color: "#fff",
+    border: "none",
+    borderRadius: "8px",
+    padding: "10px 16px",
+    fontSize: "15px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+    transition: "background-color 0.3s ease",
+  }}
+  onMouseEnter={(e) =>
+    (e.currentTarget.style.backgroundColor = "#059669")
+  }
+  onMouseLeave={(e) =>
+    (e.currentTarget.style.backgroundColor = "#10B981")
+  }
+>
+  <span style={{ fontSize: "18px" }}>➕</span>
+  <span>{mb.modal.adduserbtn.value}</span>
+</button>
+
             <Modal isOpen={isOpen} closeModal={closeModal}>
                 <div style={{fontSize: '32px', paddingBottom: '20px'}}>{mb.modal.addusertitle.value}</div>
-                <form onSubmit={handleAddUser} style={{fontSize: '18px'}}>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>{mb.user.hak.value}</span>
-                        <input 
-                            type="number" 
-                            value={hak} 
-                            onChange={(e) => setHak(e.target.valueAsNumber)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>{mb.user.role.value}</span>
-                        <input 
-                            type="text"  
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>읽기 전용</span>
-                        <input
-                            type='checkbox'
-                            checked={readOnly}
-                            onChange={handleReadOnly}
-                        />
-                    </div>
-                    <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
-                </form>
+                <form onSubmit={handleAddUser} style={{ fontSize: '18px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+  <div>
+    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>학번</label>
+    <input 
+      type="number" 
+      value={hak} 
+      onChange={(e) => setHak(e.target.valueAsNumber)}
+      style={{
+        width: '98%',
+        padding: '12px',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        fontSize: '16px'
+      }}
+    />
+  </div>
+
+  <div>
+    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>역할</label>
+    <input 
+      type="text"  
+      value={role}
+      onChange={(e) => setRole(e.target.value)}
+      style={{
+        width: '98%',
+        padding: '12px',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+        fontSize: '16px'
+      }}
+    />
+  </div>
+
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    <label style={{ fontWeight: 'bold' }}>읽기 전용</label>
+    <input
+      type='checkbox'
+      checked={readOnly}
+      onChange={handleReadOnly}
+      style={{
+        width: '18px',
+        height: '18px',
+        cursor: 'pointer'
+      }}
+    />
+  </div>
+
+  <div style={{ textAlign: 'center', marginTop: '20px' }}>
+    <button
+      type='submit'
+      style={{
+        backgroundColor: '#10B981',
+        color: 'white',
+        border: 'none',
+        borderRadius: '10px',
+        padding: '12px 24px',
+        fontSize: '16px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+        transition: 'background-color 0.3s'
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#059669')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#10B981')}
+    >
+      ✅ 완료
+    </button>
+  </div>
+</form>
+
                 
+
+
             </Modal>
         </div>
     );
@@ -567,66 +698,93 @@ export function AddTask({p_id}: {p_id: number}){
 
     return(
         <div>
-            <button onClick={openModal} style={{fontSize: '15px'}}>{mb.task.tBtn.value}</button>
+            <button
+  onClick={openModal}
+  style={{
+    backgroundColor: "#4CAF50",
+    color: "white",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    transition: "background-color 0.3s",
+  }}
+>
+  ➕ {mb.task.tBtn.value}
+</button>
+
             <Modal isOpen={isOpen} closeModal={closeModal}>
-                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 추가</div>
-                <form onSubmit={handleAddTask} style={{fontSize: '18px'}}>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>할일 제목</span>
-                        <input 
-                            type="text" 
-                            value={taskName} 
-                            onChange={(e) => setTName(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-select" style={{padding: '10px', marginLeft: 'auto'}}>학생 선택 </label>
-                        <select
-                            id="student-select"
-                            onChange={handleSelectChange}
-                            style={{ display: "block", width: "170px", margin: "10px 0", padding: "5px", marginRight: 'auto'}}
-                        >
-                            <option value="">이름을 선택하세요</option>
-                            {user.map((student) => (
-                                <option key={student.name} value={student.name}>
-                                    {student.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-id" style={{padding: '10px', marginLeft: 'auto'}}>학번:</label>
-                        <input
-                            type="text"
-                            id="student-id"
-                            value={hak || ""}
-                            readOnly
-                            style={{ display: "block", width: "170px", margin: "10px 0", padding: "5px", marginRight: 'auto' }}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>시작일</span>
-                        <input 
-                            type="date"  
-                            value={startDate}
-                            onChange={(e) => setStart(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>종료일</span>
-                        <input 
-                            type="date"  
-                            value={endDate}
-                            onChange={(e) => setEnd(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button></div></div>
-                </form>
-                
-            </Modal>
+  <div style={modalContainerStyle}>
+    <div style={modalHeaderStyle}>📌 업무 추가</div>
+
+    <form onSubmit={handleAddTask} style={formStyle}>
+      <div style={formGroup}>
+        <label style={labelStyle}>할일 제목</label>
+        <input
+          type="text"
+          value={taskName}
+          onChange={(e) => setTName(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={formGroup}>
+        <label style={labelStyle}>학생 선택</label>
+        <select
+          onChange={handleSelectChange}
+          style={inputStyle}
+        >
+          <option value="">이름을 선택하세요</option>
+          {user.map((student) => (
+            <option key={student.name} value={student.name}>
+              {student.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div style={formGroup}>
+        <label style={labelStyle}>학번</label>
+        <input
+          type="text"
+          value={hak || ""}
+          readOnly
+          style={{ ...inputStyle, backgroundColor: "#f0f0f0" }}
+        />
+      </div>
+
+      <div style={formGroup}>
+        <label style={labelStyle}>시작일</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStart(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={formGroup}>
+        <label style={labelStyle}>종료일</label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEnd(e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+
+      <div style={{ textAlign: "right", marginTop: "20px" }}>
+        <button type="submit" style={submitButtonStyle}>
+          ✅ {mb.modal.configbtn.value}
+        </button>
+      </div>
+    </form>
+  </div>
+</Modal>
+
         </div>
     );
 }
@@ -720,88 +878,196 @@ export function ConfigTask({data, p_id}: {data: inputTaskType, p_id: number}){
     }
     return(
         <div>
-            <button onClick={openModal} style={{fontSize: '15px', border: '0', background: '0'}}>업무 수정</button>
+            <button
+  onClick={openModal}
+  style={{
+    backgroundColor: "transparent",  // ✅ 투명 배경
+    color: "#333",
+    border: "none",
+    borderRadius: "6px", 
+    padding: "6px 14px",
+    fontSize: "14px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  }}
+>
+  ✏️ 업무 수정
+</button>
+
+
             <Modal isOpen={isOpen} closeModal={closeModal}>
-                <div style={{fontSize: '32px', paddingBottom: '20px'}}>업무 수정</div>
-                <form onSubmit={handleFixTask} style={{fontSize: '18px'}}>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>할일 제목</span>
-                        <input 
-                            type="text" 
-                            value={taskName} 
-                            onChange={(e) => setTaskName(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-select" style={{padding: '10px', marginLeft: 'auto'}}>학생 선택 </label>
-                        <select
-                            id="student-select"
-                            onChange={handleSelectChange}
-                            style={{ display: "block", width: "170px", margin: "10px 0", padding: "5px", marginRight: 'auto'}}
-                        >
-                            <option value="">이름을 선택하세요</option>
-                            {user.map((student) => (
-                                <option key={student.name} value={student.name}>
-                                    {student.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-id" style={{padding: '10px', marginLeft: 'auto'}}>학번:</label>
-                        <input
-                            type="text"
-                            id="student-id"
-                            value={univId || ""}
-                            readOnly
-                            style={{ display: "block", width: "170px", margin: "10px 0", padding: "5px", marginRight: 'auto' }}
-                        />
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-id" style={{padding: '10px', marginLeft: 'auto'}}>이름:</label>
-                        <input
-                            type="text"
-                            id="student-name"
-                            value={person || ""}
-                            readOnly
-                            style={{ display: "block", width: "170px", margin: "10px 0", padding: "5px", marginRight: 'auto' }}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>시작일</span>
-                        <input 
-                            type="date"  
-                            value={start}
-                            onChange={(e) => setStart(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{padding: '15px'}}>
-                        <span style={{padding: '10px'}}>종료일</span>
-                        <input 
-                            type="date"  
-                            value={end}
-                            onChange={(e) => setEnd(e.target.value)}
-                            style={{width: '170px', height: '20px'}}
-                        />
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center'}}>
-                        <label htmlFor="student-select" style={{padding: '10px', marginLeft: 'auto'}}>완료 여부</label>
-                        <input
-                            type="checkbox"
-                            id="checkbox"
-                            checked={finish}
-                            onChange={(e) => setFinish(e.target.checked)}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', gap: '10px' }}>
-                            <button type='submit' style={{fontSize: '15px'}}>{mb.modal.configbtn.value}</button>
-                            <button type='button' onClick={deleteTask} style={{fontSize: '15px'}}>삭제</button>
-                    </div>
-                </form>
-                
-            </Modal>
+  
+
+  <form onSubmit={handleFixTask} style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+    fontSize: '16px',
+    color: '#333'
+  }}>
+
+    {/* 할일 제목 */}
+    <div>
+      <label>할일 제목</label>
+      <input
+        type="text"
+        value={taskName}
+        onChange={(e) => setTaskName(e.target.value)}
+        style={{
+          width: '98%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      />
+    </div>
+
+    {/* 학생 선택 */}
+    <div>
+      <label>학생 선택</label>
+      <select
+        id="student-select"
+        onChange={handleSelectChange}
+        style={{
+          width: '102%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      >
+        <option value="">이름을 선택하세요</option>
+        {user.map((student) => (
+          <option key={student.name} value={student.name}>
+            {student.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* 학번 */}
+    <div>
+      <label>학번</label>
+      <input
+        type="text"
+        value={univId || ""}
+        readOnly
+        style={{
+          width: '98%',
+          padding: '10px',
+          border: '1px solid #eee',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      />
+    </div>
+
+    {/* 이름 */}
+    <div>
+      <label>이름</label>
+      <input
+        type="text"
+        value={person || ""}
+        readOnly
+        style={{
+          width: '98%',
+          padding: '10px',
+          border: '1px solid #eee',
+          backgroundColor: '#f5f5f5',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      />
+    </div>
+
+    {/* 시작일 */}
+    <div>
+      <label>시작일</label>
+      <input
+        type="date"
+        value={start}
+        onChange={(e) => setStart(e.target.value)}
+        style={{
+          width: '98%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      />
+    </div>
+
+    {/* 종료일 */}
+    <div>
+      <label>종료일</label>
+      <input
+        type="date"
+        value={end}
+        onChange={(e) => setEnd(e.target.value)}
+        style={{
+          width: '98%',
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '6px',
+          marginTop: '6px'
+        }}
+      />
+    </div>
+
+    {/* 완료 여부 */}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <label>완료 여부</label>
+      <input
+        type="checkbox"
+        checked={finish}
+        onChange={(e) => setFinish(e.target.checked)}
+      />
+    </div>
+
+    {/* 버튼 영역 */}
+    <div style={{
+      display: 'flex',
+      justifyContent: 'flex-end',
+      gap: '10px',
+      marginTop: '10px'
+    }}>
+      <button
+        type="submit"
+        style={{
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          padding: '10px 18px',
+          fontSize: '15px',
+          borderRadius: '6px',
+          border: 'none',
+          cursor: 'pointer'
+        }}
+      >
+        {mb.modal.configbtn.value}
+      </button>
+
+      <button
+        type="button"
+        onClick={deleteTask}
+        style={{
+          backgroundColor: '#e53935',
+          color: 'white',
+          padding: '10px 18px',
+          fontSize: '15px',
+          borderRadius: '6px',
+          border: 'none',
+          cursor: 'pointer'
+        }}
+      >
+        삭제
+      </button>
+    </div>
+
+  </form>
+</Modal>
+
         </div>
     );
 }
@@ -923,7 +1189,58 @@ const bulkButtonStyle: CSSProperties = {
   };
 
 
-
+  const modalContainerStyle = {
+    padding: "30px",
+    borderRadius: "12px",
+    backgroundColor: "#fff",
+    maxWidth: "400px",
+    margin: "auto",
+    boxShadow: "0 8px 16px rgba(0,0,0,0.15)",
+  } as const;
+  
+  const modalHeaderStyle = {
+    fontSize: "26px",
+    fontWeight: "bold",
+    marginBottom: "30px",
+    textAlign: "center",
+    color: "#333",
+  } as const;
+  
+  const formStyle = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "15px",
+  } as const;
+  
+  const formGroup = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
+  } as const;
+  
+  const labelStyle = {
+    fontSize: "16px",
+    fontWeight: "bold",
+    color: "#444",
+  } as const;
+  
+  const inputStyle = {
+    padding: "10px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    fontSize: "15px",
+  } as const;
+  
+  const submitButtonStyle = {
+    padding: "10px 20px",
+    backgroundColor: "#4CAF50",
+    color: "#fff",
+    fontSize: "16px",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+  } as const;
+  
 
 
 

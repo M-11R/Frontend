@@ -76,19 +76,65 @@ type profType = {
     f_name: string
 }
 
-export function Modal({ isOpen, closeModal, children }: { isOpen: boolean; closeModal: () => void; children?: React.ReactNode }) {
-    
+export function Modal({
+    isOpen,
+    closeModal,
+    children
+  }: {
+    isOpen: boolean;
+    closeModal: () => void;
+    children?: React.ReactNode;
+  }) {
     return (
-        isOpen && (
-        <div style={{position: 'fixed', top: '0', left: '0', width: '100%', height: '100%', background: 'rgba(0, 0, 0, 0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-            <div style={{background: '#ffffff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 10px #000000', maxWidth: '500px', width: '100%'}}>
-                <div style={{width: '100%', display: 'flex'}}><div style={{marginLeft: 'auto'}}><button onClick={closeModal} style={{fontSize: '15px'}}>X</button></div></div>
-                {children}
-            </div>
+      isOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9998, // ✅ 모달 최상단 유지
+          }}
+        >
+          <div
+            style={{
+              background: '#fff',
+              padding: '25px 30px',
+              borderRadius: '12px',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+              width: '100%',
+              maxWidth: '500px',
+              position: 'relative',
+              zIndex: 10000
+            }}
+          >
+            {/* X 버튼 */}
+            <button
+              onClick={closeModal}
+              style={{
+                position: 'absolute',
+                top: '10px',
+                right: '12px',
+                fontSize: '18px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer'
+              }}
+            >
+              ✕
+            </button>
+            {children}
+          </div>
         </div>
-        )
+      )
     );
-}
+  }
+  
 
 function splitPperiod(pperiod: string): { startDate: string; endDate: string } {
     const parts = pperiod.split("-");
@@ -316,46 +362,64 @@ export default function ProjectManage(props: any){
 
                 {/*메인 페이지*/}
                 <div style={{height: 'calc(100vh - 105px)', width: 'calc(90% - 200px)', display: 'flex', flexDirection: 'column', margin: '0', float: 'left'}}>
-                    <div style={{display: 'flex', width: '70%', margin: '5% auto', marginBottom: '0px'}}>
-                        {pageList.map((menu, index) => (
-                            <div key={index} style={{
-                                position: "relative",
-                                minWidth: "120px",
-                                height: "36px",
-                                backgroundColor: "#fff",
-                                border: "1px solid #d1d5db",
-                                borderBottom: 'none',
-                                borderRadius: "12px 12px 0 0",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                cursor: "pointer",
-                                flex: "0 0 auto",
-                                padding: "0 12px",
-                                transition: "all 0.3s ease-in-out",                    
-                            }}>
-                                <button onClick={() => setPage(index)} style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    border: 'none',
-                                    fontWeight: (page === index) ? "bold" : "normal",
-                                    color: (page === index) ? "#2563eb" : "#000",
-                                    backgroundColor: "transparent",
-                                    fontSize: '15px',
-                                    cursor: "pointer",
-                                    }}>
-                                    {menu}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                {/* 🔧 리디자인된 탭 UI */}
+<div
+  style={{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '16px',
+    backgroundColor: '#ffffff',
+    borderBottom: '2px solid #e5e7eb',
+    padding: '12px 0',
+    width: '100%',
+    maxWidth: '900px',
+    margin: '0 auto',
+    marginTop: '30px'
+  }}
+>
+  {pageList.map((menu, index) => {
+    const isActive = page === index;
+    return (
+      <button
+        key={index}
+        onClick={() => setPage(index)}
+        style={{
+          padding: '10px 24px',
+          fontSize: '15px',
+          fontWeight: isActive ? 700 : 500,
+          color: isActive ? '#22c55e' : '#6b7280',
+          backgroundColor: isActive ? '#f0fdf4' : '#f9fafb',
+          border: '1px solid',
+          borderColor: isActive ? '#22c55e' : '#e5e7eb',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease-in-out',
+        }}
+      >
+        {menu}
+      </button>
+    );
+  })}
+</div>
+
                     {(() => {
                         switch (page) {
                             case 0:
                                 return (
                                     <div style={{height: '100%', overflowY: 'auto'}}>
-                                        <div style={{width: '70%', display: 'flex', flexDirection: 'column', margin: '0 auto', marginTop: '30px'}}>
-                                            <span style={{fontSize: '40px'}}>프로젝트 수정</span>
+                                        <div style={{
+  width: '75%',
+  margin: '40px auto',
+  backgroundColor: '#fff',
+  padding: '40px 50px',
+  borderRadius: '16px',
+  boxShadow: '0 5px 15px rgba(0,0,0,0.05)'
+}}>
+  <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '30px' }}>
+    🛠️ 프로젝트 수정
+  </h1>
+
                                             <form onSubmit={handleEditPJ} style={{marginTop: '10px'}}>
                                                 <div style={{ marginBottom: '15px' }}>
                                                     <label style={{ fontWeight: 'bold', marginBottom: '5px', display: 'block' }}>프로젝트 이름:</label>
@@ -452,9 +516,25 @@ export default function ProjectManage(props: any){
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <button type='submit' style={{width: '50px', padding: '10px', margin: '5px', marginRight: '0',border: 'none', cursor: 'pointer', color: '#ffffff', backgroundColor: '#4CAF50'}}>
-                                                    수정
-                                                </button>
+                                                <button
+  type="submit"
+  style={{
+    marginTop: '40px',
+    padding: '12px 24px',
+    fontSize: '16px',
+    fontWeight: 600,
+    borderRadius: '8px',
+    border: 'none',
+    backgroundColor: '#4CAF50',
+    color: '#fff',
+    cursor: 'pointer',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+    transition: 'background 0.3s'
+  }}
+>
+  ✅ 수정 완료
+</button>
+
                                             </form>
                                         </div>
                                         <PJDelBtn pid = {props.params.id}/>
@@ -469,54 +549,146 @@ export default function ProjectManage(props: any){
                                                 프로젝트 저장하기
                                             </button>
                                             <Modal isOpen={isExportModalOpen} closeModal={() => setExportModalOpen(false)}>
-                                                <div style={{width: '100%', display: 'flex', flexDirection: 'column'}}>
-                                                    <span style={{fontSize: '22px', paddingBottom: '10px'}}>프로젝트 저장하기</span>
-                                                    <div style={{display: 'flex'}}>
-                                                        <input
-                                                            style={{width: '85%', border: '1px solid #000', padding: '5px'}}
-                                                            placeholder='설명 및 변경사항을 입력해주세요.'
-                                                            type='text'
-                                                            onChange={(e) => setLog(e.target.value)}
-                                                            value={log}
-                                                        />
-                                                        <button 
-                                                        onClick={handleSubmit} 
-                                                        disabled={isLoading}
-                                                        style={{padding: '5px 10px', backgroundColor: isLoading ? '#ccc' : 'lightgreen', marginLeft: 'auto', cursor: isLoading ? 'not-allowed' : 'pointer'}}
-                                                        >
-                                                            확인
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </Modal>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px',
+      width: '100%',
+      padding: '10px 5px',
+    }}
+  >
+    <h2
+      style={{
+        fontSize: '22px',
+        fontWeight: 600,
+        color: '#222',
+        margin: 0,
+      }}
+    >
+      📌 프로젝트 저장하기
+    </h2>
+
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+      <input
+        placeholder="설명 및 변경사항을 입력해주세요."
+        value={log}
+        onChange={(e) => setLog(e.target.value)}
+        style={{
+          flexGrow: 1,
+          padding: '10px 14px',
+          border: '1px solid #ccc',
+          borderRadius: '8px',
+          fontSize: '15px',
+          outline: 'none',
+        }}
+      />
+      <button
+        onClick={handleSubmit}
+        disabled={isLoading}
+        style={{
+          backgroundColor: isLoading ? '#b0e0b0' : '#90ee90',
+          border: '1px solid #4CAF50',
+          padding: '10px 16px',
+          borderRadius: '8px',
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          fontWeight: 'bold',
+          color: '#000',
+          boxShadow: '1px 1px 3px rgba(0,0,0,0.1)',
+          transition: 'background 0.2s',
+        }}
+      >
+        확인
+      </button>
+    </div>
+  </div>
+</Modal>
+
                                         </div>
+
                                         {/**import 리스트 및 버튼 */}
-                                        <div style={{width: '92%', display: 'flex', flexDirection: 'column', paddingLeft: '8%', paddingTop: '20px'}}>
-                                        <div style={logContainerStyle}>
+                                        <div style={{
+                                        width: '92%',
+                                        display: 'flex',
+                                         flexDirection: 'column',
+                                         paddingLeft: '8%',
+                                         paddingTop: '20px',
+                                         position: 'relative',
+                                         zIndex: 1  // ✅ 중요: 카드 영역의 zIndex를 낮게 설정
+                                }}>
 
+                                        
+                                        
+                                        
+                                        <div style={{
+  padding: '30px',
+  backgroundColor: '#fff',
+  borderRadius: '12px',
+  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+  marginTop: '30px'
+}}>
+  <h2 style={{
+    fontSize: '24px',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: '20px'
+  }}>📜 프로젝트 변경 이력</h2>
 
-
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px',
+    borderLeft: '3px solid #4b8df8',
+    paddingLeft: '20px',
+    position: 'relative'
+  }}>
     {logList
-        .filter((log) => log.ver !== -1)
-        .map((log, index) => (
-            <div 
-                key={index} 
-                style={logCardStyle} 
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f0f0f0"} // ✅ 마우스 오버 효과
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#fff"} 
-                onClick={() => {
-                    setSelectedLog(log);
-                    setImportModalOpen(true);
-                }}
-            >
-                <div style={logHeaderStyle}>
-                    <span style={versionTextStyle}>{`ver.${log.ver} | ${log.msg}`}</span>
-                    <span style={dateTextStyle}>{log.date.replace("T", " ")}</span>
-                </div>
-            </div>
-        ))
-    }
+      .filter(log => log.ver !== -1)
+      .sort((a, b) => b.ver - a.ver)
+      .map((log, idx) => (
+        <div
+          key={idx}
+          onClick={() => {
+            setSelectedLog(log);
+            setImportModalOpen(true);
+          }}
+          style={{
+            position: 'relative',
+            backgroundColor: '#f9f9f9',
+            padding: '14px 18px',
+            borderRadius: '10px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+            transition: '0.3s',
+            cursor: 'pointer'
+          }}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#eef4ff'}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f9f9f9'}
+        >
+          {/* 타임라인 점 */}
+          <div style={{
+            position: 'absolute',
+            left: '-30px',
+            top: '20px',
+            width: '14px',
+            height: '14px',
+            backgroundColor: '#4b8df8',
+            borderRadius: '50%',
+            border: '2px solid #fff',
+            boxShadow: '0 0 0 2px #4b8df8'
+          }}></div>
+
+          <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '5px' }}>
+            ver.{log.ver} | {log.msg}
+          </div>
+          <div style={{ fontSize: '14px', color: '#666' }}>
+            수정자: {log.s_no} · {log.date.replace("T", " ")}
+            
+          </div>
+        </div>
+      ))}
+  </div>
 </div>
+
 
                                                     
                                                 
@@ -583,42 +755,21 @@ export default function ProjectManage(props: any){
     fontSize: "16px",
   };
 
-  const logContainerStyle = {
-    width: "92%",
-    paddingLeft: "1%",
-    paddingTop: "20px",
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "10px",
-};
-
-const logCardStyle = {
-    padding: "12px 16px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-    backgroundColor: "#fff",
-    cursor: "pointer",
-    transition: "background 0.3s, transform 0.2s",
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "flex-start",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-};
-
-const logHeaderStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    width: "100%",
-    alignItems: "center",
-};
-
-const versionTextStyle = {
-    fontWeight: "bold",
-    fontSize: "16px",
-    color: "#333",
-};
-
-const dateTextStyle = {
-    fontSize: "14px",
-    color: "#777",
-};
+  const labelStyle: CSSProperties = {
+    display: 'block',
+    marginBottom: '8px',
+    fontWeight: 600,
+    color: '#333',
+    fontSize: '14px',
+  };
+  
+  const inputStyle: CSSProperties = {
+    width: '100%',
+    padding: '12px 14px',
+    borderRadius: '8px',
+    border: '1px solid #ccc',
+    fontSize: '14px',
+    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)',
+    outline: 'none',
+  };
+  

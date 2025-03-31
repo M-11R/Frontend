@@ -311,13 +311,19 @@ PMS에서는 프로토타입 방식처럼 비정형적인 흐름을 직접적으
     const handleSendMessage = async(messageCode: number) => {
         if(pid === 0) return;
         if(nowLoading) return;
-        // if (input.trim() === '') return; // 빈 입력 방지
-        setInput(''); // 입력 필드 초기화
+        setInput('');
         setLoading(true)
         handleMessageChange(getMessageByNumber(messageCode))
-        // setMessages((prevMessages) => [...prevMessages, `현재 점검중입니다. 코드 : ${messageCode}`]); // 상대방 메시지 추가
-        
-        // setLoading(false)
+        try{
+          const response = await axios.post("https://cd-api.chals.kim/api/llm/load_key", {pid: pid, api_key: ''}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+          if(response.data.RESULT_CODE !== 200){
+            setMessages((prevMessages) => [...prevMessages, "API Key를 입력해주세요."]);
+            setMessages((prevMessages) => [...prevMessages, "INIT_0"]); // 사용자 메시지 추가
+            setLoading(false);
+            return
+          }
+        }catch(err){}
+
         try{
             const response = await axios.post("https://cd-api.chals.kim/api/llm/interact", {pid: pid, prompt: "", menu: messageCode}, {headers:{Authorization: process.env.SECRET_API_KEY}});
             const tmpMessage = response.data
@@ -400,7 +406,7 @@ PMS에서는 프로토타입 방식처럼 비정형적인 흐름을 직접적으
                         case "INIT_0":
                             content = (
                                 <>
-                                <span>PMS Assistant에게 묻고싶은 메뉴를 선택해주세요. ver.10</span>
+                                <span>PMS Assistant에게 묻고싶은 메뉴를 선택해주세요. ver.11</span>
                                 <div style={{ marginTop: "20px" }}>
                                 <ChatbotButton label="📋 프로젝트" onClick={() => handleMessageChange("INIT_1")} />
                                 <ChatbotButton label="📂 산출물" onClick={() => handleMessageChange("INIT_2")} />
@@ -417,6 +423,7 @@ PMS에서는 프로토타입 방식처럼 비정형적인 흐름을 직접적으
                                 <div style={{ marginTop: "20px" }}>
                                   <ChatbotButton label="👓 프로젝트 분석 및 조언" onClick={() => handleSendMessage(0)} />
                                   <ChatbotButton label="🔍 프로젝트 리스크 분석" onClick={() => handleSendMessage(1)} />
+                                  <ChatbotButton label="👍 프로젝트 초기 기획 추천" onClick={() => handleSendMessage(2)} />
                                   <ChatbotButton label="🔙 돌아가기" onClick={() => handleMessageChange("INIT_0")} />
                                 </div>
                               </>
@@ -428,8 +435,8 @@ PMS에서는 프로토타입 방식처럼 비정형적인 흐름을 직접적으
                               <>
                                 <span>산출물에 관하여 어떤 도움이 필요하신가요?</span>
                                 <div style={{ marginTop: "20px" }}>
-                                  <ChatbotButton label="🔍 작성된 산출물 분석" onClick={() => handleSendMessage(2)} />
-                                  <ChatbotButton label="📝 산출물 품질 평가" onClick={() => handleSendMessage(3)} />
+                                  <ChatbotButton label="🔍 작성된 산출물 분석" onClick={() => handleSendMessage(3)} />
+                                  <ChatbotButton label="📝 산출물 품질 평가" onClick={() => handleSendMessage(4)} />
                                   <ChatbotButton label="🔙 돌아가기" onClick={() => handleMessageChange("INIT_0")} />
                                 </div>
                               </>
