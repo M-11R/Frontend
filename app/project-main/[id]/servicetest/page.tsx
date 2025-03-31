@@ -177,7 +177,7 @@ export default function ServiceTestForm(props: any) {
   };
 
   const handleUploadFile = async (doc_id: number) => {
-    if (!tmpfile) return;
+    if (tmpfile.length === 0) return;
     const tmppid: number = props.params.id;
     const tmpunivid = getUnivId();
     const formData = new FormData();

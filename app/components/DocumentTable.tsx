@@ -276,32 +276,50 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
         산출물 관리
       </h1>
       {/* 검색 및 필터 UI */}
-      <div style={{ marginBottom: "20px", display: "flex", gap: "10px", alignItems: "center" }}>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="검색어 입력"
-          style={{ padding: "8px", fontSize: "14px", flex: 1 }}
-        />
-        {availableTypes.map((type) => (
-          <label key={type} style={{ fontSize: "14px" }}>
-            <input
-              type="checkbox"
-              checked={selectedTypes.includes(type)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setSelectedTypes((prev) => [...prev, type]);
-                } else {
-                  setSelectedTypes((prev) => prev.filter((t) => t !== type));
-                }
-              }}
-            />
-            {type}
-          </label>
-        ))}
-      </div>
+      <div style={{
+  marginBottom: "24px",
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "12px",
+  alignItems: "center",
+  justifyContent: "space-between"
+}}>
+  <input
+    type="text"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    placeholder="🔍 검색어를 입력하세요"
+    style={{
+      flexGrow: 1,
+      minWidth: "220px",
+      padding: "10px 14px",
+      border: "1px solid #ccc",
+      borderRadius: "8px",
+      fontSize: "14px",
+    }}
 
+    
+  />
+  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+    {availableTypes.map((type) => (
+      <label key={type} style={{ fontSize: "14px", color: "#444" }}>
+        <input
+          type="checkbox"
+          checked={selectedTypes.includes(type)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setSelectedTypes((prev) => [...prev, type]);
+            } else {
+              setSelectedTypes((prev) => prev.filter((t) => t !== type));
+            }
+          }}
+          style={{ marginRight: "5px" }}
+        />
+        {type}
+      </label>
+    ))}
+  </div>
+</div>
       <div
         style={{
           border: "1px solid #ddd",
@@ -310,48 +328,25 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
           backgroundColor: "#f9f9f9",
         }}
       >
+       
         {/* 테이블 헤더 */}
-        <div
-          style={{
-            display: "flex",
-            backgroundColor: "#E5E7EB",
-            color: "#333",
-            fontWeight: "bold",
-            height: "50px",
-            alignItems: "center",
-            borderBottom: "1px solid #ddd",
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              textAlign: "center",
-              borderRight: "1px solid #ddd",
-              padding: "10px",
-            }}
-          >
-            산출물 타입
-          </div>
-          <div
-            style={{
-              flex: 2,
-              textAlign: "center",
-              borderRight: "1px solid #ddd",
-              padding: "10px",
-            }}
-          >
-            제목
-          </div>
-          <div
-            style={{
-              flex: 1,
-              textAlign: "center",
-              padding: "10px",
-            }}
-          >
-            게시일
-          </div>
-        </div>
+      
+<div style={{ 
+  display: "flex",
+  backgroundColor: "#E5E7EB",
+  color: "#333",
+  fontWeight: "bold",
+  height: "50px",
+  alignItems: "center",
+  borderBottom: "1px solid #ddd",
+  textAlign: "center"
+}}>
+  <div style={{ flex: 2, padding: "10px", borderRight: "1px solid #ddd" }}>산출물 타입</div>
+  <div style={{ flex: 4, padding: "10px", borderRight: "1px solid #ddd" }}>제목</div>
+  <div style={{ flex: 2, padding: "10px" }}>게시일</div>
+</div>
+
+
 
         {/* 테이블 데이터 */}
         {(() => {
@@ -425,5 +420,11 @@ const DocumentTable = ({ page, pid }: { page: number; pid: number }) => {
     </div>
   );
 };
+
+
+
+
+
+
 
 export default DocumentTable;

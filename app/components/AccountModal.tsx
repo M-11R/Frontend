@@ -6,14 +6,29 @@ import mb from '@/app/json/msBox.json'
 import { getUnivId } from '@/app/util/storage';
 import { useRouter } from 'next/navigation';
 import { usePageReload } from '@/app/util/reloadPage';
-import { getToken, getUserId, setToken, setUnivId, setUserId } from "@/app/util/storage";
+import { getToken, getUserId, getName, setToken, setUnivId, setUserId, setName } from "@/app/util/storage";
 
 type postType = {
     RESULT_CODE: number;
     RESULT_MSG: string;
     PAYLOADS: {
-      Token: string;
-      Univ_ID: number;
+      Result: {
+        s_token: string;
+        s_no: number;
+        s_name: string
+      }
+    };
+  };
+
+  type profpostType = {
+    RESULT_CODE: number;
+    RESULT_MSG: string;
+    PAYLOADS: {
+      Result: {
+        f_token: string;
+        f_no: number;
+        f_name: string
+      }
     };
   };
   
@@ -138,22 +153,24 @@ export function LoginModal() {
           { headers: { Authorization: process.env.SECRET_API_KEY } }
         );
         if (response.data.RESULT_CODE === 200) {
-          setToken(response.data.PAYLOADS.Token);
-          setUnivId(response.data.PAYLOADS.Univ_ID);
+          setToken(response.data.PAYLOADS.Result.s_token);
+          setUnivId(response.data.PAYLOADS.Result.s_no);
           setUserId(data.id);
+          setName(response.data.PAYLOADS.Result.s_name)
           router.push("/project-main");
         }
       } catch (err) {
         try{
-          const response = await axios.post<postType>(
+          const response = await axios.post<profpostType>(
             "https://cd-api.chals.kim/api/prof/signin",
             data,
             { headers: { Authorization: process.env.SECRET_API_KEY } }
           );
           if (response.data.RESULT_CODE === 200) {
-            setToken(response.data.PAYLOADS.Token);
-            setUnivId(response.data.PAYLOADS.Univ_ID);
+            setToken(response.data.PAYLOADS.Result.f_token);
+            setUnivId(response.data.PAYLOADS.Result.f_no);
             setUserId(data.id);
+            setName(response.data.PAYLOADS.Result.f_name)
             router.push("/project-main");
           }
         }catch(err){alert("❌ 로그인 중 오류가 발생했습니다. 다시 시도해주세요.");}
@@ -183,7 +200,7 @@ export function LoginModal() {
             <Modal isOpen={isOpen} closeModal={closeModal}>
             <div>
                 <div>
-                <h2 style={commonStyles.title}>🔑 로그인</h2>
+                <h2 style={commonStyles.title}>🔑 로그인 ver3</h2>
                 <form onSubmit={handleLogin}>
                     <input
                     type="text"

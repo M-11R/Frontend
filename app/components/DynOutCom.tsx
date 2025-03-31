@@ -89,8 +89,8 @@ type testType = {
     doc_t_no: number,
     doc_t_group1: string,
     doc_t_name: string,
-    doc_t_start: Date,
-    doc_t_end: Date,
+    doc_t_start: string,
+    doc_t_end: string,
     doc_t_pass: boolean,
     doc_t_group1no: number
 }
@@ -1130,6 +1130,7 @@ type FieldProps = {
 export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
   const [edit, setEdit] = useState(false)
   const [data, setData] = useState<testType[]>([]);
+  const [testTitle, setTestTitle] = useState('');
     const postData = {pid: pid};
 
     const loadData = async() => {
@@ -1137,6 +1138,7 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
             const response = await axios.post<returnTest>("https://cd-api.chals.kim/api/output/testcase_load", postData, {headers:{Authorization: process.env.SECRET_API_KEY}});
             const findData = response.data.PAYLOADS.find((item) => item.doc_t_no.toString() === oid.toString())
             if (!findData) return;
+            setTestTitle(findData.doc_t_group1)
             // 찾은 항목의 group1no와 group1이 모두 같은 항목들을 필터링
             const filteredData = response.data.PAYLOADS.filter(
               (item) =>
@@ -1150,6 +1152,21 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
     useEffect(() => {
       loadData()
   },[])
+
+  const handleSave = async() => {
+    const updateData = data.map((item) => ({
+      ...item,
+      doc_t_group1: testTitle
+    }))
+
+
+
+    try{
+      const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_update", {pid: pid, testcases: updateData}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      router.push(`/project-main/${pid}/outputManagement`)
+      alert('저장되었습니다.')
+    }catch(err){}
+  }
 
     const router = useRouter();
     const s_no = getUnivId();
@@ -1197,11 +1214,93 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
         width: "15%" ,
         fontSize: '12px'
       };
+
+      const handleInputChange = (
+        index: number,
+        field: keyof testType,
+        value: string
+      ) => {
+        setData((prevData) => {
+          const newData = [...prevData];
+          // 만약 boolean 타입이면 변환
+          if (field === "doc_t_pass") {
+            newData[index] = { ...newData[index], [field]: value === "true" };
+          } else {
+            newData[index] = { ...newData[index], [field]: value };
+          }
+          return newData;
+        });
+      };
     
     return(
       (edit) ? (
-      <div>
-        <button onClick={() => setEdit(false)} style={editButtonStyle}>뒤로가기</button>
+      <div style={previewContainerStyle}>
+        <h2>ver. 12</h2>
+        <div style={{display: 'flex'}}>
+          <h2>테스트 그룹: </h2>
+            <input 
+              value={testTitle}
+              onChange={(e) => setTestTitle(e.target.value)}
+              style={{marginLeft: '20px', fontSize: '24px', border: '1px solid #d6d6d6', backgroundColor: '#f7f7f7', borderRadius: '8px', padding: '0 10px'}}
+            />
+        </div>
+        <table style={tableStyle}>
+          <tbody>
+            {data.map((item, index) => (
+                  <React.Fragment key={index}>
+                    <tr style={{height: 'auto'}}>
+                      <td style={thStyle} >테스트 시작일</td>
+                      <td style={tdStyle} >
+                        <input
+                          type='date'
+                          value={item.doc_t_start}
+                          onChange={(e) => handleInputChange(index, 'doc_t_start', e.target.value)}
+                        />
+                      </td>
+                      <td style={thStyle} >테스트 종료일</td>
+                      <td style={tdStyle} >
+                        <input
+                          type='date'
+                          value={item.doc_t_end}
+                          onChange={(e) => handleInputChange(index, 'doc_t_end', e.target.value)}
+                        />
+                      </td>
+                      <td style={thStyle} >통과 여부 6</td>
+                      <td
+                        style={{
+                          ...tdStyle,
+                          fontWeight: "bold",
+                          color: item.doc_t_pass ? "green" : "red",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={item.doc_t_pass}
+                          onChange={(e) =>
+                            handleInputChange(index, "doc_t_pass", e.target.checked ? "true" : "false")
+                          }
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style={thStyle}>테스트 항목</th>
+                      <td colSpan={6} style={tdStyle}>
+                      <input
+                          type='text'
+                          value={item.doc_t_name}
+                          style={{width: 'calc(100% - 12px)', padding: '5px'}}
+                          onChange={(e) => handleInputChange(index, 'doc_t_name', e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                ))}            
+          </tbody>
+        </table>
+        <div style={{display: 'flex'}}>
+                <button onClick={() => setEdit(false)} style={editButtonStyle}>뒤로가기</button>
+                <button onClick={handleSave} style={editButtonStyle}>저장</button>
+              </div>
       </div>
     ) : (
         <div style={previewContainerStyle}>
