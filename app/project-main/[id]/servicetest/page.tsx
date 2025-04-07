@@ -1,6 +1,6 @@
 'use client';
 
-import { CSSProperties, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import MainHeader from "@/app/components/MainHeader";
 import MainSide from "@/app/components/MainSide";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,22 @@ type TestGroup = {
   doc_t_group1: string;    // 그룹(대분류) 이름
   // doc_t_group1no는 저장 시 자동 할당 (그룹의 배열 인덱스 사용)
   testCases: TestCase[];
+};
+
+type returnTest = {
+  RESULT_CODE: number;
+  RESULT_MSG: string;
+  PAYLOADS: testType[];
+};
+
+type testType = {
+  doc_t_no: number;
+  doc_t_group1: string;
+  doc_t_name: string;
+  doc_t_start: string;
+  doc_t_end: string;
+  doc_t_pass: number; // 혹은 boolean
+  doc_t_group1no: number;
 };
 
 export default function ServiceTestForm(props: any) {
@@ -159,6 +175,43 @@ export default function ServiceTestForm(props: any) {
     }
   };
 
+  const loadTestCases = async () => {
+    try {
+      const postData = { pid: props.params.id };
+      const response = await axios.post<returnTest>(
+        "https://cd-api.chals.kim/api/output/testcase_load",
+        postData,
+        { headers: { Authorization: process.env.SECRET_API_KEY } }
+      );
+      const testCases = response.data.PAYLOADS;
+      // 그룹별로 묶기 (doc_t_group1 기준)
+      const groupsMap: Record<string, TestGroup> = {};
+      testCases.forEach((tc) => {
+        const groupKey = tc.doc_t_group1; // 그룹명이 동일한 것끼리 묶음
+        if (!groupsMap[groupKey]) {
+          groupsMap[groupKey] = { doc_t_group1: groupKey, testCases: [] };
+        }
+        groupsMap[groupKey].testCases.push({
+          doc_t_name: tc.doc_t_name,
+          doc_t_start: tc.doc_t_start,
+          doc_t_end: tc.doc_t_end,
+          doc_t_pass: tc.doc_t_pass,
+        });
+      });
+      const groupsArray = Object.values(groupsMap);
+      setTestGroups(groupsArray);
+    } catch (error) {
+      console.error("테스트케이스 로드 에러:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadTestCases();
+  }, []);
+
+
+
+
   // 파일 업로드 관련 함수 (동일)
   const [tmpfile, setFile] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -231,7 +284,7 @@ export default function ServiceTestForm(props: any) {
                   {group.testCases.map((tc, caseIndex) => (
                     <React.Fragment key={caseIndex}>
                       <tr>
-                        <td style={thStyle}>테스트 제목 2</td>
+                        <td style={thStyle}>테스트 제목</td>
                         <td colSpan={2} style={tdStyle}>
                           <input
                             type="text"

@@ -141,6 +141,11 @@ export default function Signup() {
       return;
     }
 
+    if (password.length < 8){
+      alert("비밀번호는 8자리 이상 작성해주세요.")
+      return
+    }
+
     setIsLoading(true);
 
     try {

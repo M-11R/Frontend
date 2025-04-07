@@ -1270,7 +1270,7 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
                           onChange={(e) => handleInputChange(index, 'doc_t_end', e.target.value)}
                         />
                       </td>
-                      <td style={thStyle} >통과 여부 6</td>
+                      <td style={thStyle} >통과 여부</td>
                       <td
                         style={{
                           ...tdStyle,
