@@ -314,7 +314,7 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
       type="text"
       value={role}
       onChange={(e) => setRole(e.target.value)}
-      placeholder="예: 프론트엔드 담당"
+      placeholder="(예: 팀장, 프론트엔드 담당 등)"
       style={{
         width: '95%',
         padding: '12px',
@@ -329,14 +329,15 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
 <div style={{ marginTop: '16px', marginBottom: '8px' }}>
   <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>📌 권한 일괄 적용</span>
   <p style={{ fontSize: '13px', color: '#888', marginTop: '4px' }}>
-    아래 버튼을 눌러 모든 항목에 같은 권한을 적용할 수 있어요.
-  </p>
+  🔄 클릭 시 모든 항목에 동일한 권한을 설정합니다.
+</p>
 </div>
 
 
   </div>
   {permision ? (<div></div>):(
 
+  
   
 <div style={{display: "flex", flexDirection: 'column'}}>
   {/* 일괄 권한 적용 */}
@@ -350,13 +351,30 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
   <button type="button" onClick={() => setAllPermissions(0)} style={bulkButtonStyle}>
     🚫 권한 없음
   </button>
+
+  
 </div>
-
-
-  {/* 항목별 권한 설정 */}
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-    {Object.keys(permissions).map((key) => (
-      <div key={key} style={{
+  <div style={{ marginTop: '8px', textAlign: 'center' }}>
+  <p style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>
+    📌 각 항목의 권한을 선택해 주세요. <br />
+    예: 팀장은 <span style={{ color: '#F59E0B' }}>읽기 + 쓰기</span>, 팀원은 <span style={{ color: '#3B82F6' }}>읽기</span>로 설정하는 것을 추천합니다.
+  </p>
+</div>
+{/* 전체 권한 설정 영역에 스크롤 */}
+<div
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+    maxHeight: '360px', // 🔽 스크롤 제한 높이
+    overflowY: 'auto',
+    paddingRight: '4px', // 스크롤 여백
+  }}
+>
+  {Object.keys(permissions).map((key) => (
+    <div
+      key={key}
+      style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -364,25 +382,62 @@ export function UserConfigBtn({input, pid}: {input: inputType, pid: number}) {
         borderRadius: '10px',
         border: '1px solid #eee',
         backgroundColor: '#fafafa',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-      }}>
-        <span style={{ fontWeight: '500' }}>{key}</span>
-        <div style={{ display: 'flex', gap: '20px' }}>
-          {[2, 1, 0].map((val) => (
-            <label key={val} style={radioLabelStyle}>
-              <input 
-                type="radio"
-                value={val}
-                checked={permissions[key] === val}
-                onChange={(event) => handleClick(key, event)}
-              />
-            </label>
-          ))}
-        </div>
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+      }}
+    >
+      <span style={{ fontWeight: '500' }}>{key}</span>
+
+      <div style={{ display: 'flex', gap: '24px' }}>
+        {[2, 1, 0].map((val) => (
+          <label
+            key={val}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              color: val === 2 ? '#3B82F6' : val === 1 ? '#F59E0B' : '#9CA3AF',
+              cursor: 'pointer',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              backgroundColor:
+                permissions[key] === val
+                  ? 'rgba(59, 130, 246, 0.1)'
+                  : 'transparent',
+              transition: 'all 0.2s ease',
+              transform: permissions[key] === val ? 'scale(1.05)' : 'scale(1)',
+            }}
+          >
+            <input
+              type="radio"
+              value={val}
+              checked={permissions[key] === val}
+              onChange={(event) => handleClick(key, event)}
+              style={{
+                marginBottom: '6px',
+                accentColor:
+                  val === 2 ? '#3B82F6' : val === 1 ? '#F59E0B' : '#9CA3AF',
+              }}
+            />
+            {val === 2
+              ? '📘 읽기'
+              : val === 1
+              ? '✍️ 읽기 + 쓰기'
+              : '🚫 권한 없음'}
+          </label>
+        ))}
       </div>
-    ))}
-  </div>
-  </div>)}
+    </div>
+  ))}
+</div>
+
+
+
+</div>)}
+
+
+
   {/* 하단 버튼 영역 */}
   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '30px' }}>
     <button

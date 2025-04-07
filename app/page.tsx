@@ -1,71 +1,63 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { LoginModal } from "./components/AccountModal";
 import axios from "axios";
-import { getToken, getUnivId, getUserId, clearStorage } from "./util/storage";
+import { getToken, getName, getUserId, clearStorage } from "./util/storage";
 import useSessionGuard from "./util/checkAccount";
-
 
 export default function Home() {
   const [session, setSession] = useState(false);
-
-  // const sno = getUnivId();
   const id = getUserId();
   const token = getToken();
-  const check = useSessionGuard()
+  const check = useSessionGuard();
+  const name = getName();
+
   useEffect(() => {
-    if(check !== null){
-      if(check !== 0){
-        setSession(true)
-      }else{
-        setSession(false)
-        clearStorage()
+    if (check !== null) {
+      if (check !== 0) {
+        setSession(true);
+      } else {
+        setSession(false);
+        clearStorage();
       }
     }
-  }, [check])
+  }, [check]);
 
-  // const checkSession = async() => {
-  //   try{
-  //     const response = await axios.post("https://cd-api.chals.kim/api/acc/checksession", {user_id: id, token: token}, {headers: { Authorization: process.env.SECRET_API_KEY },});
-  //     if(response.data.RESULT_CODE === 200){
-  //       setSession(true)
-  //     }else{
-  //       setSession(false)
-  //       clearStorage()
-  //     }
-  //   }catch(err){
-  //     setSession(false)
-  //     clearStorage()
-  //   }
-  // }
-
-  const signOut = async() => {
-    try{
-        const response = await axios.post("https://cd-api.chals.kim/api/acc/signout", {token: token}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        if(response.data.RESULT_CODE === 200){
-            clearStorage();
-            setSession(false)
-            alert('로그아웃 되었습니다.');
+  const signOut = async () => {
+    try {
+      const response = await axios.post(
+        "https://cd-api.chals.kim/api/acc/signout",
+        { token },
+        { headers: { Authorization: process.env.SECRET_API_KEY } }
+      );
+      if (response.data.RESULT_CODE === 200) {
+        clearStorage();
+        setSession(false);
+        alert("로그아웃 되었습니다.");
+      }
+    } catch (err) {
+      try {
+        const response = await axios.post(
+          "https://cd-api.chals.kim/api/prof/signout",
+          { token },
+          { headers: { Authorization: process.env.SECRET_API_KEY } }
+        );
+        if (response.data.RESULT_CODE === 200) {
+          clearStorage();
+          setSession(false);
+          alert("로그아웃 되었습니다.");
         }
-    }catch(err){
-      try{
-        const response = await axios.post("https://cd-api.chals.kim/api/prof/signout", {token: token}, {headers:{Authorization: process.env.SECRET_API_KEY}});
-        if(response.data.RESULT_CODE === 200){
-            clearStorage();
-            setSession(false)
-            alert('로그아웃 되었습니다.');
-        }
-      }catch(err){}
+      } catch (err) {}
     }
-}
+  };
 
   return (
     <div
       style={{
-        backgroundImage: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)", // 부드러운 그라데이션 배경
-        height: '100vh',
+        backgroundImage: "linear-gradient(to bottom, #f0f0f0, #FFFFFF)",
+        height: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -75,7 +67,7 @@ export default function Home() {
         color: "#333",
       }}
     >
-      {/* 헤더 영역 */}
+      {/* 상단 로그인 버튼 */}
       <header
         style={{
           position: "absolute",
@@ -86,7 +78,6 @@ export default function Home() {
         }}
       >
         {session ? (
-          
           <button
             onClick={signOut}
             style={{
@@ -102,29 +93,37 @@ export default function Home() {
           >
             로그아웃
           </button>
-
-        ):(
+        ) : (
           <LoginModal />
         )}
-        
-        
       </header>
-      
 
-      {/* 메인 콘텐츠 */}
+      {/* 메인 콘텐츠 카드 */}
       <main
         style={{
           backgroundColor: "rgba(255, 255, 255, 0.95)",
-          padding: "50px",
-          borderRadius: "10px",
-          boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
+          padding: "40px 50px",
+          borderRadius: "12px",
+          boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
           textAlign: "center",
-          maxWidth: "600px",
+          maxWidth: "640px",
         }}
       >
+        {session && (
+          <p
+            style={{
+              fontSize: "1.2em",
+              marginBottom: "10px",
+              fontWeight: "bold",
+              color: "#22c55e",
+            }}
+          >
+            👋 {name}님, 환영합니다!
+          </p>
+        )}
         <h1
           style={{
-            fontSize: "3.5em",
+            fontSize: "3.2em",
             marginBottom: "20px",
             color: "#5858FA",
             fontWeight: "bold",
@@ -132,16 +131,16 @@ export default function Home() {
         >
           대학생을 위한 웹 기반 PMS
         </h1>
-        <p style={{ fontSize: "1.2em", lineHeight: "1.8", marginBottom: "30px" }}>
-          대학생 프로젝트 매니저. 사용자가 원하는 목표를 달성할 수 있도록 돕는
-          웹 애플리케이션입니다.
+        <p style={{ fontSize: "1.1em", lineHeight: "1.8", marginBottom: "30px" }}>
+          대학생 프로젝트 매니저. 팀원 관리, 산출물 제출, 업무 분장을 손쉽게 관리할 수 있는 도구입니다.
         </p>
+
         <Link href="/project-main" legacyBehavior>
           <a
             style={{
               display: "inline-block",
-              padding: "15px 30px",
-              fontSize: "1.2em",
+              padding: "14px 28px",
+              fontSize: "1.1em",
               color: "#FFFFFF",
               backgroundColor: "#5858FA",
               borderRadius: "8px",
@@ -150,17 +149,59 @@ export default function Home() {
               transition: "all 0.3s ease-in-out",
             }}
           >
-            프로젝트 시작하기
+            프로젝트 시작하기 🚀
           </a>
         </Link>
+
+        {/* 주요 기능 소개 */}
+        <div
+          style={{
+            marginTop: "40px",
+            display: "flex",
+            gap: "20px",
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
+          {[
+            { label: "📁 프로젝트 관리", desc: "팀별 프로젝트 설정 및 팀원 구성" },
+            { label: "📝 산출물 제출", desc: "회의록, 개요서, 보고서 업로드" },
+            { label: "✅ 역할 분담", desc: "각 팀원별 업무 권한 부여" },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              style={{
+                width: "180px",
+                background: "#f9f9ff",
+                borderRadius: "10px",
+                padding: "18px",
+                textAlign: "center",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                fontSize: "14px",
+              }}
+            >
+              <div style={{ fontWeight: "bold", marginBottom: "8px", color: "#4f46e5" }}>
+                {item.label}
+              </div>
+              <div style={{ color: "#666" }}>{item.desc}</div>
+            </div>
+          ))}
+        </div>
+
+
+        {/* 공지사항 */}
+        <div style={{ marginTop: "30px", fontSize: "13px", color: "#888" }}>
+          🔔 최근 업데이트: "팀장 자동 권한 부여 기능"이 추가되었습니다.
+        </div>
       </main>
 
-      {/* 푸터 영역 */}
+
+      {/* 푸터 */}
       <footer
         style={{
-          marginTop: "50px",
-          fontSize: "0.9em",
-          color: "#777",
+          marginTop: "40px",
+          fontSize: "0.85em",
+          color: "#999",
           textAlign: "center",
         }}
       >

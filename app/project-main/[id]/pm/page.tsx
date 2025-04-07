@@ -544,10 +544,29 @@ export default function ProjectManage(props: any){
                                 return (
                                     <div style={{width: '70%', minHeight: '700px',margin: '0 auto', display: 'flex', flexDirection: 'column', marginBottom: '0', overflowY: 'auto', marginTop: '30px'}}>
                                         {/**export 버튼 */}
-                                        <div style={{position: 'relative', width: '100%', minHeight: '33px',border: '0px solid #000', borderRadius: '5px', backgroundColor: 'lightgray', }}>
-                                            <button onClick={() => setExportModalOpen(true)} style={{position: 'absolute', right: '0', backgroundColor: 'lightgreen', padding: '5px 10px', borderRadius: '8px'}}>
-                                                프로젝트 저장하기
-                                            </button>
+                                        <div style={{position: 'relative', width: '100%', minHeight: '33px',border: '0px solid #000', borderRadius: '5px', }}>
+                                        <button
+  onClick={() => setExportModalOpen(true)}
+  style={{
+    position: 'absolute',
+    right: '0',
+    backgroundColor: '#22c55e', // PMS 메인 그린
+    color: '#fff',
+    padding: '10px 20px',
+    fontSize: '15px',
+    fontWeight: 600,
+    borderRadius: '8px',
+    border: 'none',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
+    transition: 'background 0.2s, transform 0.2s',
+    cursor: 'pointer'
+  }}
+  onMouseEnter={e => e.currentTarget.style.backgroundColor = '#16a34a'}
+  onMouseLeave={e => e.currentTarget.style.backgroundColor = '#22c55e'}
+>
+  📦 프로젝트 저장하기
+</button>
+
                                             <Modal isOpen={isExportModalOpen} closeModal={() => setExportModalOpen(false)}>
   <div
     style={{
