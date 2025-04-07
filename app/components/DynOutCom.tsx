@@ -1130,6 +1130,7 @@ type FieldProps = {
 export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
   const [edit, setEdit] = useState(false)
   const [data, setData] = useState<testType[]>([]);
+  const [defaultData, setDefaultData] = useState<testType[]>([])
   const [testTitle, setTestTitle] = useState('');
     const postData = {pid: pid};
 
@@ -1142,10 +1143,14 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
             // 찾은 항목의 group1no와 group1이 모두 같은 항목들을 필터링
             const filteredData = response.data.PAYLOADS.filter(
               (item) =>
-                item.doc_t_group1no === findData.doc_t_group1no &&
                 item.doc_t_group1 === findData.doc_t_group1
             );
+            const filteredData2 = response.data.PAYLOADS.filter(
+              (item) =>
+                item.doc_t_group1 !== findData.doc_t_group1
+            );
             setData(filteredData);
+            setDefaultData(filteredData2)
         }catch(err){}
     }
 
@@ -1159,10 +1164,10 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
       doc_t_group1: testTitle
     }))
 
-
+    const finalData = [...updateData, ...defaultData]
 
     try{
-      const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_update", {pid: pid, testcases: updateData}, {headers:{Authorization: process.env.SECRET_API_KEY}});
+      const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_update", {pid: pid, testcases: finalData}, {headers:{Authorization: process.env.SECRET_API_KEY}});
       router.push(`/project-main/${pid}/outputManagement`)
       alert('저장되었습니다.')
     }catch(err){}
@@ -1235,7 +1240,7 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
     return(
       (edit) ? (
       <div style={previewContainerStyle}>
-        <h2>ver. 12</h2>
+        <h2>ver. 13</h2>
         <div style={{display: 'flex'}}>
           <h2>테스트 그룹: </h2>
             <input 
@@ -1265,7 +1270,7 @@ export const OutputTest = ({oid, pid}: {oid: number, pid: number}) => {
                           onChange={(e) => handleInputChange(index, 'doc_t_end', e.target.value)}
                         />
                       </td>
-                      <td style={thStyle} >통과 여부 6</td>
+                      <td style={thStyle} >통과 여부</td>
                       <td
                         style={{
                           ...tdStyle,

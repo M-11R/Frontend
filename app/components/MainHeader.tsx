@@ -140,6 +140,10 @@ const MainHeader = ({ pid }: { pid: number }) => {
     }
   }, [pid, session])
 
+  if(session === 0){
+    router.push('/')
+  }
+
   return (
     <header
       style={{

@@ -13,8 +13,13 @@ import {
 
 const MainSide = ({ pid }: { pid: number }) => {
   const router = useRouter();
-  const tmpUnivId = getUnivId();
-  const myName = getName();
+  const [myName, setMyName] = useState<string>("");
+  const [univId, setUnivId] = useState<number>(0);
+
+  useEffect(() => {
+    setMyName(getName());
+    setUnivId(getUnivId());
+  }, []);
 
   const [showGrade, setShowGrade] = useState(false);
 
@@ -159,7 +164,7 @@ const MainSide = ({ pid }: { pid: number }) => {
           </button>
         </div>
         <p style={{ fontSize: "14px", margin: "4px 0" }}>이름 : {myName}</p>
-        <p style={{ fontSize: "14px", margin: "4px 0" }}>학번/교번 : {tmpUnivId}</p>
+        <p style={{ fontSize: "14px", margin: "4px 0" }}>학번/교번 : {univId}</p>
       </div>
 
       {/* 메뉴 영역 */}

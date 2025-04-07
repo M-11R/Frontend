@@ -112,8 +112,8 @@ export default function FindPassword() {
 
   // 🔹 비밀번호 변경 요청
   const handleResetPassword = async () => {
-    if (newPassword.length < 6) {
-      setMessage("❌ 비밀번호는 최소 6자 이상이어야 합니다.");
+    if (newPassword.length < 8) {
+      setMessage("❌ 비밀번호는 최소 8자 이상이어야 합니다.");
       return;
     }
     if(newPassword !== newPassword2){

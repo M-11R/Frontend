@@ -3,6 +3,7 @@ import MainSide from '@/app/components/MainSide';
 import Pagenation from '@/app/components/pagenation';
 import Link from 'next/link';
 import DocumentTable from '@/app/components/DocumentTable';
+import DocumentTable2 from '@/app/components/DocumentTable2';
 
 export default function OutputManagement({ params, searchParams }: { params: { id: number }; searchParams: { page?: string } }) {
     const page = parseInt(searchParams.page || '1', 10);
@@ -43,7 +44,8 @@ export default function OutputManagement({ params, searchParams }: { params: { i
                         </p>
                     </div>
 
-                    <DocumentTable page={page} pid={params.id} />
+                    {/* <DocumentTable page={page} pid={params.id} /> */}
+                    <DocumentTable2 pid={params.id} />
                 </div>
             </div>
         </div>
