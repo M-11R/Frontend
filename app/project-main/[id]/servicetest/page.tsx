@@ -238,7 +238,7 @@ export default function ServiceTestForm(props: any) {
           {testGroups.map((group, groupIndex) => (
             <div key={groupIndex} style={groupContainerStyle}>
               <div style={groupHeaderStyle}>
-                <label>항목:  <SectionTooltip message="테스트 항목 그룹명을 입력하세요. 기능별로 구분할 수 있습니다." />  </label>
+                <label>항목:  <SectionTooltip message={"테스트 항목 그룹명별로 구분할 수 있습니다.\n테스트 시나리오의 제목과 완료 여부, 기간을 설정해주세요."} />  </label>
                 <input
                   type="text"
                   value={group.doc_t_group1}
@@ -254,7 +254,7 @@ export default function ServiceTestForm(props: any) {
                   {group.testCases.map((tc, caseIndex) => (
                     <React.Fragment key={caseIndex}>
                       <tr>
-                        <td style={thStyle}>테스트 제목<SectionTooltip message="테스트 시나리오의 제목을 입력하세요." /></td>
+                        <td style={thStyle}>테스트 제목</td>
                         <td colSpan={2} style={tdStyle}>
                           <input
                             type="text"
@@ -263,7 +263,7 @@ export default function ServiceTestForm(props: any) {
                             style={{ width: "90%", padding: "8px" }}
                           />
                         </td>
-                        <td style={thStyle}>테스트 통과 여부  <SectionTooltip message="테스트가 성공적으로 완료되었는지 체크하세요." /></td>
+                        <td style={thStyle}>테스트 통과 여부</td>
                         <td style={tdStyle}>
                           <input
                             type="checkbox"
@@ -275,7 +275,7 @@ export default function ServiceTestForm(props: any) {
                         </td>
                       </tr>
                       <tr>
-                        <td style={thStyle}>테스트 시작일<SectionTooltip message="테스트를 시작한 날짜를 입력하세요." /></td>
+                        <td style={thStyle}>테스트 시작일</td>
                         <td style={tdStyle}>
                           <input
                             type="date"
@@ -284,7 +284,7 @@ export default function ServiceTestForm(props: any) {
                             style={{ width: "100%" }}
                           />
                         </td>
-                        <td style={thStyle}>테스트 종료일 <SectionTooltip message="테스트가 종료된 날짜를 입력하세요." /></td>
+                        <td style={thStyle}>테스트 종료일</td>
                         <td style={tdStyle}>
                           <input
                             type="date"

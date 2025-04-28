@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 
-export default function SectionTooltip({ message }: { message: string }) {
+export default function SectionTooltipWithChild({ children }: { children: ReactNode }) {
   const [hover, setHover] = useState(false)
 
   return (
@@ -39,7 +39,7 @@ export default function SectionTooltip({ message }: { message: string }) {
         <div
           style={{
             position: 'absolute',
-            top: '28px',          // 아래로
+            top: '23px',          // 아래로
             left: '80%',          // 🎯 오른쪽으로 더 치우치게
             transform: 'translateX(-10%)',
             backgroundColor: '#333',
@@ -47,12 +47,13 @@ export default function SectionTooltip({ message }: { message: string }) {
             padding: '10px 14px',
             borderRadius: '8px',
             fontSize: '13px',
-            whiteSpace: 'pre',
+            whiteSpace: 'nowrap',
             boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
             zIndex: 9999,
+            pointerEvents: 'auto',
           }}
         >
-          {message}
+          {children}
         </div>
       )}
     </span>

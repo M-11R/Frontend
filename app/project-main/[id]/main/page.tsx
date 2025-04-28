@@ -12,6 +12,7 @@ import usePermissionGuard from "@/app/util/usePermissionGuard";
 import { getUnivId } from "@/app/util/storage";
 import LLMManagement from "@/app/components/LLMManagement";
 import { useCallback } from "react";
+import SectionTooltip from "@/app/components/SectionTooltip";
 
 
 type wbs = {
@@ -212,7 +213,10 @@ setTeam(tmp2);
       >
         {`${persent}%`}
       </div>
-      <div style={{ textAlign: "center", fontSize: "14px", marginTop: "10px" }}>진척도</div>
+      <div style={{ textAlign: "center", fontSize: "14px", marginTop: "10px" }}>
+        진척도
+        <SectionTooltip message={"전체 진척도는 각 작업(WBS 항목)들의 진척도를 모두 합한 뒤, 작업 항목의 수로 나눈 평균 값입니다."}/>
+      </div>
     </div>
 
     {/* 막대형 카테고리 진척도 or 안내문 */}
@@ -384,6 +388,7 @@ setTeam(tmp2);
             >
               <div style={{ marginBottom: "10px", display: 'flex', position: 'relative'}}>
                 <span style={{fontSize: "16px", fontWeight: "bold" }}>PMS Advisor</span>
+                <SectionTooltip message={"Google Gemini를 활용한 LLM입니다. \n팀장이 API Key를 입력해주세요."}/>
                 {(leaderPermission === null || !leaderPermission) ? (<div></div>) : (
                   <div style={{position: 'absolute', right: '0', bottom: '0'}}><LLMManagement pid={props.params.id}/></div>
                 )}

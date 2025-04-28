@@ -173,7 +173,7 @@ export default function ReportForm(props: any) {
       <div style={layoutStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentStyle}>
-          <h2 style={titleStyle}>📑 보고서 작성1a <SectionTooltip message="프로젝트의 경과와 성과를 요약 정리하여 보고 및 공유하는 문서입니다." /> </h2>
+          <h2 style={titleStyle}>📑 보고서 작성 <SectionTooltip message="프로젝트의 경과와 성과를 요약 정리하여 보고 및 공유하는 문서입니다." /> </h2>
 
           <table style={tableStyle}>
             <tbody>
