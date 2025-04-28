@@ -8,6 +8,9 @@ import axios from "axios";
 import { getUnivId } from "@/app/util/storage";
 import usePermissionGuard from "@/app/util/usePermissionGuard";
 import React from "react";
+import SectionTooltip from "@/app/components/SectionTooltip"
+
+
 
 // 테스트 항목 타입 (하위 항목)
 type TestCase = {
@@ -165,7 +168,7 @@ export default function ServiceTestForm(props: any) {
     };
 
     try {
-      const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_add", data, {
+      const response = await axios.post("https://cd-api.chals.kim/api/output/testcase_update", data, {
         headers: { Authorization: process.env.SECRET_API_KEY },
       });
       alert('저장이 완료 되었습니다.')
@@ -184,10 +187,25 @@ export default function ServiceTestForm(props: any) {
         { headers: { Authorization: process.env.SECRET_API_KEY } }
       );
       const testCases = response.data.PAYLOADS;
-      // 그룹별로 묶기 (doc_t_group1 기준)
+  
+      // INITTEST 그룹이 있으면, 기본값만 가진 하나의 그룹으로 세팅하고 종료 요거 백엔드에서 데이터 받고있나요..? 지워도 계속 남아있던데데
+      if (testCases.some((tc) => tc.doc_t_group1 === "INITTEST")) {
+        setTestGroups([{
+          doc_t_group1: "", 
+          testCases: [{
+            doc_t_name: "",
+            doc_t_start: "",
+            doc_t_end: "",
+            doc_t_pass: 0,
+          }],
+        }]);
+        return;
+      }
+  
+      // 그렇지 않으면 정상적으로 그룹핑
       const groupsMap: Record<string, TestGroup> = {};
       testCases.forEach((tc) => {
-        const groupKey = tc.doc_t_group1; // 그룹명이 동일한 것끼리 묶음
+        const groupKey = tc.doc_t_group1;
         if (!groupsMap[groupKey]) {
           groupsMap[groupKey] = { doc_t_group1: groupKey, testCases: [] };
         }
@@ -198,8 +216,8 @@ export default function ServiceTestForm(props: any) {
           doc_t_pass: tc.doc_t_pass,
         });
       });
-      const groupsArray = Object.values(groupsMap);
-      setTestGroups(groupsArray);
+  
+      setTestGroups(Object.values(groupsMap));
     } catch (error) {
       console.error("테스트케이스 로드 에러:", error);
     }
@@ -209,66 +227,18 @@ export default function ServiceTestForm(props: any) {
     loadTestCases();
   }, []);
 
-
-
-
-  // 파일 업로드 관련 함수 (동일)
-  const [tmpfile, setFile] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const handleResetFile = () => {
-    setFile([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(Array.from(e.target.files));
-    }
-  };
-
-  const handleUploadFile = async (doc_id: number) => {
-    if (tmpfile.length === 0) return;
-    const tmppid: number = props.params.id;
-    const tmpunivid = getUnivId();
-    const formData = new FormData();
-    tmpfile.forEach((file) => {
-      formData.append("files", file);
-    });
-    formData.append("p_no", tmppid.toString());
-    formData.append("doc_no", doc_id.toString());
-    formData.append("doc_type", "4");
-    formData.append("univ_id", tmpunivid.toString());
-
-    try {
-      const response = await axios.post(
-        "https://cd-api.chals.kim/api/output/attach_add",
-        formData,
-        { headers: { Authorization: process.env.SECRET_API_KEY } }
-      );
-
-      if (response.data.RESULT_CODE === 200) {
-        router.push(`/project-main/${props.params.id}/outputManagement`);
-      }
-    } catch (err) {
-      alert("❌ 파일 업로드 실패");
-    }
-  };
-
   return (
     <div style={outerContainerStyle}>
       <MainHeader pid={props.params.id} />
       <div style={layoutContainerStyle}>
         <MainSide pid={props.params.id} />
         <div style={contentContainerStyle}>
-          <h2 style={sectionHeaderStyle}>📝테스트 케이스 작성</h2>
+          <h2 style={sectionHeaderStyle}>📝테스트 케이스 작성 <SectionTooltip message="시스템 기능이 요구사항대로 동작하는지 검증하기 위한 테스트 시나리오입니다." /> </h2>
 
           {testGroups.map((group, groupIndex) => (
             <div key={groupIndex} style={groupContainerStyle}>
               <div style={groupHeaderStyle}>
-                <label>항목: </label>
+                <label>항목:  <SectionTooltip message="테스트 항목 그룹명을 입력하세요. 기능별로 구분할 수 있습니다." />  </label>
                 <input
                   type="text"
                   value={group.doc_t_group1}
@@ -284,7 +254,7 @@ export default function ServiceTestForm(props: any) {
                   {group.testCases.map((tc, caseIndex) => (
                     <React.Fragment key={caseIndex}>
                       <tr>
-                        <td style={thStyle}>테스트 제목</td>
+                        <td style={thStyle}>테스트 제목<SectionTooltip message="테스트 시나리오의 제목을 입력하세요." /></td>
                         <td colSpan={2} style={tdStyle}>
                           <input
                             type="text"
@@ -293,7 +263,7 @@ export default function ServiceTestForm(props: any) {
                             style={{ width: "90%", padding: "8px" }}
                           />
                         </td>
-                        <td style={thStyle}>테스트 통과 여부</td>
+                        <td style={thStyle}>테스트 통과 여부  <SectionTooltip message="테스트가 성공적으로 완료되었는지 체크하세요." /></td>
                         <td style={tdStyle}>
                           <input
                             type="checkbox"
@@ -305,7 +275,7 @@ export default function ServiceTestForm(props: any) {
                         </td>
                       </tr>
                       <tr>
-                        <td style={thStyle}>테스트 시작일</td>
+                        <td style={thStyle}>테스트 시작일<SectionTooltip message="테스트를 시작한 날짜를 입력하세요." /></td>
                         <td style={tdStyle}>
                           <input
                             type="date"
@@ -314,7 +284,7 @@ export default function ServiceTestForm(props: any) {
                             style={{ width: "100%" }}
                           />
                         </td>
-                        <td style={thStyle}>테스트 종료일</td>
+                        <td style={thStyle}>테스트 종료일 <SectionTooltip message="테스트가 종료된 날짜를 입력하세요." /></td>
                         <td style={tdStyle}>
                           <input
                             type="date"

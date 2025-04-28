@@ -236,20 +236,25 @@ export const OutputEtc = ({oid, pid}: {oid: number, pid: number}) => {
                             {/* <a href='https://google.com' target='_blank' rel='noopener noreferror' style={{textDecoration: 'none', fontSize: '15px'}}>
                                 {data?.file_name}
                             </a> */}
+                            <div style={{float: 'right'}}><DynOutDelbtn data={{type: MsBox.outType.etc.value, oid: data?.file_no ?? -1}} pid={pid}/></div>
                             <button
                                 onClick={handleDownload}
                                 style={{
-                                    padding: '10px 20px',
+                                    padding: '8px 20px',
                                     backgroundColor: '#007BFF',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '5px',
                                     cursor: 'pointer',
+                                    float: 'right',
+                                    marginRight: '15px'
                                 }}
                                 >
                                 파일 다운로드
                                 </button>
+                                
                         </div>
+                        
                     </td>
                 </tr>
                 <tr style={{borderBottom: '0'}}>
@@ -1405,6 +1410,9 @@ export const OutputReq = ({oid, pid}: {oid: number, pid: number}) => {
           pid: pid,
           doc_r_no: oid,
           add_date: creationDate
+
+          // add_date: str
+          
         };
     
         try {
